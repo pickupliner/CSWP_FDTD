@@ -1,5 +1,6 @@
 import numpy as np
 import scipy
+import scipy.special as fns
 
 # Not finished yet (validation)
 # Constants (mu, N_S, ..) are placeholders
@@ -64,8 +65,8 @@ def f(n):
     def f(rho):
         # if d_1 + d_2 = d_0 then rho is on the line
         d_0 = l[n]
-        d_1 = np.linalg.norm(rho - curve_points[:,n])
-        d_2 = np.linalg.norm(curve_points[:,n+1] - rho)
+        d_1 = np.linalg.norm(rho - curve_points[:,n], axis=0)
+        d_2 = np.linalg.norm(curve_points[:,n+1] - rho, axis=0)
         return np.isclose(d_1 + d_2, d_0)
     return f
 
@@ -122,3 +123,28 @@ def U_fn(rho, t):
     discrete_f = f(np.arange(1, N_S + 1))
     discrete_T = T(np.arange(1, N_T + 1))
     return np.einsum("ni,n,i", U, discrete_f(rho), discrete_T(t))
+
+# Analytical solution
+# This is for incoming field e^jkx
+# TODO solution for assigned field
+
+def e_z(rho):
+    phi = np.atan2(rho[_y], rho[_x])  # rad
+    rho = np.linalg.norm(rho, axis=0) # m
+    a = R                             # m
+    k = 1                             # 1/m TODO
+
+    n = np.arange()
+    return np.sum(1j**n * (fns.jn(n, k*rho) - fns.jn(k*a)/fns.hankel2(n, k*a)*fns.hankel2(k*rho)) * np.exp(1j * n * phi))
+
+# d e_z / d rho = sum j^n (k J_n'(k rho) - k J_n(k a) / H_n^(2)(k a) * H_n^(2)'(k rho)) e^(j n phi)
+# at a: sum j^n k (J_n'(k a) H_n^(2)(k a) - J_n(k a) * H_n^(2)'(k a)) / H_n^(2)(k a) * e^(j n phi)
+# using Wronskian: 2 j j^n k e^(j n phi) / pi k a H_n^(2)(k a) 
+
+def j_z(phi):
+    omega = 1 # rad TODO
+    k = 1     # TODO
+    a = R     # m
+
+    n = np.arange()
+    return 2 * 1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a)
