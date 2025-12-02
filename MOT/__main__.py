@@ -175,7 +175,7 @@ plt.show()
 #     a = R                             # m
 #     k = 1                             # 1/m TODO
 
-#     n = np.arange(3*np.ceil(np.min([k*rho, k*a], axis=0)))
+#     n = np.arange(np.ceil(np.min([k*rho, k*a], axis=0)) + 2)
 #     return np.sum(1j**n * (fns.jn(n, k*rho) - fns.jn(k*a)/fns.hankel2(n, k*a)*fns.hankel2(k*rho)) * np.exp(1j * n * phi))
 
 # d e_z / d rho = sum j^n (k J_n'(k rho) - k J_n(k a) / H_n^(2)(k a) * H_n^(2)'(k rho)) e^(j n phi)
@@ -187,7 +187,7 @@ def j_z(phi):
     k = 1     # rad/m TODO
     a = R     # m
 
-    n = np.arange(3*np.ceil(k*a)).reshape(-1, 1)
+    n = np.arange(np.ceil(k*a) + 2).reshape(-1, 1)
     return 1/1j/omega/mu * 2 * np.sum(1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=0)
 phi = np.linspace(0, 2*np.pi, 128)
 plt.plot(phi, j_z(phi)[1], label=f"{omega[1]} rad/s")
