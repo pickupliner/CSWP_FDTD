@@ -1,6 +1,7 @@
 import numpy as np
 import scipy
 import scipy.special as fns
+import matplotlib.pyplot as plt
 
 # Not finished yet (validation)
 # Constants (mu, N_S, ..) are placeholders
@@ -31,6 +32,9 @@ def curve(s):
     return R*np.array([np.cos(arg), np.sin(arg)]) # m  (2, s.shape)
 # (the first and last point are equal for simplicity)
 curve_points = curve(np.linspace(0, 1, N_S + 1))          # m  (2, N_S + 1)
+plt.plot(*curve_points)
+plt.title("Geometry")
+plt.show()
 # tangential vectors to each segment
 tangents = curve_points[:,1:] - curve_points[:,:-1]       # m  (2, N_S)
 # length of each vector
@@ -45,12 +49,18 @@ def rho_n(s):
 
 # incident wave
 
-# incident field
+t_0 = 0.000_3 # s
+T = 100_000 # m
 def E_i(rho, t):
-    t_0 = 3 # s
-    T = 1 # m
     gamma = 4/T * (c*(t - t_0) - rho[_x])         # 1
     return 4/T/np.sqrt(np.pi) * np.exp(-gamma**2) # 1/m
+x = np.linspace(-T, T, 100).reshape((100,1))
+t = np.linspace(0, 2*t_0, 100).reshape((1,100))
+plt.pcolormesh(*np.meshgrid(x, t), E_i([x, 0], t))
+plt.title("E_i")
+plt.xlabel("x (m)")
+plt.ylabel("t (s)")
+plt.show()
 
 # basis functions
 
@@ -59,16 +69,29 @@ def T(i):
     def T(t):
         return np.where((-dt < t) & (t < 0), 1, 0)
     return lambda t: T(t - i*dt)
+t = np.linspace(dt, 4*dt, 100)
+plt.plot(t, T(3)(t))
+plt.title("basis function T$_3$")
+plt.xlabel("t (s)")
+plt.show()
 
 # f(n)(rho) = 1 if rho is on segment n
 def f(n):
     def f(rho):
         # if d_1 + d_2 = d_0 then rho is on the line
         d_0 = l[n]
-        d_1 = np.linalg.norm(rho - curve_points[:,n], axis=0)
-        d_2 = np.linalg.norm(curve_points[:,n+1] - rho, axis=0)
+        d_1 = np.linalg.norm(rho - curve_points[:,n], axis=-1)
+        d_2 = np.linalg.norm(curve_points[:,n+1] - rho, axis=-1)
         return np.isclose(d_1 + d_2, d_0)
     return f
+x = np.linspace(0, R, 1_000)
+y = np.linspace(0, R, 1_000)
+mesh = np.array(np.meshgrid(x, y))
+plt.pcolormesh(*mesh, f(2)(mesh.T).T)
+plt.title("basis function f$_2$")
+plt.xlabel("x (m)")
+plt.ylabel("y (m)")
+plt.show()
 
 def F(k, rho_m, rho_prime):
     tmp = np.linalg.norm(rho_m.reshape(rho_m.shape + (1,1,1,)) - rho_prime, axis=0)/c
@@ -124,6 +147,13 @@ def U_fn(rho, t):
     discrete_T = T(np.arange(1, N_T + 1))
     return np.einsum("ni,n,i", U, discrete_f(rho), discrete_T(t))
 
+u = np.fft.rfft(U, axis=0) # u_i,n = u(rho_n, omega_i)
+omega = np.fft.fftfreq(U.shape[0]).reshape((1, -1))
+j = u / 1j / omega / mu
+
+A = np.exp(-1j * omega * t_0 - (T * omega / 8 / c)**2) / c
+j_0 = j / A
+
 # Analytical solution
 # This is for incoming field e^jkx
 # TODO solution for assigned field
@@ -142,9 +172,9 @@ def e_z(rho):
 # using Wronskian: 2 j j^n k e^(j n phi) / pi k a H_n^(2)(k a) 
 
 def j_z(phi):
-    omega = 1 # rad TODO
+    # omega = 1 # rad TODO
     k = 1     # TODO
     a = R     # m
 
     n = np.arange()
-    return 2 * 1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a)
+    return 1/1j/omega/mu * 2 * 1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a)
