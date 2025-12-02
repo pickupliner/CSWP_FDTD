@@ -4,23 +4,23 @@ import scipy.special as fns
 import matplotlib.pyplot as plt
 
 # Not finished yet (validation)
-# Constants (mu, N_S, ..) are placeholders
+# Constants (N_S, ..) are placeholders
 # Indices are a bit of a mess, my apologies
 
 # indices to get x- and y-coordinate
 _x, _y = 0, 1
 # speed of wave
 c = 3e8 # m/s
-# permeability TODO
-mu = 1
+# permeability
+mu = np.pi*4e-7 # H/m
 
 # spatial points
-N_S = 17
+N_S = 32
 # temporal 
-N_T = 11
-dt = 0.3 # s
+N_T = 128
+dt = 0.000_003 # s
 # Gauss quad order
-N_G = 7
+N_G = 16
 
 # curve
 
@@ -49,49 +49,50 @@ def rho_n(s):
 
 # incident wave
 
-t_0 = 0.000_3 # s
-T = 100_000 # m
+t_0 = N_T/2 * dt # s
+T = c*t_0 * 2 # m
 def E_i(rho, t):
     gamma = 4/T * (c*(t - t_0) - rho[_x])         # 1
     return 4/T/np.sqrt(np.pi) * np.exp(-gamma**2) # 1/m
-x = np.linspace(-T, T, 100).reshape((100,1))
-t = np.linspace(0, 2*t_0, 100).reshape((1,100))
-plt.pcolormesh(*np.meshgrid(x, t), E_i([x, 0], t))
+x = np.linspace(-T, T, 128).reshape((-1,1))
+t = np.linspace(0, N_T*dt, N_T).reshape((1,-1))
+cm = plt.pcolormesh(*np.meshgrid(x, t), E_i([x, 0], t).T)
 plt.title("E_i")
 plt.xlabel("x (m)")
 plt.ylabel("t (s)")
+plt.colorbar(cm)
 plt.show()
 
-# basis functions
+# # basis functions
 
-# T(i)(t) = 1 if (i-1) dt < t < i dt
-def T(i):
-    def T(t):
-        return np.where((-dt < t) & (t < 0), 1, 0)
-    return lambda t: T(t - i*dt)
-t = np.linspace(dt, 4*dt, 100)
-plt.plot(t, T(3)(t))
-plt.title("basis function T$_3$")
-plt.xlabel("t (s)")
-plt.show()
+# # T(i)(t) = 1 if (i-1) dt < t < i dt
+# def T_basis(i):
+#     def T(t):
+#         return np.where((-dt < t) & (t < 0), 1, 0)
+#     return lambda t: T(t - i*dt)
+# t = np.linspace(dt, 4*dt, 100)
+# plt.plot(t, T_basis(3)(t))
+# plt.title("basis function T$_3$")
+# plt.xlabel("t (s)")
+# plt.show()
 
-# f(n)(rho) = 1 if rho is on segment n
-def f(n):
-    def f(rho):
-        # if d_1 + d_2 = d_0 then rho is on the line
-        d_0 = l[n]
-        d_1 = np.linalg.norm(rho - curve_points[:,n], axis=-1)
-        d_2 = np.linalg.norm(curve_points[:,n+1] - rho, axis=-1)
-        return np.isclose(d_1 + d_2, d_0)
-    return f
-x = np.linspace(0, R, 1_000)
-y = np.linspace(0, R, 1_000)
-mesh = np.array(np.meshgrid(x, y))
-plt.pcolormesh(*mesh, f(2)(mesh.T).T)
-plt.title("basis function f$_2$")
-plt.xlabel("x (m)")
-plt.ylabel("y (m)")
-plt.show()
+# # f(n)(rho) = 1 if rho is on segment n
+# def f(n):
+#     def f(rho):
+#         # if d_1 + d_2 = d_0 then rho is on the line
+#         d_0 = l[n]
+#         d_1 = np.linalg.norm(rho - curve_points[:,n], axis=-1)
+#         d_2 = np.linalg.norm(curve_points[:,n+1] - rho, axis=-1)
+#         return np.isclose(d_1 + d_2, d_0)
+#     return f
+# x = np.linspace(0, R, 1_000)
+# y = np.linspace(0, R, 1_000)
+# mesh = np.array(np.meshgrid(x, y))
+# plt.pcolormesh(*mesh, f(2)(mesh.T).T)
+# plt.title("basis function f$_2$")
+# plt.xlabel("x (m)")
+# plt.ylabel("y (m)")
+# plt.show()
 
 def F(k, rho_m, rho_prime):
     tmp = np.linalg.norm(rho_m.reshape(rho_m.shape + (1,1,1,)) - rho_prime, axis=0)/c
@@ -142,39 +143,57 @@ for j in range(1, N_T):
     U[:,j], exitCode = scipy.sparse.linalg.gmres(A, -V(j) - tmp)
     assert exitCode == 0
 
-def U_fn(rho, t):
-    discrete_f = f(np.arange(1, N_S + 1))
-    discrete_T = T(np.arange(1, N_T + 1))
-    return np.einsum("ni,n,i", U, discrete_f(rho), discrete_T(t))
+# def U_fn(rho, t):
+#     discrete_f = f(np.arange(1, N_S + 1))
+#     discrete_T = T_basis(np.arange(1, N_T + 1))
+#     return np.einsum("ni,n,i", U, discrete_f(rho), discrete_T(t))
 
 u = np.fft.rfft(U, axis=0) # u_i,n = u(rho_n, omega_i)
-omega = np.fft.fftfreq(U.shape[0]).reshape((1, -1))
+omega = np.fft.rfftfreq(U.shape[0]).reshape((-1, 1))
 j = u / 1j / omega / mu
 
 A = np.exp(-1j * omega * t_0 - (T * omega / 8 / c)**2) / c
+plt.plot(omega, A)
+plt.title("spectrum excitation")
+plt.xlabel("omega (rad/s)")
+plt.ylabel("A (s/m)")
+plt.show()
 j_0 = j / A
+plt.plot(omega, j_0[:,0], label=f"{curve_points[:,0]} m")
+plt.plot(omega, j_0[:,N_S//2], label=f"{curve_points[:,N_S//2]} m")
+plt.title(f"j$_0$")
+plt.legend()
+plt.xlabel("omega (rad/s)")
+plt.show()
 
 # Analytical solution
 # This is for incoming field e^jkx
-# TODO solution for assigned field
 
-def e_z(rho):
-    phi = np.atan2(rho[_y], rho[_x])  # rad
-    rho = np.linalg.norm(rho, axis=0) # m
-    a = R                             # m
-    k = 1                             # 1/m TODO
+# def e_z(rho):
+#     phi = np.atan2(rho[_y], rho[_x])  # rad
+#     rho = np.linalg.norm(rho, axis=0) # m
+#     a = R                             # m
+#     k = 1                             # 1/m TODO
 
-    n = np.arange()
-    return np.sum(1j**n * (fns.jn(n, k*rho) - fns.jn(k*a)/fns.hankel2(n, k*a)*fns.hankel2(k*rho)) * np.exp(1j * n * phi))
+#     n = np.arange(3*np.ceil(np.min([k*rho, k*a], axis=0)))
+#     return np.sum(1j**n * (fns.jn(n, k*rho) - fns.jn(k*a)/fns.hankel2(n, k*a)*fns.hankel2(k*rho)) * np.exp(1j * n * phi))
 
 # d e_z / d rho = sum j^n (k J_n'(k rho) - k J_n(k a) / H_n^(2)(k a) * H_n^(2)'(k rho)) e^(j n phi)
 # at a: sum j^n k (J_n'(k a) H_n^(2)(k a) - J_n(k a) * H_n^(2)'(k a)) / H_n^(2)(k a) * e^(j n phi)
-# using Wronskian: 2 j j^n k e^(j n phi) / pi k a H_n^(2)(k a) 
+# using Wronskian: sum 2 j j^n k e^(j n phi) / pi k a H_n^(2)(k a) 
 
 def j_z(phi):
     # omega = 1 # rad TODO
-    k = 1     # TODO
+    k = 1     # rad/m TODO
     a = R     # m
 
-    n = np.arange()
-    return 1/1j/omega/mu * 2 * 1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a)
+    n = np.arange(3*np.ceil(k*a)).reshape(-1, 1)
+    return 1/1j/omega/mu * 2 * np.sum(1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=0)
+phi = np.linspace(0, 2*np.pi, 128)
+plt.plot(phi, j_z(phi)[1], label=f"{omega[1]} rad/s")
+plt.plot(phi, j_z(phi)[2], label=f"{omega[2]} rad/s")
+plt.plot(phi, j_z(phi)[3], label=f"{omega[3]} rad/s")
+plt.title(f"analytical j$_z$")
+plt.xlabel("phi (rad)")
+plt.legend()
+plt.show()
