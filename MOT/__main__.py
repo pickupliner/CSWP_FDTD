@@ -2,6 +2,7 @@ import numpy as np
 import scipy
 import scipy.special as fns
 import matplotlib.pyplot as plt
+import functools
 
 # Not finished yet (validation)
 # Constants (N_S, ..) are placeholders
@@ -14,17 +15,19 @@ c = 3e8 # m/s
 # permeability
 mu = np.pi*4e-7 # H/m
 
+# radius of cilinder
+R = 1 # m
+
 # spatial points
 N_S = 32
 # temporal 
-N_T = 128
-dt = 0.000_003 # s
+N_T = 512
+dt = np.pi*R/c # s
 # Gauss quad order
-N_G = 16
+N_G = 8
 
 # curve
 
-R = 1 # m
 def curve(s):
     # curve(0) = curve(1)
     # s in range [0, 1]
@@ -49,15 +52,15 @@ def rho_n(s):
 
 # incident wave
 
-t_0 = N_T/2 * dt # s
-T = c*t_0 * 2 # m
+t_0 = N_T/np.log2(N_T/8) * dt # s
+T = c*t_0 / np.sqrt(2*np.pi) /2 # m
 def E_i(rho, t):
     gamma = 4/T * (c*(t - t_0) - rho[_x])         # 1
     return 4/T/np.sqrt(np.pi) * np.exp(-gamma**2) # 1/m
 x = np.linspace(-T, T, 128).reshape((-1,1))
 t = np.linspace(0, N_T*dt, N_T).reshape((1,-1))
 cm = plt.pcolormesh(*np.meshgrid(x, t), E_i([x, 0], t).T)
-plt.title("E_i")
+plt.title("incoming field E$^i$")
 plt.xlabel("x (m)")
 plt.ylabel("t (s)")
 plt.colorbar(cm)
@@ -105,6 +108,9 @@ s, w = np.polynomial.legendre.leggauss(N_G)
 # s: 0 to 1
 s, w = (s.reshape((1, 1, N_G)) + 1)/2, w.reshape((1, 1, N_G))/2
 
+# Z is called very often with the same arguments in the main for loop
+# cache saves Z when called
+@functools.cache
 def Z(k):
     tmp = np.sqrt((2*c*dt)**2 - L**2)
     Z_0 = np.diag(-L/2/np.pi * np.log((2*c*dt + tmp)/L) - c*dt/np.pi * np.arctan(L/tmp))
@@ -131,9 +137,6 @@ assert exitCode == 0 # error if equation could not be solved
 
 for j in range(1, N_T):
     # k = np.arange(0, j-1 + 1) # k = 0, .., j-1
-    # print(k.shape)
-    # print(Z(k).shape)
-    # print(U[:,j-k-1].shape)
     def term(k):
         return np.tensordot(Z(k), U[:,j-k-1], axes=(-1,0))
     # abandoned numpy for sum: had too many indices
@@ -148,23 +151,40 @@ for j in range(1, N_T):
 #     discrete_T = T_basis(np.arange(1, N_T + 1))
 #     return np.einsum("ni,n,i", U, discrete_f(rho), discrete_T(t))
 
-u = np.fft.rfft(U, axis=0) # u_i,n = u(rho_n, omega_i)
-omega = np.fft.rfftfreq(U.shape[0]).reshape((-1, 1))
-j = u / 1j / omega / mu
+u = dt*np.fft.rfft(U, axis=1) # u[n,i] = u(rho_n, omega_i)
+omega = 2*np.pi * np.fft.rfftfreq(U.shape[1], dt) # rad/s
+j = u / 1j / omega.reshape((1, -1)) / mu
+plt.figure()
+plt.plot(np.arange(0, N_T*dt, dt), U[0,:])
+plt.plot(np.arange(0, N_T*dt, dt), U[N_S//2,:])
+plt.xlabel("t (s)")
+plt.title("j at phi=0")
 
 A = np.exp(-1j * omega * t_0 - (T * omega / 8 / c)**2) / c
-plt.plot(omega, A)
+plt.figure()
+plt.plot(omega/c, np.abs(A))
 plt.title("spectrum excitation")
-plt.xlabel("omega (rad/s)")
+plt.xlabel("$\\omega$/c (m$^{-1}$)")
 plt.ylabel("A (s/m)")
-plt.show()
-j_0 = j / A
-plt.plot(omega, j_0[:,0], label=f"{curve_points[:,0]} m")
-plt.plot(omega, j_0[:,N_S//2], label=f"{curve_points[:,N_S//2]} m")
-plt.title(f"j$_0$")
-plt.legend()
-plt.xlabel("omega (rad/s)")
-plt.show()
+j_0 = np.abs(j / A.reshape((1, -1)))
+fig, axes = plt.subplots(2, 2, sharex='col')
+# FROM OMEGA[10] INSTABILITY STARTS TO DEVELOP AND ONLY BECOMES WORSE: TODO
+# instability due to divide by A: becomes nearly zero
+axes[0,0].plot(omega[:], j_0[0,:], label=f"{curve_points[[_x, _y],0]} m")
+axes[0,0].plot(omega[:], j_0[N_S//2,:], label=f"{curve_points[[_x, _y],N_S//2]} m")
+axes[0,0].set_title("normalized current")
+# axes[0,0].set_xlabel("$\\omega$ (rad/s)")
+axes[0,0].set_ylabel("j$_0$")
+axes[0,0].set_ylim(0, .03)
+axes[0,0].legend()
+
+axes[0,1].plot(np.atan2(curve_points[_y,:-1], curve_points[_x,:-1]), j_0[:,1], label=f"$\\omega$={omega[1]} rad/s")
+axes[0,1].plot(np.atan2(curve_points[_y,:-1], curve_points[_x,:-1]), j_0[:,2], label=f"$\\omega$={omega[2]} rad/s")
+axes[0,1].plot(np.atan2(curve_points[_y,:-1], curve_points[_x,:-1]), j_0[:,3], label=f"$\\omega$={omega[3]} rad/s")
+axes[0,1].set_title("normalized current")
+# axes[0,1].set_xlabel("$\\phi$ (rad)")
+axes[0,1].set_ylabel("j$_0$")
+axes[0,1].legend()
 
 # Analytical solution
 # This is for incoming field e^jkx
@@ -183,17 +203,27 @@ plt.show()
 # using Wronskian: sum 2 j j^n k e^(j n phi) / pi k a H_n^(2)(k a) 
 
 def j_z(phi):
-    # omega = 1 # rad TODO
-    k = 1     # rad/m TODO
-    a = R     # m
+    # omega = 1                   # rad TODO
+    k = omega.reshape(-1, 1, 1)/c # rad/m TODO
+    a = R                         # m
 
-    n = np.arange(np.ceil(k*a) + 2).reshape(-1, 1)
-    return 1/1j/omega/mu * 2 * np.sum(1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=0)
-phi = np.linspace(0, 2*np.pi, 128)
-plt.plot(phi, j_z(phi)[1], label=f"{omega[1]} rad/s")
-plt.plot(phi, j_z(phi)[2], label=f"{omega[2]} rad/s")
-plt.plot(phi, j_z(phi)[3], label=f"{omega[3]} rad/s")
-plt.title(f"analytical j$_z$")
-plt.xlabel("phi (rad)")
-plt.legend()
+    n = np.arange(np.ceil(np.max(k)*a) + 2).reshape(1, -1, 1)
+    return 1/1j/omega.reshape((-1, 1))/mu * 2 * np.sum(1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=1)
+phi = np.linspace(-np.pi, np.pi, 128)
+j_z = np.abs(j_z(phi))
+axes[1,1].plot(phi, j_z[1], label=f"{omega[1]} rad/s")
+axes[1,1].plot(phi, j_z[2], label=f"{omega[2]} rad/s")
+axes[1,1].plot(phi, j_z[3], label=f"{omega[3]} rad/s")
+axes[1,1].set_title("analytical current")
+axes[1,1].set_xlabel("$\\phi$ (rad)")
+axes[1,1].set_ylabel("j$_z$")
+axes[1,1].legend()
+
+axes[1,0].plot(omega, j_z[:,0], label=f"{curve_points[[_x, _y],0]} m")
+axes[1,0].plot(omega, j_z[:,N_S//2], label=f"{curve_points[[_x, _y],N_S//2]} m")
+axes[1,0].set_title("analytical current")
+axes[1,0].set_xlabel("$\\omega$ (rad/s)")
+axes[1,0].set_ylabel("j$_z$")
+axes[1,0].legend()
+
 plt.show()
