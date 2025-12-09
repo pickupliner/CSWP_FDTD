@@ -249,7 +249,7 @@ def rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,co):
     wall_right=int(12/25*(N+1))
     ceiling=int(7/b*(M+1))
 
-    #solving sceme
+    #solving scheme
     for i in range(K-1):
         #construct total p
         p=px[i]+py[i]
@@ -279,12 +279,69 @@ def rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,co):
             observations[ind].append(px[i+1,int(j[1]/b*M),int(j[0]/a*N)]+py[i+1,int(j[1]/b*M),int(j[0]/a*N)])
     return px+py,ox,oy
         
+# simulation with triangle
+def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
+    #fix dimensions/construct the final kappa's (sligth alteration to dimension so they would fit in the equations)
+    k1_o=F1[:,:-1]
+    k1_p=F1
+    k2_o=F2[1:,:]
+    k2_p=F2
+
+    #source index
+    xi=int(ys/a*N)
+    yi=int(xs/b*M)
+
+    #observation
+    observations=[]
+    for i in range(len(co)):
+        observations.append([])
+
+    # returns True if x and y lie in the triangle
+    def in_triangle(x, y):
+        left_x = 6 + 2 # leftmost x of triangle [m]
+        right_x = 6 + 2 + 2 # rightmost         [m]
+        upper_y = 2 * 2 # uppermost y           [m]
+        # to be in triangle is the same as being beneath two lines
+        return (y < upper_y*(x - left_x)) & (y < -upper_y * (x - right_x))
+    
+    # discretisation points
+    x_ox = np.linspace(0, a, N+1).reshape((1,   N+1))
+    y_ox = np.linspace(0, b, M)  .reshape((M,   1))
+    x_oy = np.linspace(0, a, N)  .reshape((1,   N))
+    y_oy = np.linspace(0, b, M+1).reshape((M+1, 1))
+
+    TRIANGLE_ox = in_triangle(x_ox, y_ox)
+    TRIANGLE_oy = in_triangle(x_oy, y_oy)
+
+    #solving scheme
+    for i in range(K-1):
+        #construct total p
+        p=px[i]+py[i]
+        #two equations for o
+        ox[i+1,:,1:-1]=((1-k1_o*dt/2)/(1+k1_o*dt/2))*ox[i,:,1:-1]-dt/(dx*(1+k1_o*dt/2))*(p[:,1:]-p[:,:-1])
+        oy[i+1,1:-1,:]=((1-k2_o*dt/2)/(1+k2_o*dt/2))*oy[i,1:-1,:]-dt/(dy*(1+k2_o*dt/2))*(p[1:,:]-p[:-1,:])
+
+        #aplying boundry conditions
+        ox[i+1,TRIANGLE_ox]=0
+        oy[i+1,TRIANGLE_oy]=0
+
+        #two equations for p
+        px[i+1]=((1-k1_p*dt/2)/(1+k1_p*dt/2))*px[i]-(c**2/(1+k1_p*dt/2))*(dt/dx)*(ox[i+1,:,1:]-ox[i+1,:,:-1])
+        py[i+1]=((1-k2_p*dt/2)/(1+k2_p*dt/2))*py[i]-(c**2/(1+k2_p*dt/2))*(dt/dy)*(oy[i+1,1:,:]-oy[i+1,:-1,:])
+
+        # adding source
+        px[i+1,xi,yi]+=Ps(i*dt)/2
+        py[i+1,xi,yi]+=Ps(i*dt)/2
+
+        #observing:
+        for ind,j in enumerate(co):
+            observations[ind].append(px[i+1,int(j[1]/b*M),int(j[0]/a*N)]+py[i+1,int(j[1]/b*M),int(j[0]/a*N)])
+    return px+py,ox,oy,observations
 
 
 
 
-
-p,ox,oy,obs=wall(px,py,ox,oy,F1,F3,K,xs,ys,coordinates)
+p,ox,oy,obs=triangle(px,py,ox,oy,F1,F3,K,xs,ys,coordinates)
 
 
 
