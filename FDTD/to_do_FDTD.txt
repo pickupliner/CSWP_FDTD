@@ -1,0 +1,5 @@
+1.fix geometry ie. put sources and recievers in the right positions
+2.figure out source in correspondence with frequency range
+3.include boundy impedance on triangle (for both cartesian and non cartesian)
+4.grid refinement for cartesian
+5.analytical solution for thin wall using geometric methods
