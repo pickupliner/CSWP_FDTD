@@ -1,0 +1,6 @@
+check analytical solution
+why ours blow up?
+solve for inside the cylinder
+fourier transform and find resonance frequency's
+repeat for an off center source
+find intersting geometry
