@@ -13,3 +13,17 @@
     - For high omega serious instability issues (due to A being near zero?)
     - Analytical in function of phi doesn't seem to make sense to me, would expect more like what the numerical looks like
     - ...
+
+## Boro 17/12 all added to testmot because something weird happens
+
+* added fprime1(calculates time derivative)
+* added Incidentfield1(calculation of Ei field)
+* added animation of incident field in radial direction
+* added T and made that the pulsewidth (worked weird) T1 is the first pulse
+* adjusted time for the start pulse
+* changed atan2 to arctan2 (my numpy behaved weirdly)
+
+
+* notes
+    - I feel like i still need to adjust for boundary condition using FEM(i don't know how I can do that need to look later today)
+    - when i changed the width p
