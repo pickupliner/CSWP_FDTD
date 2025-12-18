@@ -14,7 +14,7 @@
     - Analytical in function of phi doesn't seem to make sense to me, would expect more like what the numerical looks like
     - ...
 
-## Boro 17/12 all added to testmot because something weird happens
+## Boro 18/12 all added to testmot because something weird happens
 
 * added fprime1(calculates time derivative)
 * added Incidentfield1(calculation of Ei field)
@@ -23,7 +23,7 @@
 * adjusted time for the start pulse
 * changed atan2 to arctan2 (my numpy behaved weirdly)
 
-
+* put it into testmot into __main__
 * notes
     - I feel like i still need to adjust for boundary condition using FEM(i don't know how I can do that need to look later today)
     - when i changed the width p

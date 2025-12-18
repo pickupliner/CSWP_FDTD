@@ -4,6 +4,8 @@ import scipy.special as fns
 import matplotlib.pyplot as plt
 import functools
 
+from matplotlib.animation import FuncAnimation
+
 # Not finished yet (validation)
 # Constants (N_S, ..) are placeholders
 # Indices are a bit of a mess, my apologies
@@ -19,7 +21,7 @@ mu = np.pi*4e-7 # H/m
 R = 1 # m
 
 # spatial points
-N_S = 100
+N_S = 32
 # temporal 
 N_T = 512
 dt = np.pi*R/c # s
@@ -54,6 +56,11 @@ def rho_n(s):
 
 t_0 = N_T/np.log2(N_T/8) * dt # s
 T = c*t_0 / np.sqrt(2*np.pi) /2 # m
+
+T1 = 20*dt
+
+t_01 = 10*T1
+
 def E_i(rho, t):
     gamma = 4/T * (c*(t - t_0) - rho[_x])         # 1
     return 4/T/np.sqrt(np.pi) * np.exp(-gamma**2) # 1/m
@@ -228,3 +235,99 @@ axes[1,0].set_ylabel("j$_z$")
 axes[1,0].legend()
 
 plt.show()
+
+def fprime1(t):
+    """
+    Time derivative of the source pulse f(t), stable for narrow pulses.
+    """
+    alpha = 4/T1
+    norm = 4 / (T1 * np.sqrt(np.pi))
+    x = alpha * (t - t_01)
+    mask = np.abs(x) < 20  # compute only significant values
+    result = np.zeros_like(t, dtype=float)
+    result[mask] = -2 * alpha**2 * (t[mask] - t_01) * norm * np.exp(-(x[mask])**2)
+    return result
+
+def incident_field_matrix1(rho, t, NG=12):
+    """
+    Compute Ei(rho, t) for each element using Gauss-Legendre quadrature.
+    rho and t: 2D arrays of shape (N_rho, N_t)
+    Returns: Ei, same shape
+    """
+    N_rho, N_t = rho.shape
+    Ei = np.zeros_like(rho) #(N_rho,N_t)
+
+    # Gauss-Legendre nodes and weights on [-1,1], scaled for [0,1]
+    xi, wi = np.polynomial.legendre.leggauss(NG)
+    wi = wi * (-mu / (4*np.pi)) / 2  # scale for [0,1]
+
+    for i in range(N_rho):
+        for j in range(N_t):
+            r = rho[i,j]
+            tt = t[i,j]
+
+            # Causality: only compute for t > r/c
+            if tt <= r / c:
+                Ei[i,j] = 0.0
+                continue
+
+            # Compute u_max, avoid NaN
+            arg = c / r * (tt - t_01)
+            arg = np.maximum(arg, 1.0)
+            umax = np.arccosh(arg)
+
+            # Gauss nodes in u
+            u = (umax / 2) * (1 + xi)  # shape (NG,)
+
+            # Integrand
+            arg_t = tt - (r / c) * np.cosh(u)
+            integrand = fprime1(arg_t)
+
+            # Weighted sum
+            Ei[i,j] = np.sum(wi * integrand) * umax
+
+    return Ei
+timeframe = t_01 + np.arange(N_T) * dt
+eps = R/100000
+radius = np.linspace(eps,R,N_S)
+
+Meshradius,Meshtime = np.meshgrid(radius,timeframe, indexing='ij')
+
+Ei = incident_field_matrix1(Meshradius,Meshtime)
+def animate_Ei_line(radius, Ei, dt, save_path=None):
+    """
+    Animate Ei(r, t) as a line plot over radius.
+    radius: 1D array (N_r)
+    Ei: 2D array (N_r, N_t)
+    dt: time step
+    save_path: optional filename to save mp4 or gif
+    """
+    fig, ax = plt.subplots(figsize=(6,4))
+    line, = ax.plot([], [], lw=2)
+    ax.set_xlim(radius[0], radius[-1])
+    # auto scale based on Ei
+    ax.set_ylim(np.min(Ei), np.max(Ei)/2)
+    ax.set_xlabel("Radius (m)")
+    ax.set_ylabel("Ei(r, t)")
+    
+    N_t = Ei.shape[1]
+
+    def init():
+        line.set_data([], [])
+        return (line,)
+
+    def update(frame):
+        line.set_data(radius, Ei[:, frame])
+        ax.set_title(f"Time = {frame*dt*1e9:.2f} ns")
+        return (line,)
+
+    anim = FuncAnimation(fig, update, frames=N_t, init_func=init,
+                         blit=False, interval=50)
+
+    if save_path is not None:
+        anim.save(save_path, fps=20, dpi=150)
+
+    plt.show()
+    return anim
+
+anim = animate_Ei_line(radius, Ei, dt)

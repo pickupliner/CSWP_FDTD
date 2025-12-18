@@ -55,16 +55,16 @@ def rho_n(s):
 # incident wave
 
 t_0 = N_T/np.log2(N_T/8) * dt # s
-T1 = c*t_0 / np.sqrt(2*np.pi) /2 # m
+T = c*t_0 / np.sqrt(2*np.pi) /2 # m
 
-T = 20*dt
+T1 = 20*dt
 
-t_01 = 10*T
+t_01 = 10*T1
 
 def E_i(rho, t):
-    gamma = 4/T1 * (c*(t - t_0) - rho[_x])         # 1
-    return 4/T1/np.sqrt(np.pi) * np.exp(-gamma**2) # 1/m
-x = np.linspace(-T1, T1, 128).reshape((-1,1))
+    gamma = 4/T * (c*(t - t_0) - rho[_x])         # 1
+    return 4/T/np.sqrt(np.pi) * np.exp(-gamma**2) # 1/m
+x = np.linspace(-T, T, 128).reshape((-1,1))
 t = np.linspace(0, N_T*dt, N_T).reshape((1,-1))
 cm = plt.pcolormesh(*np.meshgrid(x, t), E_i([x, 0], t).T)
 plt.title("incoming field E$^i$")
@@ -240,8 +240,8 @@ def fprime1(t):
     """
     Time derivative of the source pulse f(t), stable for narrow pulses.
     """
-    alpha = 4/T
-    norm = 4 / (T * np.sqrt(np.pi))
+    alpha = 4/T1
+    norm = 4 / (T1 * np.sqrt(np.pi))
     x = alpha * (t - t_01)
     mask = np.abs(x) < 20  # compute only significant values
     result = np.zeros_like(t, dtype=float)
@@ -255,7 +255,7 @@ def incident_field_matrix1(rho, t, NG=12):
     Returns: Ei, same shape
     """
     N_rho, N_t = rho.shape
-    Ei = np.zeros_like(rho)
+    Ei = np.zeros_like(rho) #(N_rho,N_t)
 
     # Gauss-Legendre nodes and weights on [-1,1], scaled for [0,1]
     xi, wi = np.polynomial.legendre.leggauss(NG)
