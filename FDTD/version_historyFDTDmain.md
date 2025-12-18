@@ -18,3 +18,15 @@
 * Nog te doen: smooth interpolatie van dx en dy
 * instabiel: CN moet < 0.5
 * rectangle is broken: dx en dy in BC moeten nog geupdate worden
+
+## Joran 18/12
+
+* Added parabolic coordinate transformation: dx and dy now change linearly, no longer step function
+* Made plots of transformed spatial coordinates and steps
+* fixed error in comment of F2 and F3, with/without floor
+* fixed trechter achtige vorm bij bron: was doordat de bron in de PML stond
+* added interpolation of derivatives for stability with parabolic coordinate transfo
+* changed placing of source to match possibility of non-uniform grid
+* did the same for observation points
+* rectangle works again (see previous)
+* PROBLEMS: parabolic interpolation is still unstable, tho at longer timescales
