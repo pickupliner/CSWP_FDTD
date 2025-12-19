@@ -16,22 +16,26 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 
+
 #parameters
 c=1 #wave speed[m/s]
 Z=2 #impedance[ohm]
 
 #geometry
-a=25 #width [m]
-b=15 #height [m]
+distance=5.6 #fundamental distance
+a=7*distance  #width [m]
+b=4*distance #height [m]
 d=4  #thickness of PML [gridcells]
-
+wl=2*distance # distance of wall
+wr=3*distance #distance of seccond wall
+wh= 2*distance                  #height of walls/ceiling
 #source position
-xs=6 #[m]
-ys=2 #[m]
+xs=distance #[m]
+ys=distance/10 #[m]
 
 #observer points
-coordinates=[(5,10),(10,2)] #([m],[m])
-
+coordinates1=[[3*distance,distance/2],[4*distance,distance/2],[5*distance,distance/2]] #([m],[m]) for thin wall
+coordinates2=[[4*distance,distance/2],[5*distance,distance/2],[6*distance,distance/2]] #([m],[m]) for other obstacles
 
 
 # constructing function for k1 (x) or k2(y)
@@ -42,6 +46,10 @@ plt.show()
 
 
 #source in function of time:
+f=4.95*c/(distance*2*np.pi)
+sigma=f
+t0=18
+Psource=lambda t:np.sin(2*np.pi*f*(t-t0))*np.exp(-((t-t0)**2)*(sigma**2))
 Ps = lambda t: 10*np.exp(-(t - .5)**2*16) # source
 plt.plot(np.linspace(0,20,282),Ps(np.linspace(0,20,282)))
 plt.show()
@@ -320,8 +328,8 @@ def wall(px,py,ox,oy,F1,F2,K,xs,ys,co):
     #solving scheme
     for i in range(K-1):
 
-        wall_left=int(8/25*(N+1))
-        ceiling=int(7/b*(M+1))
+        wall_left=int(wl/a*(N+1))
+        ceiling=int(wh/b*(M+1))
 
 
         #construct total p
@@ -372,9 +380,9 @@ def rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,co):
 
     
     #determie obstacle indexes
-    wall_left=int(8/25*(N+1))
-    wall_right=int(12/25*(N+1))
-    ceiling=int(7/b*(M+1))
+    wall_left=int(wl/a*(N+1))
+    wall_right=int(wr/a*(N+1))
+    ceiling=int(wh/b*(M+1))
 
     #solving scheme
     for i in range(K-1):
@@ -430,11 +438,30 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
 
     # returns True if x and y lie in the triangle
     def in_triangle(x, y):
-        left_x = 6 + 2 # leftmost x of triangle [m]
-        right_x = 6 + 2 + 2 # rightmost         [m]
-        upper_y = 2 * 2 # uppermost y           [m]
-        # to be in triangle is the same as being beneath two lines
-        return (y < upper_y*(x - left_x)) & (y < -upper_y * (x - right_x))
+        x = np.asarray(x)
+        y = np.asarray(y)
+
+        left_x = wl      # leftmost x of triangle
+        right_x = wr     # rightmost x of triangle
+        upper_y = wh     # top y of triangle
+
+        # midpoint of the base
+        mid_x = (left_x + right_x) / 2
+
+        # Vertical bounds check
+        inside_y = (y >= 0) & (y <= upper_y)
+
+        # Avoid division by zero if upper_y == 0
+        if upper_y == 0:
+            return np.zeros_like(x, dtype=bool)
+
+        # Slanted edges
+        left_edge_x = mid_x + (left_x - mid_x) * (1 - y / upper_y)
+        right_edge_x = mid_x + (right_x - mid_x) * (1 - y / upper_y)
+
+        inside_x = (x >= left_edge_x) & (x <= right_edge_x)
+
+        return inside_y & inside_x
     
     TRIANGLE_ox = in_triangle(x_o.reshape((1, -1)), y_p.reshape((-1, 1)))
     TRIANGLE_oy = in_triangle(x_p.reshape((1, -1)), y_o.reshape((-1, 1)))
@@ -470,58 +497,90 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
     return px+py,ox,oy,observations
 
 
-# p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates)
-# p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates)
-p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates)
-# p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates)
+# p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates1)
+# p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
+#p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
+#p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates2)
+p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
 
 print(f"max |p| = {np.max(np.abs(p))}")
 
 #animate function
-def animate_heatmap(frames, interval=100, cmap='viridis', save_path=None, fps=10):
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import animation
+
+def animate_heatmap(frames,xs,ys, coords,
+                    interval=100, cmap='viridis',
+                    save_path=None, fps=10):
     """
-    Animate a sequence of 2D numpy arrays (frames) as a heatmap.
-    
+    Animate a sequence of 2D numpy arrays (frames) as a heatmap,
+    with fixed points overlaid.
+
     Parameters
     ----------
     frames : np.ndarray
         3D array of shape (num_frames, height, width)
-    interval : int, optional
-        Time between frames in milliseconds (default 100)
-    cmap : str, optional
-        Colormap for the heatmap (default 'viridis')
-    save_path : str, optional
-        If provided, saves animation to this path (e.g., 'animation.gif')
-    fps : int, optional
-        Frames per second for saved animation (default 10)
+    coords : list of [x, y]
+        Points to overlay on the heatmap
+    x_p, y_p : 2D arrays
+        Grid coordinates for pcolormesh
     """
-    # Sanity check
+
     if frames.ndim != 3:
-        raise ValueError("Input 'frames' must be a 3D NumPy array (num_frames, height, width).")
-    
+        raise ValueError("Input 'frames' must be a 3D NumPy array.")
+
     num_frames, height, width = frames.shape
 
-    # Create figure
     fig, ax = plt.subplots()
-    cm = ax.pcolormesh(x_p, y_p, frames[0], shading='nearest')
-    # heatmap = ax.imshow(frames[0], cmap=cmap, interpolation='nearest',origin='lower')   #,vmin=frames.min(), vmax=frames.max()/4)
-    # plt.colorbar(heatmap, ax=ax)
+
+    # Initial heatmap
+    cm = ax.pcolormesh(
+        x_p, y_p, frames[0],
+        shading='nearest',
+        cmap=cmap
+    )
     plt.colorbar(cm, ax=ax)
     ax.set_aspect('equal', 'box')
 
-    # Update function
+    # Convert coords to arrays
+    
+    coords = np.asarray(coords)
+    X, Y = coords[:, 0], coords[:, 1]
+
+    # Overlay points
+    scatterO = ax.scatter(
+        X, Y,
+        c='red',
+        s=40,
+        marker='o',
+        edgecolors='black',
+        zorder=3,
+        label='Points'
+    )
+    scatterS = ax.scatter(
+        xs, ys,
+        c='green',
+        s=40,
+        marker='o',
+        edgecolors='black',
+        zorder=3,
+        label='Points'
+    )
+    ax.legend()
+
     def update(frame_idx):
-        # heatmap.set_data(frames[frame_idx])
-        cm.set_array(frames[frame_idx])
-        ax.set_title(f"Frame {frame_idx}/{num_frames}")
-        # return [heatmap]
-        return [cm]
+        cm.set_array(frames[frame_idx].ravel())
+        ax.set_title(f"Frame {frame_idx + 1}/{num_frames}")
+        return cm, scatterO,scatterS
 
-    # Create animation
-    ani = animation.FuncAnimation(fig, update, frames=num_frames,
-                                  interval=interval, blit=True)
+    ani = animation.FuncAnimation(
+        fig, update,
+        frames=num_frames,
+        interval=interval,
+        blit=True
+    )
 
-    # Save if requested
     if save_path:
         if save_path.endswith('.gif'):
             ani.save(save_path, writer='pillow', fps=fps)
@@ -534,9 +593,11 @@ def animate_heatmap(frames, interval=100, cmap='viridis', save_path=None, fps=10
 
     return ani
 
-animate_heatmap(p)
+
+animate_heatmap(p,xs,ys,coordinates2)
 
 t = dt*np.arange(0, K-1)
 
 plt.plot(t,obs[1])
 plt.show()
+
