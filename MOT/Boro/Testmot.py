@@ -20,6 +20,9 @@ mu = np.pi*4e-7 # H/m
 # radius of cilinder
 R = 1 # m
 
+#=====================
+# Discretisation amounts
+#====================
 # spatial points
 N_S = 32
 # temporal 
@@ -28,24 +31,30 @@ dt = np.pi*R/c # s
 # Gauss quad order
 N_G = 8
 
-# curve
+#====================
+#creating the curves
+#===================
 
 def curve(s):
     # curve(0) = curve(1)
     # s in range [0, 1]
     arg = 2*np.pi * s                             # rad
     return R*np.array([np.cos(arg), np.sin(arg)]) # m  (2, s.shape)
+
 # (the first and last point are equal for simplicity)
 curve_points = curve(np.linspace(0, 1, N_S + 1))          # m  (2, N_S + 1)
 plt.plot(*curve_points)
 plt.title("Geometry")
 plt.show()
+
 # tangential vectors to each segment
 tangents = curve_points[:,1:] - curve_points[:,:-1]       # m  (2, N_S)
 # length of each vector
 l = np.linalg.norm(tangents, axis=0)                      # m  (N_S,)
 # minimum of length and 2 c dt of segments
+
 L = np.min([l, np.broadcast_to(2*c*dt, l.shape)], axis=0) # m  (N_S,)
+
 # every segment is linearly interpolated with parameter s (0 -> 1)
 # linear approximation of the curve
 def rho_n(s):
@@ -64,8 +73,12 @@ t_01 = 10*T1
 def E_i(rho, t):
     gamma = 4/T * (c*(t - t_0) - rho[_x])         # 1
     return 4/T/np.sqrt(np.pi) * np.exp(-gamma**2) # 1/m
-x = np.linspace(-T, T, 128).reshape((-1,1))
+
+
+x = np.linspace(-T, T, 128).reshape((-1,1))  
 t = np.linspace(0, N_T*dt, N_T).reshape((1,-1))
+print(np.size(E_i([x,x],t)))
+
 cm = plt.pcolormesh(*np.meshgrid(x, t), E_i([x, 0], t).T)
 plt.title("incoming field E$^i$")
 plt.xlabel("x (m)")

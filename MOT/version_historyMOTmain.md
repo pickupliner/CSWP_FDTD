@@ -27,3 +27,10 @@
 * notes
     - I feel like i still need to adjust for boundary condition using FEM(i don't know how I can do that need to look later today)
     - when i changed the width p
+
+## Boro 19/12 Class switch
+* turned it into a class for convenience and clarity
+* added solve function that solves basically
+* all the plotting of 6.1 is in plot61
+* only problem still need to resize the Ei and generelize Ei such that i can calculate scattering in everyway
+* 
