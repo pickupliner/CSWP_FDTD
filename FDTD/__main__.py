@@ -18,7 +18,7 @@ import matplotlib.animation as animation
 
 #parameters
 c=1 #wave speed[m/s]
-Z=0 #impedance[ohm]
+Z=2 #impedance[ohm]
 
 #geometry
 a=25 #width [m]
@@ -103,14 +103,14 @@ y_p = (y_o[1:] + y_o[:-1])/2
 
 # change coordinates to get more points around wedge
 f, buffer = 0.5, 6
-# x_o = coordTransform(x_o, x0=7, x1=11, f=f)
-# x_p = coordTransform(x_p, x0=7, x1=11, f=f)
-x_o = parabolicCoordTransform(x_o, x0=7, x1=11, f=f, buffer=buffer)
-x_p = parabolicCoordTransform(x_p, x0=7, x1=11, f=f, buffer=buffer)
-# y_o = coordTransform(y_o, x0=0, x1=6, f=f)
-# y_p = coordTransform(y_p, x0=0, x1=6, f=f)
-y_o = parabolicCoordTransform(y_o, x0=0, x1=6, f=f, buffer=buffer)
-y_p = parabolicCoordTransform(y_p, x0=0, x1=6, f=f, buffer=buffer)
+x_o = coordTransform(x_o, x0=7, x1=11, f=f)
+x_p = coordTransform(x_p, x0=7, x1=11, f=f)
+# x_o = parabolicCoordTransform(x_o, x0=7, x1=11, f=f, buffer=buffer)
+# x_p = parabolicCoordTransform(x_p, x0=7, x1=11, f=f, buffer=buffer)
+y_o = coordTransform(y_o, x0=0, x1=6, f=f)
+y_p = coordTransform(y_p, x0=0, x1=6, f=f)
+# y_o = parabolicCoordTransform(y_o, x0=0, x1=6, f=f, buffer=buffer)
+# y_p = parabolicCoordTransform(y_p, x0=0, x1=6, f=f, buffer=buffer)
 plt.plot(x_o, np.arange(N+1),    ".", label="x$_o$")
 plt.plot(y_o, np.arange(M+1),    ".", label="y$_o$")
 plt.plot(x_p, np.arange(N) + .5, ".", label="x$_p$")
@@ -141,13 +141,14 @@ plt.show()
 
 #time step based on CN and stabilaty
 # dt=np.sqrt(2)*0.05   #[s]
-dt = 0.5 * np.sqrt(np.min(dx_o)**2 + np.min(dy_o)**2) / c
+dt = 1/np.sqrt(1/np.min(dx_o)**2 + 1/np.min(dy_o)**2)/c
+print(f"dt = {dt}")
 T=40 #time of simulation [s]
 
 # courant number
-CN=c*dt/np.sqrt(np.min(dx_o)**2+np.min(dy_o)**2) # [s/m]
+CN=c**2*dt**2*(1/np.min(dx_o)**2+1/np.min(dy_o)**2) # [s/m]
 # since dx_p is mean of 2 neighbouring dx_o's it is always bigger than min of dx_o
-print(f"CN = {CN}")
+print(f"CN = {CN} < 1?")
 
 
 
@@ -474,8 +475,7 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
 p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates)
 # p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates)
 
-print(np.min(p))
-print(np.max(p))
+print(f"max |p| = {np.max(np.abs(p))}")
 
 #animate function
 def animate_heatmap(frames, interval=100, cmap='viridis', save_path=None, fps=10):
@@ -507,6 +507,7 @@ def animate_heatmap(frames, interval=100, cmap='viridis', save_path=None, fps=10
     # heatmap = ax.imshow(frames[0], cmap=cmap, interpolation='nearest',origin='lower')   #,vmin=frames.min(), vmax=frames.max()/4)
     # plt.colorbar(heatmap, ax=ax)
     plt.colorbar(cm, ax=ax)
+    ax.set_aspect('equal', 'box')
 
     # Update function
     def update(frame_idx):

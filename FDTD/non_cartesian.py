@@ -22,7 +22,7 @@ d = 6 # characteristic distance [m]
 
 us = d                                  # u-coordinate of source [m]
 vs = d/10                               # v-coordinate of source [m]
-Ps = lambda t: np.exp(-(t - .5)**2*100) # source
+Ps = lambda t: 4*np.exp(-(t - 0.3)**2*100) # source
 
 # returns True if x and y lie in the triangle
 def triangle(x, y):
@@ -35,14 +35,13 @@ a = 5*d + 2*d                 # width in u-direction  [m]
 b = (2*d + 2*d)/np.sin(theta) # height in v-direction [m]
 c = 10                        # timespan              [s]
 
-du = 0.2                   # step in u-direction [m]
-dv = du/np.sin(theta)      # step in v-direction [m]
-dt = .5 * np.sqrt(2)*du/c  # timestep            [s]
-
 # Courant Number
-# Only stable when CN < 0.5 (about)
-CN = c*dt/np.sqrt(du**2 + (dv*np.sin(theta))**2)
-print(f"CN = {CN}")
+CN  = 1.0
+
+du = 0.2                                            # step in u-direction [m]
+dv = du/np.sin(theta)                               # step in v-direction [m]
+dt = 1/np.sqrt(1/du**2 + 1/(dv*np.sin(theta))**2)/c # timestep            [s]
+print(f"du x dv x dt = {du} x {dv} x {dt}")
 
 nu = int(np.ceil(a/du)) - 1 # size in u-direction [1]
 nv = int(np.ceil(b/dv)) - 1 # size in v-direction [1]

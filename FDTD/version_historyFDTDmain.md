@@ -30,3 +30,10 @@
 * did the same for observation points
 * rectangle works again (see previous)
 * PROBLEMS: parabolic interpolation is still unstable, tho at longer timescales
+
+## Joran 19/12
+
+* Fixed CN: we were working with an incorrect definition
+* Now everything is stable, even non-cartesian is now stable at CN=1
+* Changed Z from 0 to 2 as in the assignment to see its effect
+* PROBLEM: I looked back at some older versions and it seems that the triangle used to be way better without any refinement; now it has some ugly oscillations at the edge.
