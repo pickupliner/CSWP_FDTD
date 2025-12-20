@@ -20,9 +20,9 @@ c = 1 # wavespeed [m/s]
 
 d = 6 # characteristic distance [m]
 
-us = d                                  # u-coordinate of source [m]
-vs = d/10                               # v-coordinate of source [m]
-Ps = lambda t: 4*np.exp(-(t - 0.3)**2*100) # source
+us = d                                   # u-coordinate of source [m]
+vs = d/10                                # v-coordinate of source [m]
+Ps = lambda t: 4*np.exp(-(t/2 - 2.5)**2) # source
 
 # returns True if x and y lie in the triangle
 def triangle(x, y):
@@ -33,32 +33,32 @@ def triangle(x, y):
 # Currently using a padding of d around important stuff (temporary)
 a = 5*d + 2*d                 # width in u-direction  [m]
 b = (2*d + 2*d)/np.sin(theta) # height in v-direction [m]
-c = 10                        # timespan              [s]
+T = 2*b/c                     # timespan              [s]
 
 # Courant Number
 CN  = 1.0
 
-du = 0.2                                            # step in u-direction [m]
-dv = du/np.sin(theta)                               # step in v-direction [m]
-dt = 1/np.sqrt(1/du**2 + 1/(dv*np.sin(theta))**2)/c # timestep            [s]
+du = 0.2                                             # step in u-direction [m]
+dv = du/np.sin(theta)                                # step in v-direction [m]
+dt = CN/np.sqrt(1/du**2 + 1/(dv*np.sin(theta))**2)/c # timestep            [s]
 print(f"du x dv x dt = {du} x {dv} x {dt}")
 
 nu = int(np.ceil(a/du)) - 1 # size in u-direction [1]
 nv = int(np.ceil(b/dv)) - 1 # size in v-direction [1]
-nt = int(np.ceil(c/dt))     # size in time        [1]
+nt = int(np.ceil(T/dt))     # size in time        [1]
 print(f"nx x nv x nt = {nu} x {nv} x {nt}")
 
 p  = np.zeros((nu,     nv,     nt)) # p at discrete u, v and t points
 ox = np.zeros((nu + 1,     nv, nt)) # x component of o
 oy = np.zeros((nu, nv + 1,     nt)) # y component of o
 
-u_p = np.arange(du/2, a - du/2, du).reshape((nu, 1,  1))  # u-coordinates of discretized p field [m]
-v_p = np.arange(dv/2, b - dv/2, dv).reshape((1,  nv, 1))  # v-coordinates                        [m]
-t_p = np.arange(0, c, dt).reshape((1,  1,  nt))           # t-coordinates                        [s]
+u_p = np.arange(du/2, a - du/2, du).reshape((nu, 1,  1)) # u-coordinates of discretized p field [m]
+v_p = np.arange(dv/2, b - dv/2, dv).reshape((1,  nv, 1)) # v-coordinates                        [m]
+t_p = np.arange(0, T, dt).reshape((1,  1,  nt))          # t-coordinates                        [s]
 
 u_ox = np.arange(0, a, du).reshape((nu + 1, 1, 1))
 v_ox = v_p
-t_ox = np.arange(dt/2, c + dt/2, dt).reshape((1, 1, nt))
+t_ox = np.arange(dt/2, T + dt/2, dt).reshape((1, 1, nt))
 
 u_oy = u_p
 v_oy = np.arange(0, b, dv).reshape((1, nv + 1, 1))
