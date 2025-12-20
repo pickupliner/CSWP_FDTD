@@ -37,12 +37,12 @@ coordinates=[(5,10),(10,2)] #([m],[m])
 # constructing function for k1 (x) or k2(y)
 kappax=np.linspace(0,a,100)
 kappay=10*(((kappax-(a-d))/d)**5 *np.heaviside(kappax-(a-d),1)-((kappax-d)/d)**5*np.heaviside(-kappax+d,1))
-plt.plot(kappax,kappay)
-plt.show()
+# plt.plot(kappax,kappay)
+# plt.show()
 
 
 #source in function of time:
-Ps = lambda t: 10*np.exp(-(t - .5)**2*16) # source
+Ps = lambda t: 10*np.exp(-3*(t - 1)**2) # source
 plt.plot(np.linspace(0,20,282),Ps(np.linspace(0,20,282)))
 plt.show()
 
@@ -103,23 +103,23 @@ y_p = (y_o[1:] + y_o[:-1])/2
 
 # change coordinates to get more points around wedge
 f, buffer = 0.5, 6
-x_o = coordTransform(x_o, x0=7, x1=11, f=f)
-x_p = coordTransform(x_p, x0=7, x1=11, f=f)
+# x_o = coordTransform(x_o, x0=7, x1=11, f=f)
+# x_p = coordTransform(x_p, x0=7, x1=11, f=f)
 # x_o = parabolicCoordTransform(x_o, x0=7, x1=11, f=f, buffer=buffer)
 # x_p = parabolicCoordTransform(x_p, x0=7, x1=11, f=f, buffer=buffer)
-y_o = coordTransform(y_o, x0=0, x1=6, f=f)
-y_p = coordTransform(y_p, x0=0, x1=6, f=f)
+# y_o = coordTransform(y_o, x0=0, x1=6, f=f)
+# y_p = coordTransform(y_p, x0=0, x1=6, f=f)
 # y_o = parabolicCoordTransform(y_o, x0=0, x1=6, f=f, buffer=buffer)
 # y_p = parabolicCoordTransform(y_p, x0=0, x1=6, f=f, buffer=buffer)
-plt.plot(x_o, np.arange(N+1),    ".", label="x$_o$")
-plt.plot(y_o, np.arange(M+1),    ".", label="y$_o$")
-plt.plot(x_p, np.arange(N) + .5, ".", label="x$_p$")
-plt.plot(y_p, np.arange(M) + .5, ".", label="y$_p$")
-plt.xlabel("coordinate (m)")
-plt.ylabel("discretisation point i")
-plt.title("coordinate transformation")
-plt.legend()
-plt.show()
+# plt.plot(x_o, np.arange(N+1),    ".", label="x$_o$")
+# plt.plot(y_o, np.arange(M+1),    ".", label="y$_o$")
+# plt.plot(x_p, np.arange(N) + .5, ".", label="x$_p$")
+# plt.plot(y_p, np.arange(M) + .5, ".", label="y$_p$")
+# plt.xlabel("coordinate (m)")
+# plt.ylabel("discretisation point i")
+# plt.title("coordinate transformation")
+# plt.legend()
+# plt.show()
 
 # spatial step between x-coord of o_x
 dx_o = (x_o[1:] - x_o[:-1]).reshape((1,-1)) # [m]
@@ -162,33 +162,33 @@ X, Y = np.meshgrid(x, y)   #(M,N) matrix both
 #kappa for x-direction
 F1=10*(((X-(a-d))/d)**5 *np.heaviside(X-(a-d),1)-((X-d)/d)**5*np.heaviside(-X+d,1)) #(M,N) matrix
 #plotting
-plt.pcolormesh(X, Y, F1, shading='auto', cmap='viridis')
-plt.colorbar(label='f(x, y)')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title('f(x, y) with pcolormesh')
-plt.show()
+# plt.pcolormesh(X, Y, F1, shading='auto', cmap='viridis')
+# plt.colorbar(label='f(x, y)')
+# plt.xlabel('x')
+# plt.ylabel('y')
+# plt.title('f(x, y) with pcolormesh')
+# plt.show()
 
 #kappa for y-direction without floor
 F2=10*(((Y-(b-d))/d)**5 *np.heaviside(Y-(b-d),1))
 #plotting
-plt.pcolormesh(X, Y, F2, shading='auto', cmap='viridis')
-plt.colorbar(label='f(x, y)')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title('f(x, y) with pcolormesh')
-plt.show()
+# plt.pcolormesh(X, Y, F2, shading='auto', cmap='viridis')
+# plt.colorbar(label='f(x, y)')
+# plt.xlabel('x')
+# plt.ylabel('y')
+# plt.title('f(x, y) with pcolormesh')
+# plt.show()
 
 #kappa for y-direction with floor
 F3=10*(((Y-(b-d))/d)**5 *np.heaviside(Y-(b-d),1)-((Y-d)/d)**5*np.heaviside(-Y+d,1))
 
 #plotting
-plt.pcolormesh(X, Y, F3, shading='auto', cmap='viridis')
-plt.colorbar(label='f(x, y)')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title('f(x, y) with pcolormesh')
-plt.show()
+# plt.pcolormesh(X, Y, F3, shading='auto', cmap='viridis')
+# plt.colorbar(label='f(x, y)')
+# plt.xlabel('x')
+# plt.ylabel('y')
+# plt.title('f(x, y) with pcolormesh')
+# plt.show()
 
 
 
@@ -472,8 +472,8 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
 
 # p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates)
 # p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates)
-p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates)
-# p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates)
+# p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates)
+p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates)
 
 print(f"max |p| = {np.max(np.abs(p))}")
 
