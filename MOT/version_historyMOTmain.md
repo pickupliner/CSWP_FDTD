@@ -33,4 +33,7 @@
 * added solve function that solves basically
 * all the plotting of 6.1 is in plot61
 * only problem still need to resize the Ei and generelize Ei such that i can calculate scattering in everyway
-* 
+
+## BORO 21/12 
+* added animations for the current
+* added more comments and changed variable names for clarity
