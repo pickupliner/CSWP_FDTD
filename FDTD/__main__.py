@@ -16,38 +16,46 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 
+
 #parameters
 c=1 #wave speed[m/s]
 Z=2 #impedance[ohm]
 
 #geometry
-a=25 #width [m]
-b=15 #height [m]
+distance=5.6 #fundamental distance
+a=7*distance  #width [m]
+b=4*distance #height [m]
 d=4  #thickness of PML [gridcells]
-
+wl=2*distance # distance of wall
+wr=3*distance #distance of seccond wall
+wh= 2*distance                  #height of walls/ceiling
 #source position
-xs=6 #[m]
-ys=2 #[m]
+xs=distance #[m]
+ys=distance/10 #[m]
 
 #observer points
-coordinates=[(5,10),(10,2)] #([m],[m])
-
+coordinates1=[[3*distance,distance/2],[4*distance,distance/2],[5*distance,distance/2]] #([m],[m]) for thin wall
+coordinates2=[[4*distance,distance/2],[5*distance,distance/2],[6*distance,distance/2]] #([m],[m]) for other obstacles
 
 
 # constructing function for k1 (x) or k2(y)
 kappax=np.linspace(0,a,100)
 kappay=10*(((kappax-(a-d))/d)**5 *np.heaviside(kappax-(a-d),1)-((kappax-d)/d)**5*np.heaviside(-kappax+d,1))
-# plt.plot(kappax,kappay)
-# plt.show()
+plt.plot(kappax,kappay)
+plt.show()
 
 
 #source in function of time:
-Ps = lambda t: 10*np.exp(-3*(t - 1)**2) # source
+f=4.95*c/(distance*2*np.pi)
+sigma=f
+t0=18
+#Ps=lambda t:10*np.sin(2*np.pi*f*(t-t0))*np.exp(-((t-t0)**2)*(sigma**2))
+Ps = lambda t: 10*np.exp(-(t - .5)**2*16) # source
 plt.plot(np.linspace(0,20,282),Ps(np.linspace(0,20,282)))
 plt.show()
 
 #size of array
-K=int(565) #dimensioneless
+K=int(665) #dimensioneless
 N=int(250) #dimensioneless
 M=int(150) #dimensioneless
 
@@ -103,23 +111,23 @@ y_p = (y_o[1:] + y_o[:-1])/2
 
 # change coordinates to get more points around wedge
 f, buffer = 0.5, 6
-# x_o = coordTransform(x_o, x0=7, x1=11, f=f)
-# x_p = coordTransform(x_p, x0=7, x1=11, f=f)
+#x_o = coordTransform(x_o, x0=7, x1=11, f=f)
+#x_p = coordTransform(x_p, x0=7, x1=11, f=f)
 # x_o = parabolicCoordTransform(x_o, x0=7, x1=11, f=f, buffer=buffer)
 # x_p = parabolicCoordTransform(x_p, x0=7, x1=11, f=f, buffer=buffer)
-# y_o = coordTransform(y_o, x0=0, x1=6, f=f)
-# y_p = coordTransform(y_p, x0=0, x1=6, f=f)
+#y_o = coordTransform(y_o, x0=0, x1=6, f=f)
+#y_p = coordTransform(y_p, x0=0, x1=6, f=f)
 # y_o = parabolicCoordTransform(y_o, x0=0, x1=6, f=f, buffer=buffer)
 # y_p = parabolicCoordTransform(y_p, x0=0, x1=6, f=f, buffer=buffer)
-# plt.plot(x_o, np.arange(N+1),    ".", label="x$_o$")
-# plt.plot(y_o, np.arange(M+1),    ".", label="y$_o$")
-# plt.plot(x_p, np.arange(N) + .5, ".", label="x$_p$")
-# plt.plot(y_p, np.arange(M) + .5, ".", label="y$_p$")
-# plt.xlabel("coordinate (m)")
-# plt.ylabel("discretisation point i")
-# plt.title("coordinate transformation")
-# plt.legend()
-# plt.show()
+plt.plot(x_o, np.arange(N+1),    ".", label="x$_o$")
+plt.plot(y_o, np.arange(M+1),    ".", label="y$_o$")
+plt.plot(x_p, np.arange(N) + .5, ".", label="x$_p$")
+plt.plot(y_p, np.arange(M) + .5, ".", label="y$_p$")
+plt.xlabel("coordinate (m)")
+plt.ylabel("discretisation point i")
+plt.title("coordinate transformation")
+plt.legend()
+plt.show()
 
 # spatial step between x-coord of o_x
 dx_o = (x_o[1:] - x_o[:-1]).reshape((1,-1)) # [m]
@@ -162,34 +170,33 @@ X, Y = np.meshgrid(x, y)   #(M,N) matrix both
 #kappa for x-direction
 F1=10*(((X-(a-d))/d)**5 *np.heaviside(X-(a-d),1)-((X-d)/d)**5*np.heaviside(-X+d,1)) #(M,N) matrix
 #plotting
-# plt.pcolormesh(X, Y, F1, shading='auto', cmap='viridis')
-# plt.colorbar(label='f(x, y)')
-# plt.xlabel('x')
-# plt.ylabel('y')
-# plt.title('f(x, y) with pcolormesh')
-# plt.show()
+plt.pcolormesh(X, Y, F1, shading='auto', cmap='viridis')
+plt.colorbar(label='f(x, y)')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('f(x, y) with pcolormesh')
+plt.show()
 
 #kappa for y-direction without floor
 F2=10*(((Y-(b-d))/d)**5 *np.heaviside(Y-(b-d),1))
 #plotting
-# plt.pcolormesh(X, Y, F2, shading='auto', cmap='viridis')
-# plt.colorbar(label='f(x, y)')
-# plt.xlabel('x')
-# plt.ylabel('y')
-# plt.title('f(x, y) with pcolormesh')
-# plt.show()
+plt.pcolormesh(X, Y, F2, shading='auto', cmap='viridis')
+plt.colorbar(label='f(x, y)')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('f(x, y) with pcolormesh')
+plt.show()
 
 #kappa for y-direction with floor
 F3=10*(((Y-(b-d))/d)**5 *np.heaviside(Y-(b-d),1)-((Y-d)/d)**5*np.heaviside(-Y+d,1))
 
 #plotting
-# plt.pcolormesh(X, Y, F3, shading='auto', cmap='viridis')
-# plt.colorbar(label='f(x, y)')
-# plt.xlabel('x')
-# plt.ylabel('y')
-# plt.title('f(x, y) with pcolormesh')
-# plt.show()
-
+plt.pcolormesh(X, Y, F3, shading='auto', cmap='viridis')
+plt.colorbar(label='f(x, y)')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('f(x, y) with pcolormesh')
+plt.show()
 
 
 
@@ -203,6 +210,9 @@ py=np.zeros((K,M,N))  # (M,N) matrix
 ox=np.zeros((K,M,N+1)) #(M,N+1) matrix
 oy=np.zeros((K,M+1,N)) #(M+1,N) matrix
 print(K)
+
+
+
 
 # Special interpolation (x[i] must lie between x0[i-1] and x0[i+1]).
 # Quadratic interpolation in body,
@@ -320,8 +330,8 @@ def wall(px,py,ox,oy,F1,F2,K,xs,ys,co):
     #solving scheme
     for i in range(K-1):
 
-        wall_left=int(8/25*(N+1))
-        ceiling=int(7/b*(M+1))
+        wall_left=int(wl/a*(N+1))
+        ceiling=int(wh/b*(M+1))
 
 
         #construct total p
@@ -372,9 +382,9 @@ def rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,co):
 
     
     #determie obstacle indexes
-    wall_left=int(8/25*(N+1))
-    wall_right=int(12/25*(N+1))
-    ceiling=int(7/b*(M+1))
+    wall_left=int(wl/a*(N+1))
+    wall_right=int(wr/a*(N+1))
+    ceiling=int(wh/b*(M+1))
 
     #solving scheme
     for i in range(K-1):
@@ -428,16 +438,15 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
     for i in range(len(co)):
         observations.append([])
 
-    # returns True if x and y lie in the triangle
-    def in_triangle(x, y):
-        left_x = 6 + 2 # leftmost x of triangle [m]
-        right_x = 6 + 2 + 2 # rightmost         [m]
-        upper_y = 2 * 2 # uppermost y           [m]
-        # to be in triangle is the same as being beneath two lines
-        return (y < upper_y*(x - left_x)) & (y < -upper_y * (x - right_x))
     
-    TRIANGLE_ox = in_triangle(x_o.reshape((1, -1)), y_p.reshape((-1, 1)))
-    TRIANGLE_oy = in_triangle(x_p.reshape((1, -1)), y_o.reshape((-1, 1)))
+    
+    #determie obstacle indexes
+    wall_left=int(wl/a*(N+1))
+    wall_right=int(wr/a*(N+1))
+    ceiling=int(wh/b*(M+1))
+    print("-"*20)
+    print(ceiling)
+    print((wall_right-wall_left)*2)
 
     #solving scheme
     for i in range(K-1):
@@ -449,8 +458,21 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
         oy[i+1,1:-1,:]=((1-k2_o*dt/2)/(1+k2_o*dt/2))*oy[i,1:-1,:]-dt/(1+k2_o*dt/2)*dp_dy
 
         #aplying boundry conditions
-        ox[i+1,TRIANGLE_ox]=0
-        oy[i+1,TRIANGLE_oy]=0
+        midle=int((wall_right-wall_left)/2)
+        for index in range(midle+1):
+            oy[i+1,4*index,index+wall_left]=0
+            ox[i+1,4*index,index+wall_left+1]=0
+            ox[i+1,4*index+1,index+wall_left+1]=0
+            ox[i+1,4*index+2,index+wall_left+1]=0
+            ox[i+1,4*index+3,index+wall_left+1]=0
+            up_midle=4*midle+3
+            start_midle=midle+wall_left+1
+            oy[i+1,up_midle-4*index,index+start_midle]=0
+            ox[i+1,up_midle-4*index-1,index+start_midle+1]=0
+            ox[i+1,up_midle-4*index-1-1,index+start_midle+1]=0
+            ox[i+1,up_midle-4*index-2-1,index+start_midle+1]=0
+            ox[i+1,up_midle-4*index-3-1,index+start_midle+1]=0
+        
 
         dox_dx, doy_dy = do_d(ox[i+1], oy[i+1])
 
@@ -470,58 +492,88 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
     return px+py,ox,oy,observations
 
 
-# p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates)
-# p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates)
-# p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates)
-p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates)
+# p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates1)
+# p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
+#p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
+#p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates2)
+p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
 
 print(f"max |p| = {np.max(np.abs(p))}")
 
 #animate function
-def animate_heatmap(frames, interval=100, cmap='viridis', save_path=None, fps=10):
+
+
+def animate_heatmap(frames,xs,ys, coords,
+                    interval=100, cmap='viridis',
+                    save_path=None, fps=10):
     """
-    Animate a sequence of 2D numpy arrays (frames) as a heatmap.
-    
+    Animate a sequence of 2D numpy arrays (frames) as a heatmap,
+    with fixed points overlaid.
+
     Parameters
     ----------
     frames : np.ndarray
         3D array of shape (num_frames, height, width)
-    interval : int, optional
-        Time between frames in milliseconds (default 100)
-    cmap : str, optional
-        Colormap for the heatmap (default 'viridis')
-    save_path : str, optional
-        If provided, saves animation to this path (e.g., 'animation.gif')
-    fps : int, optional
-        Frames per second for saved animation (default 10)
+    coords : list of [x, y]
+        Points to overlay on the heatmap
+    x_p, y_p : 2D arrays
+        Grid coordinates for pcolormesh
     """
-    # Sanity check
+
     if frames.ndim != 3:
-        raise ValueError("Input 'frames' must be a 3D NumPy array (num_frames, height, width).")
-    
+        raise ValueError("Input 'frames' must be a 3D NumPy array.")
+
     num_frames, height, width = frames.shape
 
-    # Create figure
     fig, ax = plt.subplots()
-    cm = ax.pcolormesh(x_p, y_p, frames[0], shading='nearest')
-    # heatmap = ax.imshow(frames[0], cmap=cmap, interpolation='nearest',origin='lower')   #,vmin=frames.min(), vmax=frames.max()/4)
-    # plt.colorbar(heatmap, ax=ax)
+
+    # Initial heatmap
+    cm = ax.pcolormesh(
+        x_p, y_p, frames[0],
+        shading='nearest',
+        cmap=cmap
+    )
     plt.colorbar(cm, ax=ax)
     ax.set_aspect('equal', 'box')
 
-    # Update function
+    # Convert coords to arrays
+    
+    coords = np.asarray(coords)
+    X, Y = coords[:, 0], coords[:, 1]
+
+    # Overlay points
+    scatterO = ax.scatter(
+        X, Y,
+        c='red',
+        s=40,
+        marker='o',
+        edgecolors='black',
+        zorder=3,
+        label='Points'
+    )
+    scatterS = ax.scatter(
+        xs, ys,
+        c='green',
+        s=40,
+        marker='o',
+        edgecolors='black',
+        zorder=3,
+        label='Points'
+    )
+    ax.legend()
+
     def update(frame_idx):
-        # heatmap.set_data(frames[frame_idx])
-        cm.set_array(frames[frame_idx])
-        ax.set_title(f"Frame {frame_idx}/{num_frames}")
-        # return [heatmap]
-        return [cm]
+        cm.set_array(frames[frame_idx].ravel())
+        ax.set_title(f"Frame {frame_idx + 1}/{num_frames}")
+        return cm, scatterO,scatterS
 
-    # Create animation
-    ani = animation.FuncAnimation(fig, update, frames=num_frames,
-                                  interval=interval, blit=True)
+    ani = animation.FuncAnimation(
+        fig, update,
+        frames=num_frames,
+        interval=interval,
+        blit=True
+    )
 
-    # Save if requested
     if save_path:
         if save_path.endswith('.gif'):
             ani.save(save_path, writer='pillow', fps=fps)
@@ -534,7 +586,8 @@ def animate_heatmap(frames, interval=100, cmap='viridis', save_path=None, fps=10
 
     return ani
 
-animate_heatmap(p)
+
+animate_heatmap(p,xs,ys,coordinates2)
 
 t = dt*np.arange(0, K-1)
 
