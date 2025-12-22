@@ -28,7 +28,7 @@ class MOT:
         self.N_S = N_S
         self.N_T = N_T
         self.N_G = N_G
-        self.dt = np.pi * R / c
+        self.dt = R / c / 10
 
         # Indices
         self._x, self._y = 0, 1
