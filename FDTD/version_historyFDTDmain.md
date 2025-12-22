@@ -37,3 +37,8 @@
 * Now everything is stable, even non-cartesian is now stable at CN=1
 * Changed Z from 0 to 2 as in the assignment to see its effect
 * PROBLEM: I looked back at some older versions and it seems that the triangle used to be way better without any refinement; now it has some ugly oscillations at the edge.
+
+## Joran 22/12 (non-cartesian)
+
+* added PML
+* problem: upper PML is implemented incorrectly
