@@ -189,6 +189,8 @@ cm = plt.pcolormesh(X, Y, left_triangle(X, Y) | right_triangle(X, Y) | ground(X,
 plt.colorbar(cm)
 plt.show()
 
+p = pv + pw
+
 fig, ax = plt.subplots()
 cm = ax.pcolormesh(X, Y, p_db[:,:,0], vmin=-48, vmax=48)
 
