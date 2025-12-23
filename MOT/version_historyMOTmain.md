@@ -37,3 +37,7 @@
 ## BORO 21/12 
 * added animations for the current
 * added more comments and changed variable names for clarity
+
+## Joran 23/12
+* Removed two redundant dimensions in quadrature coordinates and weights
+* Removed some boilerplate that came along with it

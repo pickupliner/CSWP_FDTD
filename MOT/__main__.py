@@ -82,7 +82,7 @@ class MOT:
     def rho_n(self, quadraturepoints): #m
         """
         these are the nodal points evaluated on the circumferance of the circle 
-        the dimension is (2,Ns,1,1,Ng) when returned so on each segment there are 8 points that are integrated from
+        the dimension is (2,Ns,Ng) when returned so on each segment there are 8 points that are integrated from
         on the nth segment (test function)?
         
         :param self: class object
@@ -140,8 +140,8 @@ class MOT:
         self.coordquad = (coordoriginal + 1) / 2
         self.weights = woriginal / 2
 
-        self.coordquad = self.coordquad.reshape((1, 1, self.N_G))
-        self.weights = self.weights.reshape((1, 1, self.N_G))
+        self.coordquad = self.coordquad
+        self.weights = self.weights
 
     def F(self, k, rho_m, rho_p):
         """
@@ -150,12 +150,12 @@ class MOT:
         :param self: Description
         :param k: Wave number
         :param rho_m: Discretization nodes where we evaluate the E-field (2,N_S,1)
-        :param rho_p: discretization source together with quadrature  (2,1,N_S,1,1,N_G)
+        :param rho_p: discretization source together with quadrature  (2,1,N_S,N_G)
 
-        returns (N_s,N_s ,1,1,N_G) shape
+        returns (N_s,N_s,N_G) shape
         """
         dist = np.linalg.norm(
-            rho_m.reshape(rho_m.shape + (1, 1, 1)) - rho_p,
+            rho_m.reshape(rho_m.shape + (1,)) - rho_p,
             axis=0
         ) 
         distc= dist/self.c
@@ -181,12 +181,13 @@ class MOT:
 
         m = np.arange(self.N_S).reshape(self.N_S, 1)
         n = np.arange(self.N_S).reshape(1, self.N_S)
+        # (N_S,N_S)
         quad = np.sum(
             self.weights * self.F(k,
                             self.curve_points[:, m],
                             self.rho_n(self.coordquad)[:, n]),
-            axis=-1
-        ).reshape(self.N_S, self.N_S)
+            axis=-1 # over N_G
+        )
 
         Z = -self.l[n] / (2 * np.pi) * quad
         Z = np.where((k == 0) & (m == n), Z0, Z)
