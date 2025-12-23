@@ -41,3 +41,6 @@
 ## Joran 23/12
 * Removed two redundant dimensions in quadrature coordinates and weights
 * Removed some boilerplate that came along with it
+## BORO 23/12
+* added analytical zeros which finds the omega of the analytical solution of the eigenmodes. omega n,m equals m-th order zero and n-th order besselfunction
+* added text when it says that the A is too small thus the current is too large

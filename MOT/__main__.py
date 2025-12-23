@@ -274,6 +274,16 @@ class MOT:
                 Ei[i,j] = np.sum(wi * integrand) * umax
 
         return Ei
+
+    def analyticalzeros(self,totalnorder,amountofzeros):
+        zeros = []
+        for n in range(totalnorder+1):
+            zeros.append((self.c/self.R)*fns.jn_zeros(n,amountofzeros))
+
+        self.zeros = zeros
+        return zeros
+
+
     # =====================
     # Post-processing
     # =====================
@@ -302,7 +312,6 @@ class MOT:
 
     def analytical6_1_(self):
 
-        A = np.exp(-1j * self.omega * self.t_0 - (self.T * self.omega / 8 / self.c)**2) / self.c
         phi = np.linspace(-np.pi, np.pi, 128)
         self.jzanalyticalfrequency = self.j_z(phi,self.omega)
         Jz = np.abs(self.j_z(phi,self.omega))
@@ -326,14 +335,42 @@ class MOT:
         plt.xlabel("t (s)")
         plt.title("j at phi=0")
 
-        A = np.exp(-1j * self.omega * self.t_0 - (self.T * self.omega / 8 / self.c)**2) / self.c
-        print(np.max(A),np.min(A))
+        # --- Compute excitation spectrum ---
+        A = np.exp(
+            -1j * self.omega * self.t_0
+            - (self.T * self.omega / (8 * self.c))**2
+        ) / self.c
+        
+        A_abs = np.abs(A)
+        A_max = np.max(A_abs)
+
+        # Threshold parameter
+        eps = 1e-3  # you can justify this in the report
+
+        valid = A_abs >= eps * A_max
+        omega_valid = self.omega[valid]
+
+        print("Reliable frequency range:")
+        print(f"  omega_min = {omega_valid[0]:.3e} rad/s")
+        print(f"  omega_max = {omega_valid[-1]:.3e} rad/s")
+        print(f"  (omega/c range = [{omega_valid[0]/self.c:.3e}, {omega_valid[-1]/self.c:.3e}] 1/m)")
+        
+        omega_bad = self.omega[~valid]
+        if omega_bad.size > 0:
+            print("WARNING: excitation spectrum too small outside:")
+            print(f"  omega > {omega_bad[0]:.3e} rad/s")
+        
         plt.figure()
         plt.plot(self.omega/self.c, np.abs(A))
         plt.title("spectrum excitation")
         plt.xlabel("$\\omega$/c (m$^{-1}$)")
         plt.ylabel("A (s/m)")
-        j_0 = np.abs(self.j / A.reshape((1, -1)))
+        j_0 = np.full_like(self.j, np.nan, dtype=float)
+        print(np.shape(j_0))
+        j_0[:, valid] = np.abs(
+            self.j[:, valid] / A[valid].reshape(1, -1)
+        )
+        print(j_0)
         fig, axes = plt.subplots(2, 2, sharex='col')
         # FROM OMEGA[10] INSTABILITY STARTS TO DEVELOP AND ONLY BECOMES WORSE: TODO
         # instability due to divide by A: becomes nearly zero
@@ -677,17 +714,20 @@ radius= mot.radius
 #mot.animate_E_i(radius,Ei1)
 U = mot.solve()
 omega,j = mot.positivespectrum()
-print(omega)
+#print(omega)
 mot.analytical6_1_()
 mot.plot61()
 #print(np.shape(mot.U))
 #print(np.shape(mot.jzanalyticaltime))
 
 
-mot.plot_current_on_circle(time_index=200, mode="vector")
+#mot.plot_current_on_circle(time_index=200, mode="vector")
 
 #mot.animate_current_on_circle1(scale=2.0)
 #ani1d = mot.animate_current_1d(interval=20)
-ani = mot.animate_Ei1()
-ani2d = mot.animate_Ei1_2D(interval=40)
+##ani = mot.animate_Ei1()
+#ani2d = mot.animate_Ei1_2D(interval=40)
 
+mot.analyticalzeros(10,20)
+
+print(mot.zeros)

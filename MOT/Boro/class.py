@@ -296,6 +296,7 @@ class MOT:
         a = self.R                         # m
 
         n = np.arange(np.ceil(np.max(k)*a) + 2).reshape(1, -1, 1)
+        
         return 1/1j/omega.reshape((-1, 1))/self.mu * 2 * np.sum(1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=1)
     
 
