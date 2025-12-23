@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # TODO:
-# - PML (left, up and right)
 # - finite Z
 # - free field
 # - 
@@ -79,12 +78,12 @@ def kappa(x):
     return kappaM * ((d_PML - x)/d_PML)**m * np.heaviside(d_PML - x, 1)
 kappa_horizontal_p  = kappa(u_p .reshape((-1,1))) + kappa(a - u_p .reshape((-1,1)))
 kappa_horizontal_ow = kappa(u_ow.reshape((-1,1))) + kappa(a - u_ow.reshape((-1,1)))
-kappa_up_p  = kappa(b - v_p .reshape((1,-1)))
-kappa_up_ov = kappa(b - v_ov.reshape((1,-1)))
-kappa_pw = kappa_horizontal_p
-kappa_pv = kappa_up_p
-kappa_ow = kappa_horizontal_ow[1:-1,:]
-kappa_ov = kappa_up_ov[:,1:-1]
+kappa_up_p          = kappa(b - v_p .reshape((1,-1)))
+kappa_up_ov         = kappa(b - v_ov.reshape((1,-1)))
+kappa_pw = kappa_horizontal_p + kappa_up_p * np.sin(theta)
+kappa_pv = 0                  + kappa_up_p * np.cos(theta)
+kappa_ow = kappa_horizontal_ow[1:-1,:] + kappa_up_p          * np.sin(theta)
+kappa_ov = 0                           + kappa_up_ov[:,1:-1] * np.cos(theta)
 
 plt.plot(u_p.reshape(-1), kappa_horizontal_p.reshape(-1))
 plt.xlabel("u (m)")
