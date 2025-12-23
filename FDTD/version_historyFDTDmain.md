@@ -42,3 +42,4 @@
 
 * added PML
 * problem: upper PML is implemented incorrectly
+* fixed: upper PML is now implemented 'correctly', however previous simple approach seems to have been better
