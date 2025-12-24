@@ -43,3 +43,7 @@
 * added PML
 * problem: upper PML is implemented incorrectly
 * fixed: upper PML is now implemented 'correctly', however previous simple approach seems to have been better
+
+## Joran 24/12 (non-cartesian)
+
+* I had the sine and cosine swapped around in the upper PML
