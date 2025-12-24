@@ -37,3 +37,8 @@
 * Now everything is stable, even non-cartesian is now stable at CN=1
 * Changed Z from 0 to 2 as in the assignment to see its effect
 * PROBLEM: I looked back at some older versions and it seems that the triangle used to be way better without any refinement; now it has some ugly oscillations at the edge.
+
+## Joran 24/12
+
+* Added latex file: main.tex is where all the text is, main.pdf is output.
+* Began writing 'mathematical' explanations of implementation of refinement and non-cartesian grid.

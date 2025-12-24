@@ -44,3 +44,6 @@
 ## BORO 23/12
 * added analytical zeros which finds the omega of the analytical solution of the eigenmodes. omega n,m equals m-th order zero and n-th order besselfunction
 * added text when it says that the A is too small thus the current is too large
+
+## Joran 24/12
+* Compared L with 2 c dt (commented out: lines 82-87), can affirm that L is a constant value (as expected) and L=l, so l is smaller than 2 c dt.

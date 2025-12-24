@@ -79,6 +79,13 @@ class MOT:
         self.L = np.minimum(self.l, 2 * self.c * self.dt)
         # we check because under the sqrt it shouldnt be 0
 
+        # # Check whether L is equal to l or to 2 c dt
+        # plt.plot(self.L, 'o', label="L")
+        # plt.hlines(2 * self.c * self.dt, 0, len(self.L), color='cyan', label="2 c dt")
+        # plt.legend()
+        # plt.ylim(bottom=0)
+        # plt.show()
+
     def rho_n(self, quadraturepoints): #m
         """
         these are the nodal points evaluated on the circumferance of the circle 
@@ -379,7 +386,7 @@ class MOT:
         axes[0,0].set_title("normalized current")
         # axes[0,0].set_xlabel("$\\omega$ (rad/s)")
         axes[0,0].set_ylabel("j$_0$")
-        axes[0,0].set_ylim(0, .03)
+        # axes[0,0].set_ylim(0, .03)
         axes[0,0].legend()
 
         axes[0,1].plot(np.arctan2(self.curve_points[self._y,:-1], self.curve_points[self._x,:-1]), j_0[:,1], label=f"$\\omega$={self.omega[1]} rad/s")

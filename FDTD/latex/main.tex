@@ -1,0 +1,159 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{FDTD: diffraction over objects}
+\author{Alichan Borokov, Sam Hemati, Joran Van Haelst}
+\date{December 2025}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+
+\section{Infinitely Thin Structure}
+
+\subsection{Analytical diffraction around wedge}
+
+\subsection{Results}
+
+
+\section{Thick Object with Finite Impedance}
+
+\subsection{Results}
+
+
+\section{Tilted Boundaries}
+
+\subsection{Finite Impedance}
+
+\subsection{Refinement}
+
+In order to better model the non-cartesian surface,
+we included a grid refinement around the tilted boundaries.
+
+This was achieved by making \(dx\) and \(dy\) functions of respectively \(x\) and \(y\).
+As a first attempt both were made a step-function,
+in which around the boundaries they are both half of what they are elsewhere.
+This however results in reflections at the discontinuity in \(dx\) or \(dy\), 
+as can be seen in ??. % TODO: insert figure of reflections by step function in dx/dy
+Next, to remove these reflections, 
+a buffer zone was added in both \(x\)- and \(y\)-direction in which \(dx\) and \(dy\) are linearly interpolated (see fig ??). % TODO: add figure of dx or dy
+
+Both these were in practice implemented by taking the original discretisation coordinates,
+and transforming these, either partswise linearly (for the step-function in \(dx\) or \(dy\)),
+or with a parabolic part in the bufferzone (for the linear \(dx\) and \(dy\)).
+
+There were \(dx\) or \(dy\) is not constant however, 
+this results in an error in the update scheme.
+As, for example, the discretised \(o_x\) may no longer be halfway between two \(p\)'s.
+This means that in the update equations of \(o_x\),
+it is erronous to use \(\frac{dp}{dx}\) as calculated by differentiating two neighbouring \(p\)'s.
+So an interpolation was made between three values of \(\frac{dp}{dx}\) at the halfway point between two \(p\)'s: 
+two closest neightbours to the left, 
+the two direct neighbours, and those to the right.
+Since there are three values, 
+a parabolic interpolation was optimal.
+At the edges, 
+where there are only two values to interpolate between,
+a linear interpolation was used instead.
+To update \(o_x\), 
+the interpolated \(\frac{dp}{dx}\) at the location of \(o_x\) (after the coordinate transformation) was used.
+
+Some results from the refinement and comparison with without: INSERT HERE. % TODO
+
+\subsection{Non Cartesian Grid}
+
+Another route that was explored is to tilt the grid.
+In this way the surface of the tilted boundary becomes flat on one side,
+thus removing the problems that arise from a staircase-like boundary.
+The left-side was chosen to be flat, as the most important reflections occur there.
+
+Instead of working with \(x\)- and \(y\)-coordinates, 
+a switch is made to \(u\)- and \(v\)-coordinates. 
+These are related via equations \ref{eq:x-of-u-and-v} and \ref{eq:y-of-u-and-v}, 
+in which \(\theta\) is the angle between the \(v\)-axis and the \(x\)-axis.
+
+\begin{equation}\label{eq:x-of-u-and-v}
+    x = u + v \cos \theta
+\end{equation}
+\begin{equation}\label{eq:y-of-u-and-v}
+    y = v \sin \theta
+\end{equation}
+
+In figure \ref{fig:x-y-w-and-v} the basis-vectors are given. % TODO: figure of ex, ey, ev and ew with annotation of theta
+Note that \(\vec{e_x} = \vec{e_u}\), but \(x \ne u\). 
+In this figure another vector, \(\vec{e_w}\), is introduced.
+This vector is perpendicular to \(\vec{e_v}\).
+With this figure the relations given in equations \ref{eq:ew-of-ex-and-ey} and \ref{eq:ev-of-ex-and-ey} are easily derived.
+
+\begin{equation}\label{eq:ew-of-ex-and-ey}
+    \vec{e_w} = \sin \theta \vec{e_x} - \cos \theta \vec{e_y}
+\end{equation}
+\begin{equation}\label{eq:ev-of-ex-and-ey}
+    \vec{e_v} = \cos \theta \vec{e_x} + \sin \theta \vec{e_y}
+\end{equation}
+
+There is still an important choice remaining,
+namely, which directions of \(\vec{o}\) to store.
+A first idea might be to choose \(o_u = \vec{e_u} \cdot \vec{o}\) and \(o_v = \vec{e_v} \cdot \vec{o}\),
+as analogous to the cartesian grid.
+Remember however that the goal is to implement a tilted PEC-boundary,
+which has as boundary condition that \(o_n = 0\), 
+with \(n\) the normal of the boundary.
+For this boundary condition to be implemented simply, 
+\(o_w\) and \(o_v\) are chosen, 
+in which \(\vec{e_w}\) is the normal of the tilted boundary (on the left side).
+An added benefit is that now both stored directions of \(\vec{o}\) are orthogonal to eachother,
+so no data overlaps. Figure \ref{fig:discretised-p-ow-and-ov} shows the location of a few \(p\), \(o_w\) and \(o_v\)'s. % TODO: figure showcasing the discretisation of p, ow and ov
+
+Now the update scheme can be adjusted for the tilted grid.
+To update \(p\), 
+the divergence of \(\vec{o}\) is needed at the location of \(p\),
+with \(\nabla \cdot \vec{o} = \frac{do_w}{dw} + \frac{do_v}{dv}\).
+The following quantities are known:
+\[ \frac{do_v}{dv}|_{v_0 + \Delta v/2} \cdot \Delta v \approx o_v|_{v_0 + \Delta v} - o_v|_{v_0} , \]
+\[ \frac{do_w}{du}|_{u_0 + \Delta u/2} \cdot \Delta u \approx o_w|_{u_0 + \Delta u} - o_w|_{u_0} . \]
+\(\frac{do_w}{dw}\) requires some more attention.
+From equations \ref{eq:ev-of-ex-and-ey} and \ref{eq:ew-of-ex-and-ey}, 
+the following can be derived:
+\[ \vec{e_w} = \frac{1}{\sin \theta} \left( \vec{e_u} - \cos \theta \vec{e_v} \right) . \]
+From which 
+\[ \frac{do_w}{dw} = \vec{e_w} \cdot \nabla o_w = \frac{1}{\sin \theta} \left( \frac{do_w}{du} - \cos \theta \frac{do_w}{dv} \right) \] 
+follows.
+So the missing piece is \(\frac{do_w}{dv}\), 
+which can only be interpolated at \(p\)'s location by using
+\[ \frac{do_w}{dv}|_{v_0} \cdot 2 \Delta v \approx o_w|_{v_0 + \Delta v} - o_w|_{v_0 - \Delta v} , \]
+combined with
+\[ o_w|_{u_0 + \Delta u/2} \approx \frac{o_w|_{u_0} + o_w|_{u_0 + \Delta u}}{2} . \]
+For the update equations of \(\vec{o}\) an analogous approach is followed.
+
+\begin{equation}\label{eq:update-p-perp-PML}
+    \frac{dp_\perp}{dt} + c^2 \frac{do_\alpha}{d\alpha} + \kappa_\perp p_\perp = 0
+\end{equation}
+\begin{equation}\label{eq:update-p-para-PML}
+    \frac{dp_\parallel}{dt} + c^2 \frac{do_\gamma}{d\gamma} + \kappa_\parallel p_\parallel = 0
+\end{equation}
+
+The perfectly matched layers in the tilted grid become a bit more complex.
+This especially for the upper PML.
+The update equations for \(p = p_\perp + p_\parallel\) are given by equations \ref{eq:update-p-perp-PML} and \ref{eq:update-p-para-PML}.
+Looking at the upper PML, 
+so that the perpendicular direction is \(\vec{e_y}\) and the parallel one is \(\vec{e_x}\),
+these equations become:
+\[ \frac{dp_\perp}{dt} + c^2 \frac{do_y}{dy} + \kappa_\perp p_\perp = 0 , \]
+\[ \frac{dp_\parallel}{dt} + c^2 \frac{do_x}{dx} + \kappa_\parallel p_\parallel = 0 . \]
+By defining \(\vec{p} = p_\perp \vec{e_y} + p_\parallel \vec{e_x}\) and \(\vec{\kappa} = \kappa_\perp \vec{e_y} + \kappa_\parallel \vec{e_x}\),
+these can be rewritten in one equation as follows
+\[ \frac{d}{dt} \vec{e_i} \cdot \vec{p} + c^2 \vec{e_i} \cdot \nabla \vec{o} \cdot \vec{e_i} + \left| \vec{e_i} \cdot \vec{\kappa} \right| \vec{p} \cdot \vec{e_i} = 0\]
+The absolute value of \(\vec{e_i} \cdot \vec{\kappa}\) is important: 
+if we chose \(-\vec{e_y}\) instead of \(\vec{e_y}\) as the perpendicular direction, ... % TODO
+
+CN
+
+BOUNDARY
+
+
+\section{Conclusion}
+
+\end{document}
