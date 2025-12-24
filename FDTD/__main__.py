@@ -16,7 +16,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 
-
+#plotting booleans
+PML=False
+refinement=False
 #parameters
 c=1 #wave speed[m/s]
 Z=2 #impedance[ohm]
@@ -41,16 +43,17 @@ coordinates2=[[4*distance,distance/2],[5*distance,distance/2],[6*distance,distan
 # constructing function for k1 (x) or k2(y)
 kappax=np.linspace(0,a,100)
 kappay=10*(((kappax-(a-d))/d)**5 *np.heaviside(kappax-(a-d),1)-((kappax-d)/d)**5*np.heaviside(-kappax+d,1))
-plt.plot(kappax,kappay)
-plt.show()
+if PML:
+    plt.plot(kappax,kappay)
+    plt.show()
 
 
 #source in function of time:
 f=4.95*c/(distance*2*np.pi)
 sigma=f
 t0=18
-#Ps=lambda t:10*np.sin(2*np.pi*f*(t-t0))*np.exp(-((t-t0)**2)*(sigma**2))
-Ps = lambda t: 10*np.exp(-(t - .5)**2*16) # source
+Ps=lambda t:10*np.sin(2*np.pi*f*(t-t0))*np.exp(-((t-t0)**2)*(sigma**2))
+#Ps = lambda t: 10*np.exp(-(t - .5)**2*16) # source
 plt.plot(np.linspace(0,20,282),Ps(np.linspace(0,20,282)))
 plt.show()
 
@@ -119,15 +122,16 @@ f, buffer = 0.5, 6
 #y_p = coordTransform(y_p, x0=0, x1=6, f=f)
 # y_o = parabolicCoordTransform(y_o, x0=0, x1=6, f=f, buffer=buffer)
 # y_p = parabolicCoordTransform(y_p, x0=0, x1=6, f=f, buffer=buffer)
-plt.plot(x_o, np.arange(N+1),    ".", label="x$_o$")
-plt.plot(y_o, np.arange(M+1),    ".", label="y$_o$")
-plt.plot(x_p, np.arange(N) + .5, ".", label="x$_p$")
-plt.plot(y_p, np.arange(M) + .5, ".", label="y$_p$")
-plt.xlabel("coordinate (m)")
-plt.ylabel("discretisation point i")
-plt.title("coordinate transformation")
-plt.legend()
-plt.show()
+if refinement:
+    plt.plot(x_o, np.arange(N+1),    ".", label="x$_o$")
+    plt.plot(y_o, np.arange(M+1),    ".", label="y$_o$")
+    plt.plot(x_p, np.arange(N) + .5, ".", label="x$_p$")
+    plt.plot(y_p, np.arange(M) + .5, ".", label="y$_p$")
+    plt.xlabel("coordinate (m)")
+    plt.ylabel("discretisation point i")
+    plt.title("coordinate transformation")
+    plt.legend()
+    plt.show()
 
 # spatial step between x-coord of o_x
 dx_o = (x_o[1:] - x_o[:-1]).reshape((1,-1)) # [m]
@@ -136,16 +140,17 @@ dy_o = (y_o[1:] - y_o[:-1]).reshape((-1,1)) # [m]
 # spatials steps between coords of p
 dx_p = (x_p[1:] - x_p[:-1]).reshape((1,-1)) # [m]
 dy_p = (y_p[1:] - y_p[:-1]).reshape((-1,1)) # [m]
-plt.plot(np.arange(N) + 0.5, dx_o[0,:], ".", label="dx$_o$")
-plt.plot(np.arange(M) + 0.5, dy_o[:,0], ".", label="dy$_o$")
-plt.plot(np.arange(N-1) + 1, dx_p[0,:], ".", label="dx$_p$")
-plt.plot(np.arange(M-1) + 1, dy_p[:,0], ".", label="dy$_p$")
-plt.xlabel("n")
-plt.ylabel("(m)")
-plt.ylim(bottom=0)
-plt.title("spatial steps after transformation")
-plt.legend()
-plt.show()
+if refinement:
+    plt.plot(np.arange(N) + 0.5, dx_o[0,:], ".", label="dx$_o$")
+    plt.plot(np.arange(M) + 0.5, dy_o[:,0], ".", label="dy$_o$")
+    plt.plot(np.arange(N-1) + 1, dx_p[0,:], ".", label="dx$_p$")
+    plt.plot(np.arange(M-1) + 1, dy_p[:,0], ".", label="dy$_p$")
+    plt.xlabel("n")
+    plt.ylabel("(m)")
+    plt.ylim(bottom=0)
+    plt.title("spatial steps after transformation")
+    plt.legend()
+    plt.show()
 
 #time step based on CN and stabilaty
 # dt=np.sqrt(2)*0.05   #[s]
@@ -169,34 +174,38 @@ X, Y = np.meshgrid(x, y)   #(M,N) matrix both
 
 #kappa for x-direction
 F1=10*(((X-(a-d))/d)**5 *np.heaviside(X-(a-d),1)-((X-d)/d)**5*np.heaviside(-X+d,1)) #(M,N) matrix
-#plotting
-plt.pcolormesh(X, Y, F1, shading='auto', cmap='viridis')
-plt.colorbar(label='f(x, y)')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title('f(x, y) with pcolormesh')
-plt.show()
+if PML:
+    #plotting
+    plt.pcolormesh(X, Y, F1, shading='auto', cmap='viridis')
+    plt.colorbar(label='f(x, y)')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('f(x, y) with pcolormesh')
+    plt.show()
 
 #kappa for y-direction without floor
 F2=10*(((Y-(b-d))/d)**5 *np.heaviside(Y-(b-d),1))
-#plotting
-plt.pcolormesh(X, Y, F2, shading='auto', cmap='viridis')
-plt.colorbar(label='f(x, y)')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title('f(x, y) with pcolormesh')
-plt.show()
+if PML:
+    #plotting
+    plt.pcolormesh(X, Y, F2, shading='auto', cmap='viridis')
+    plt.colorbar(label='f(x, y)')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('f(x, y) with pcolormesh')
+    plt.show()
 
 #kappa for y-direction with floor
 F3=10*(((Y-(b-d))/d)**5 *np.heaviside(Y-(b-d),1)-((Y-d)/d)**5*np.heaviside(-Y+d,1))
 
-#plotting
-plt.pcolormesh(X, Y, F3, shading='auto', cmap='viridis')
-plt.colorbar(label='f(x, y)')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title('f(x, y) with pcolormesh')
-plt.show()
+if PML:
+
+    #plotting
+    plt.pcolormesh(X, Y, F3, shading='auto', cmap='viridis')
+    plt.colorbar(label='f(x, y)')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('f(x, y) with pcolormesh')
+    plt.show()
 
 
 
@@ -211,8 +220,10 @@ ox=np.zeros((K,M,N+1)) #(M,N+1) matrix
 oy=np.zeros((K,M+1,N)) #(M+1,N) matrix
 print(K)
 
+dx=a/N
+dy=b/M
 
-
+print("CN fr fr",c**2*dt**2*(1/dx**2+1/dy**2))
 
 # Special interpolation (x[i] must lie between x0[i-1] and x0[i+1]).
 # Quadratic interpolation in body,
@@ -396,9 +407,9 @@ def rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,co):
         oy[i+1,1:-1,:]=((1-k2_o*dt/2)/(1+k2_o*dt/2))*oy[i,1:-1,:]-dt/(1+k2_o*dt/2)*dp_dy
 
         #aplying boundry conditions
-        ox[i+1,:ceiling,wall_left]=((1-dt*Z/dx_o[:,wall_left])*ox[i,:ceiling,wall_left]+2*dt/dx_p[:,wall_left-1]*p[:ceiling,wall_left-1])/(1+Z*dt/dx_o[:,wall_left])
-        ox[i+1,:ceiling,wall_right]=((1-dt*Z/dx_o[:,wall_right])*ox[i,:ceiling,wall_right]-2*dt/dx_p[:,wall_right]*p[:ceiling,wall_right])/(1+Z*dt/dx_o[:,wall_right])
-        oy[i+1,ceiling,wall_left:wall_right]=((1-dt*Z/dy_o[ceiling,:])*oy[i,ceiling,wall_left:wall_right]-2*dt/dy_p[ceiling,:]*p[ceiling,wall_left:wall_right])/(1+Z*dt/dy_o[ceiling,:])
+        ox[i+1,:ceiling,wall_left]=((1-dt*Z/dx)*ox[i,:ceiling,wall_left]+2*dt/dx*p[:ceiling,wall_left-1])/(1+Z*dt/dx)
+        ox[i+1,:ceiling,wall_right]=((1-dt*Z/dx)*ox[i,:ceiling,wall_right]-2*dt/dx*p[:ceiling,wall_right])/(1+Z*dt/dx)
+        oy[i+1,ceiling,wall_left:wall_right]=((1-dt*Z/dy)*oy[i,ceiling,wall_left:wall_right]-2*dt/dy*p[ceiling,wall_left:wall_right])/(1+Z*dt/dy)
 
         dox_dx, doy_dy = do_d(ox[i+1], oy[i+1])
 
@@ -407,8 +418,8 @@ def rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,co):
         py[i+1]=((1-k2_p*dt/2)/(1+k2_p*dt/2))*py[i]-(c**2/(1+k2_p*dt/2))*dt*doy_dy
 
         #removing inside obstacle ->not sure if neccecary
-        px[i+1,:ceiling,wall_left:wall_right]=0
-        py[i+1,:ceiling,wall_left:wall_right]=0
+        #px[i+1,:ceiling,wall_left:wall_right]=0
+        #py[i+1,:ceiling,wall_left:wall_right]=0
 
         # adding source
         px[i+1,i_s,j_s]+=Ps(i*dt)/2
@@ -459,19 +470,20 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
 
         #aplying boundry conditions
         midle=int((wall_right-wall_left)/2)
+        
         for index in range(midle+1):
-            oy[i+1,4*index,index+wall_left]=0
-            ox[i+1,4*index,index+wall_left+1]=0
-            ox[i+1,4*index+1,index+wall_left+1]=0
-            ox[i+1,4*index+2,index+wall_left+1]=0
-            ox[i+1,4*index+3,index+wall_left+1]=0
+            oy[i+1,4*index,index+wall_left]=((1-Z*(dt/dy_o[0,0]))*ox[i,4*index,index+wall_left]-2*(dt/dx_o[0,0])*p[4*index,index+wall_left])/(1+Z*(dt/dy_o[0,0]))
+            ox[i+1,4*index,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,4*index+1,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index+1,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index+1,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,4*index+2,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index+2,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index+2,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,4*index+3,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index+3,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index+3,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
             up_midle=4*midle+3
             start_midle=midle+wall_left+1
-            oy[i+1,up_midle-4*index,index+start_midle]=0
-            ox[i+1,up_midle-4*index-1,index+start_midle+1]=0
-            ox[i+1,up_midle-4*index-1-1,index+start_midle+1]=0
-            ox[i+1,up_midle-4*index-2-1,index+start_midle+1]=0
-            ox[i+1,up_midle-4*index-3-1,index+start_midle+1]=0
+            oy[i+1,up_midle-4*index,index+start_midle]=((1-Z*(dt/dy_o[0,0]))*oy[i,up_midle-4*index,index+start_midle]-2*(dt/dx_o[0,0])*p[up_midle-4*index,index+start_midle])/(1+Z*(dt/dy_o[0,0]))
+            ox[i+1,up_midle-4*index-1,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-1,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-1,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,up_midle-4*index-1-1,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-1-1,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-1-1,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,up_midle-4*index-2-1,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-2-1,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-2-1,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,up_midle-4*index-3-1,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-3-1,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-3-1,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
         
 
         dox_dx, doy_dy = do_d(ox[i+1], oy[i+1])
@@ -593,3 +605,4 @@ t = dt*np.arange(0, K-1)
 
 plt.plot(t,obs[1])
 plt.show()
+
