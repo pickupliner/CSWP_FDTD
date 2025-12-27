@@ -29,7 +29,7 @@ class MOT:
         self.N_S = N_S
         self.N_T = N_T
         self.N_G = N_G
-        self.dt = np.pi * R / c  #timestep
+        self.dt = 1e-8  #timestep
 
         # Indices
         self._x, self._y = 0, 1  #whenever this is used first index is x-coordinates and second is y coordinates
@@ -70,6 +70,8 @@ class MOT:
         """
         s = np.linspace(0, 1, self.N_S + 1)
         self.curve_points = self.curve(s)
+
+        self.rho = (self.curve_points[1:] + self.curve_points[:-1])/2
         
         #these are all the tangent vectirs
         self.tangents = self.curve_points[:, 1:] - self.curve_points[:, :-1]
@@ -120,8 +122,15 @@ class MOT:
     # Incident field
     # =====================
     def _init_incident_pulse(self):
-        self.t_0 = self.N_T / np.log2(self.N_T / 8) * self.dt # s
-        self.T = self.c * self.t_0 / np.sqrt(2 * np.pi) / 2 #m
+        self.t_0 = 1.5e-7 # s
+        self.T = 54 #m
+
+        # t = self.dt*np.arange(self.N_T)
+        # plt.plot(t, self.E_i1([0,0], t), '.-')
+        # plt.xlabel("t (s)")
+        # plt.ylabel("E_i")
+        # plt.show()
+
         self.T1 = 20*self.dt
         self.t_01 = 10*self.T1
 
@@ -191,7 +200,7 @@ class MOT:
         # (N_S,N_S)
         quad = np.sum(
             self.weights * self.F(k,
-                            self.curve_points[:, m],
+                            self.rho[:, m],
                             self.rho_n(self.coordquad)[:, n]),
             axis=-1 # over N_G
         )
@@ -319,7 +328,7 @@ class MOT:
 
     def analytical6_1_(self):
 
-        phi = np.linspace(-np.pi, np.pi, 128)
+        phi = np.linspace(-np.pi, np.pi, self.N_S)
         self.jzanalyticalfrequency = self.j_z(phi,self.omega)
         Jz = np.abs(self.j_z(phi,self.omega))
         self.jzanalyticaltime = np.fft.irfft(self.jzanalyticalfrequency,axis=1)
@@ -340,7 +349,7 @@ class MOT:
         plt.plot(np.arange(0, self.N_T*self.dt, self.dt), self.U[0,:])
         plt.plot(np.arange(0, self.N_T*self.dt, self.dt), self.U[self.N_S//2,:])
         plt.xlabel("t (s)")
-        plt.title("j at phi=0")
+        plt.title("dj/dt at phi=0")
 
         # --- Compute excitation spectrum ---
         A = np.exp(

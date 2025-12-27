@@ -47,3 +47,8 @@
 
 ## Joran 24/12
 * Compared L with 2 c dt (commented out: lines 82-87), can affirm that L is a constant value (as expected) and L=l, so l is smaller than 2 c dt.
+
+## Joran 27/12
+* Remade MOT code in new file: tmp.ipynb
+* Happy to announce that it seems to work and seems stable for longer timescales
+* I'll be changing the old file to use the new implementation some time soon
