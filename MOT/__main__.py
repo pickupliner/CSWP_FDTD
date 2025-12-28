@@ -13,7 +13,7 @@ class MOT:
     # =====================
     def __init__(self,
                  R=1.0, #Radius Pec
-                 N_S=32,# spatial nodes
+                 N_S=42,# spatial nodes
                  N_T=512, #temporal nodes
                  N_G=8, #amount of weights for quadrature
                  c=3e8,  #light constant
@@ -29,7 +29,8 @@ class MOT:
         self.N_S = N_S
         self.N_T = N_T
         self.N_G = N_G
-        self.dt = 1e-8  #timestep
+        
+        self.dt = self.R / (self.c * self.N_S)
 
         # Indices
         self._x, self._y = 0, 1  #whenever this is used first index is x-coordinates and second is y coordinates
@@ -47,6 +48,7 @@ class MOT:
         # Solution container
         self.U = np.zeros((self.N_S, self.N_T))  # solution is stored here
 
+         #timestep
     # =====================
     # Geometry
     # =====================
@@ -70,8 +72,6 @@ class MOT:
         """
         s = np.linspace(0, 1, self.N_S + 1)
         self.curve_points = self.curve(s)
-
-        self.rho = (self.curve_points[1:] + self.curve_points[:-1])/2
         
         #these are all the tangent vectirs
         self.tangents = self.curve_points[:, 1:] - self.curve_points[:, :-1]
@@ -80,13 +80,6 @@ class MOT:
         
         self.L = np.minimum(self.l, 2 * self.c * self.dt)
         # we check because under the sqrt it shouldnt be 0
-
-        # # Check whether L is equal to l or to 2 c dt
-        # plt.plot(self.L, 'o', label="L")
-        # plt.hlines(2 * self.c * self.dt, 0, len(self.L), color='cyan', label="2 c dt")
-        # plt.legend()
-        # plt.ylim(bottom=0)
-        # plt.show()
 
     def rho_n(self, quadraturepoints): #m
         """
@@ -105,32 +98,32 @@ class MOT:
         
         return segmentnint
 
-    def create_spacetimemesh(self):
+    def create_spacetimemesh_6_2(self,discretizationpointsrho,discretizationpointstime):
         """
+        
         creates mesh in spacetime You can return with recast such that 
         (2,N_s,m,n,N_rho,N_T,N_G)
         :param self: Description
+        
         """
+        N_rho = discretizationpointsrho
+        N_time = discretizationpointstime
+
         self.timeframe = self.t_01 + np.arange(self.N_T)* self.dt
         eps=self.R/10000
-        self.radius  = np.linspace(eps,self.R,self.N_S)
+        self.radius  = np.linspace(eps,self.R,N_rho)
 
         self.MeshR,self.Mesht = np.meshgrid(self.radius,self.timeframe,indexing= 'ij')
+        
         return None
 
     # =====================
     # Incident field
     # =====================
     def _init_incident_pulse(self):
-        self.t_0 = 1.5e-7 # s
-        self.T = 54 #m
-
-        # t = self.dt*np.arange(self.N_T)
-        # plt.plot(t, self.E_i1([0,0], t), '.-')
-        # plt.xlabel("t (s)")
-        # plt.ylabel("E_i")
-        # plt.show()
-
+        self.t_0 = self.N_T / np.log2(self.N_T / 8) * self.dt*2 # s
+        self.T = self.c * self.t_0 / np.sqrt(2 * np.pi)*0.05 #m
+       
         self.T1 = 20*self.dt
         self.t_01 = 10*self.T1
 
@@ -141,6 +134,7 @@ class MOT:
         :param self: object model
         :param rho: where you evaluate the wave ()
         :param t: timesteps to evaluate (amount of t)
+        
         """
         gamma = 4 / self.T * (self.c * (t - self.t_0) - rho[self._x])
 
@@ -148,6 +142,45 @@ class MOT:
         
         return E_i
 
+    def E_i2(self,rho,t):
+        """
+        Compute Ei(rho, t) for each element using Gauss-Legendre quadrature.
+        rho and t: 2D arrays of shape (N_rho, N_t)
+        Returns: Ei, same shape
+        """
+        N_rho, N_t = rho.shape
+        Ei = np.zeros_like(rho) #(N_rho,N_t)
+
+        # Gauss-Legendre nodes and weights on [-1,1], scaled for [0,1]
+        xi, wi = np.polynomial.legendre.leggauss(self.N_G)
+        wi = wi * (-self.mu / (4*np.pi))  # scale for [0,1]
+
+        for i in range(N_rho):
+            for j in range(N_t):
+                r = rho[i,j]
+                tt = t[i,j]
+
+                # Causality: only compute for t > r/c
+                if tt <= r / self.c:
+                    Ei[i,j] = 0.0
+                    continue
+
+                # Compute u_max, avoid NaN
+                arg = self.c / r * (tt - self.t_01)
+                arg = np.maximum(arg, 1.0)
+                umax = np.arccosh(arg)
+
+                # Gauss nodes in u
+                u = (umax / 2) * (1 + xi)  # shape (NG,)
+
+                # Integrand
+                arg_t = tt - (r / self.c) * np.cosh(u)
+                integrand = self.fprime(arg_t)
+
+                # Weighted sum
+                Ei[i,j] = np.sum(wi * integrand) * umax
+
+        return Ei
     # =====================
     # Quadrature
     # =====================
@@ -198,10 +231,11 @@ class MOT:
         m = np.arange(self.N_S).reshape(self.N_S, 1)
         n = np.arange(self.N_S).reshape(1, self.N_S)
         # (N_S,N_S)
+        
         quad = np.sum(
             self.weights * self.F(k,
-                            self.rho[:, m],
-                            self.rho_n(self.coordquad)[:, n]),
+                                  self.curve_points[:, m],
+                                  self.rho_n(self.coordquad)[:, n]),
             axis=-1 # over N_G
         )
 
@@ -250,47 +284,6 @@ class MOT:
         result[mask] = -2 * alpha**2 * (t[mask] - self.t_01) * norm * np.exp(-(x[mask])**2)
         return result
     
-
-    def E_i2(self,rho,t):
-        """
-        Compute Ei(rho, t) for each element using Gauss-Legendre quadrature.
-        rho and t: 2D arrays of shape (N_rho, N_t)
-        Returns: Ei, same shape
-        """
-        N_rho, N_t = rho.shape
-        Ei = np.zeros_like(rho) #(N_rho,N_t)
-
-        # Gauss-Legendre nodes and weights on [-1,1], scaled for [0,1]
-        xi, wi = np.polynomial.legendre.leggauss(self.N_G)
-        wi = wi * (-self.mu / (4*np.pi))  # scale for [0,1]
-
-        for i in range(N_rho):
-            for j in range(N_t):
-                r = rho[i,j]
-                tt = t[i,j]
-
-                # Causality: only compute for t > r/c
-                if tt <= r / self.c:
-                    Ei[i,j] = 0.0
-                    continue
-
-                # Compute u_max, avoid NaN
-                arg = self.c / r * (tt - self.t_01)
-                arg = np.maximum(arg, 1.0)
-                umax = np.arccosh(arg)
-
-                # Gauss nodes in u
-                u = (umax / 2) * (1 + xi)  # shape (NG,)
-
-                # Integrand
-                arg_t = tt - (r / self.c) * np.cosh(u)
-                integrand = self.fprime(arg_t)
-
-                # Weighted sum
-                Ei[i,j] = np.sum(wi * integrand) * umax
-
-        return Ei
-
     def analyticalzeros(self,totalnorder,amountofzeros):
         zeros = []
         for n in range(totalnorder+1):
@@ -328,7 +321,7 @@ class MOT:
 
     def analytical6_1_(self):
 
-        phi = np.linspace(-np.pi, np.pi, self.N_S)
+        phi = np.linspace(-np.pi, np.pi, 128)
         self.jzanalyticalfrequency = self.j_z(phi,self.omega)
         Jz = np.abs(self.j_z(phi,self.omega))
         self.jzanalyticaltime = np.fft.irfft(self.jzanalyticalfrequency,axis=1)
@@ -349,7 +342,7 @@ class MOT:
         plt.plot(np.arange(0, self.N_T*self.dt, self.dt), self.U[0,:])
         plt.plot(np.arange(0, self.N_T*self.dt, self.dt), self.U[self.N_S//2,:])
         plt.xlabel("t (s)")
-        plt.title("dj/dt at phi=0")
+        plt.title("j at phi=0")
 
         # --- Compute excitation spectrum ---
         A = np.exp(
@@ -382,11 +375,9 @@ class MOT:
         plt.xlabel("$\\omega$/c (m$^{-1}$)")
         plt.ylabel("A (s/m)")
         j_0 = np.full_like(self.j, np.nan, dtype=float)
-        print(np.shape(j_0))
         j_0[:, valid] = np.abs(
             self.j[:, valid] / A[valid].reshape(1, -1)
         )
-        print(j_0)
         fig, axes = plt.subplots(2, 2, sharex='col')
         # FROM OMEGA[10] INSTABILITY STARTS TO DEVELOP AND ONLY BECOMES WORSE: TODO
         # instability due to divide by A: becomes nearly zero
@@ -395,7 +386,7 @@ class MOT:
         axes[0,0].set_title("normalized current")
         # axes[0,0].set_xlabel("$\\omega$ (rad/s)")
         axes[0,0].set_ylabel("j$_0$")
-        # axes[0,0].set_ylim(0, .03)
+        #axes[0,0].set_ylim(0, 1)
         axes[0,0].legend()
 
         axes[0,1].plot(np.arctan2(self.curve_points[self._y,:-1], self.curve_points[self._x,:-1]), j_0[:,1], label=f"$\\omega$={self.omega[1]} rad/s")
@@ -718,13 +709,11 @@ class MOT:
 
 
 mot = MOT(N_S=80, N_T=400)
+mot.create_spacetimemesh_6_2(100,500)
+
+
 Ei1= mot.E_i1(mot.curve_points[:, :-1],mot.dt)
-mot.create_spacetimemesh()
-
-Ei2=mot.E_i2(mot.MeshR,mot.Mesht)
-
-#print(np.shape(Ei1))
-#print(np.shape(Ei2))
+Ei2=mot.E_i2( mot.MeshR, mot.Mesht)
 
 radius= mot.radius
 #mot.animate_E_i(radius,Ei1)
@@ -741,8 +730,8 @@ mot.plot61()
 
 #mot.animate_current_on_circle1(scale=2.0)
 #ani1d = mot.animate_current_1d(interval=20)
-##ani = mot.animate_Ei1()
-#ani2d = mot.animate_Ei1_2D(interval=40)
+ani = mot.animate_Ei1()
+ani2d = mot.animate_Ei1_2D(interval=40)
 
 mot.analyticalzeros(10,20)
 

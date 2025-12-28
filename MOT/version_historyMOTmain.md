@@ -52,3 +52,6 @@
 * Remade MOT code in new file: tmp.ipynb
 * Happy to announce that it seems to work and seems stable for longer timescales
 * I'll be changing the old file to use the new implementation some time soon
+
+## Boro 28/12
+* changed parameters for physically better simulations

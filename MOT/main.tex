@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{CSWP: march on in time}
+\author{Alichan Borokov, Sam Hemati, Joran Van Haelst}
+\date{December 2025}
+
+\begin{document}
+\maketitle
+
+\section{Summary of the problem}
+in this assignment we implement the march-on in time algorithm on PEC scatterers.
+We implemented  on TM case of the wave equation. This means that the electric field only contains a z-component and the magnetic field only in the x and y- direction.
+the problem is also consistent in the z-direction this means the material is symmetric under the z-axis.
+This reduces our problem to a 2 dimensional problem.\\
+
+After  that we use the greens function in its retarded form to solve the boundary integral equation which has as the unknown the current.
+At last we discretize the integral equation as done in the assignment. And we us those formulae to describe the different problems.
+
+
+\section{assignment}
+we validate our code by calculating the time domain scattering at a cylinder.
+
+The formulae description is done  in the assignment. Our task is  implement the march-on-in-time algorithm on this example and look if this correspondds with the analytical solution.
+\\
+
+for the virst part we calculate the timedomain scattering at a cylinder. Using an incoming wave going to the positive x direction.
+
+
+
+
+
+
+
+
+\end{document}
