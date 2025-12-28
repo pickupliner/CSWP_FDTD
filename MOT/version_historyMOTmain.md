@@ -55,3 +55,17 @@
 
 ## Boro 28/12
 * changed parameters for physically better simulations
+
+## Joran 29/12
+* Update __main.py__ to have the new implementation from tmp.ipynb
+* gave init a curve variable: handy for when we want something other than a circle as a PEC. With this I removed R and N_S: N_S is derived from the shape of curve
+* made dt also a variable in init
+* Removed E_i from MOT into the Q_6_1_validation function and with it the _init_incident_pulse
+* Replaced the Z and F function with _init_F and _init_Z, which are necessary for the new version in which Z and F are arrays.
+* In build_geometry I made self.rho the midpoints of all segments,
+self.rhop is the linear interpolation along the segments, and self.curve is the edges of the segments (what was previously self.curvepoints).
+* Since MOT has no R field anymore updated some functions to take an R parameter.
+* the solve function now takes an argument V which is the excitation, or the incident field.
+* Moved analytical current to Q_6_1_validation function
+* Broke functions animate_Ei1 and animate_Ei1_2D, because I moved E_i out of the MOT.
+* Made two functions, Q_6_1_validation and Q_6_2_cylindrical_cavity for those questions repectively.
