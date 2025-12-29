@@ -12,93 +12,74 @@ class MOT:
     # Initialization
     # =====================
     def __init__(self,
-                 R=1.0, #Radius Pec
-                 N_S=42,# spatial nodes
-                 N_T=512, #temporal nodes
-                 N_G=8, #amount of weights for quadrature
-                 c=3e8,  #light constant
-                 mu=np.pi * 4e-7 #permeability
+                 curve,          # [m] (2, N_S+1) points on PEC
+                #  R=1.0,          # [m]   Radius Pec
+                #  N_S=42,         # [1]   spatial nodes
+                 dt=1e-8,
+                 N_T=512,        # [1]   temporal nodes
+                 N_G=8,          # [1]   amount of weights for quadrature
+                 c=3e8,          # [m/s] light constant
+                 mu=np.pi * 4e-7 # [H/m] permeability
                  ):
 
         # Physical constants
         self.c = c
         self.mu = mu
-        self.R = R
 
         # Discretization
-        self.N_S = N_S
+        self.N_S = curve.shape[1] - 1
         self.N_T = N_T
         self.N_G = N_G
         
-        self.dt = self.R / (self.c * self.N_S)
+        self.dt = dt
 
         # Indices
         self._x, self._y = 0, 1  #whenever this is used first index is x-coordinates and second is y coordinates
 
-        # Geometry
-        self._build_geometry() # creates the geometry of the boundary which is  a (2,N_S) matrix with 0 x and 1 y
-
-        # Time pulse parameters
-        self._init_incident_pulse() #creates the values for the pulses
-
         # Quadrature
-        self._init_quadrature() #creates  quadrature
+        self._init_quadrature() # creates quadrature
 
+        # Geometry
+        self.curve = curve
+        self._build_geometry() # creates the geometry of the boundary which is a (2,N_S) matrix with 0 x and 1 y
+
+        self._init_F() # creates F array for use in solver
+        self._init_Z() # creates Z array for use in solver
 
         # Solution container
         self.U = np.zeros((self.N_S, self.N_T))  # solution is stored here
-
-         #timestep
+         
     # =====================
     # Geometry
     # =====================
-    def curve(self, s):#m
-        """
-        curve creates the positional arguments for the circle
-        
-        :param self: class objext
-        :param s: array
-        """
-        arg = 2 * np.pi * s #this is the circomference parametere more nodes means more discretiazation
-        
-        return self.R * np.array([np.cos(arg), np.sin(arg)]) #returns x and y for circle
 
-    def _build_geometry(self):#m
+    def _build_geometry(self):
         """
         _build_geometry creates the tangent lines and the coordinates of the circle 
-        this is all on the boundary
+        this is all on the boundary.
+        Assumes quadrature allready initiated.
         
         :param self: class objext
         """
-        s = np.linspace(0, 1, self.N_S + 1)
-        self.curve_points = self.curve(s)
+
+        # [m] (2, N_S) centers of all the segments
+        self.rho = (self.curve[:, 1:] + self.curve[:, :-1])/2
         
-        #these are all the tangent vectirs
-        self.tangents = self.curve_points[:, 1:] - self.curve_points[:, :-1]
-        #this gets all the norms of the tangents
+        # [m] (2, N_S) these are all the tangent vectors
+        self.tangents = self.curve[:, 1:] - self.curve[:, :-1]
+
+        # [m] (N_S,) this gets all the norms of the tangents/segments
         self.l = np.linalg.norm(self.tangents, axis=0)
         
         self.L = np.minimum(self.l, 2 * self.c * self.dt)
         # we check because under the sqrt it shouldnt be 0
 
-    def rho_n(self, quadraturepoints): #m
-        """
-        these are the nodal points evaluated on the circumferance of the circle 
-        the dimension is (2,Ns,Ng) when returned so on each segment there are 8 points that are integrated from
-        on the nth segment (test function)?
-        
-        :param self: class object
-        :param quadraturepoints: quadrature points 
-        """
-        shape = (2, self.N_S) + (1,) * len(quadraturepoints.shape)
-        segmentnint =(
-                    self.curve_points[:, :-1].reshape(shape)
-                    + quadraturepoints * self.tangents.reshape(shape)
-                     )
-        
-        return segmentnint
+        # linear interpolation for gaussian quadrature
+        # [m] (xy, N_S, N_G) g coordinates along m segments
+        self.rhop = self.curve[:, :-1].reshape((2,self.N_S,1)) \
+                  + self.coordquad*self.tangents[:, :].reshape((2,self.N_S,1))
 
-    def create_spacetimemesh_6_2(self,discretizationpointsrho,discretizationpointstime):
+    def create_spacetimemesh_6_2(self,R,discretizationpointsrho,discretizationpointstime):
         """
         
         creates mesh in spacetime You can return with recast such that 
@@ -110,8 +91,8 @@ class MOT:
         N_time = discretizationpointstime
 
         self.timeframe = self.t_01 + np.arange(self.N_T)* self.dt
-        eps=self.R/10000
-        self.radius  = np.linspace(eps,self.R,N_rho)
+        eps=R/10000
+        self.radius  = np.linspace(eps,R,N_rho)
 
         self.MeshR,self.Mesht = np.meshgrid(self.radius,self.timeframe,indexing= 'ij')
         
@@ -120,27 +101,6 @@ class MOT:
     # =====================
     # Incident field
     # =====================
-    def _init_incident_pulse(self):
-        self.t_0 = self.N_T / np.log2(self.N_T / 8) * self.dt*2 # s
-        self.T = self.c * self.t_0 / np.sqrt(2 * np.pi)*0.05 #m
-       
-        self.T1 = 20*self.dt
-        self.t_01 = 10*self.T1
-
-    def E_i1(self, rho, t):
-        """
-        
-        
-        :param self: object model
-        :param rho: where you evaluate the wave ()
-        :param t: timesteps to evaluate (amount of t)
-        
-        """
-        gamma = 4 / self.T * (self.c * (t - self.t_0) - rho[self._x])
-
-        E_i = 4 / self.T / np.sqrt(np.pi) * np.exp(-gamma**2)
-        
-        return E_i
 
     def E_i2(self,rho,t):
         """
@@ -181,6 +141,7 @@ class MOT:
                 Ei[i,j] = np.sum(wi * integrand) * umax
 
         return Ei
+    
     # =====================
     # Quadrature
     # =====================
@@ -192,79 +153,79 @@ class MOT:
         self.coordquad = self.coordquad
         self.weights = self.weights
 
-    def F(self, k, rho_m, rho_p):
+    def _init_F(self):
         """
-        Calculates integrand
+        Inits self.F,
+        assumes geometry is already initiated.
         
         :param self: Description
-        :param k: Wave number
-        :param rho_m: Discretization nodes where we evaluate the E-field (2,N_S,1)
-        :param rho_p: discretization source together with quadrature  (2,1,N_S,N_G)
-
-        returns (N_s,N_s,N_G) shape
         """
-        dist = np.linalg.norm(
-            rho_m.reshape(rho_m.shape + (1,)) - rho_p,
-            axis=0
-        ) 
-        distc= dist/self.c
 
-        a = np.max([np.broadcast_to([k*self.dt], distc.shape), distc], axis=0)
-        b = np.max([np.broadcast_to([(k+1)*self.dt], distc.shape), distc], axis=0)
+        #                              xy m  n         g
+        rho_resh  = self.rho .reshape((2,-1, 1,        1       ))
+        rhop_resh = self.rhop.reshape((2, 1, self.N_S, self.N_G))
+        # dist_c : (m,n,g)
+        dist_c = (np.linalg.vector_norm(rho_resh - rhop_resh, axis=0)/self.c)
+        #                                 k  m  n  g
+        k = np.arange(self.N_T).reshape((-1, 1, 1, 1))
+        # a,b : (k,m,n,g)
+        a = np.maximum(k*self.dt, dist_c)
+        b = np.maximum((k+1)*self.dt, dist_c)
+        # F : (k,m,n,g)
+        self.F = np.log((b + np.sqrt(b**2 - dist_c**2))/(a + np.sqrt(a**2 - dist_c**2)))
+
+    def _init_Z(self):
+        """
+        Inits self.Z,
+        assumes quadrature, geometry and F are already initiated.
         
+        :param self: Description
+        """
 
-        return np.log((b + np.sqrt(b**2 - distc**2)) /
-                      (a + np.sqrt(a**2 - distc**2)))
+        n = np.arange(self.N_S).reshape((1,1,-1))
+        # sum with g from 0 to N_G over w_g . F_kmng
+        quad = np.einsum('g,kmng->kmn', self.weights, self.F)
+        # Z : (k,m,n)
+        self.Z = -self.l[n]/2/np.pi * quad
 
-    # =====================
-    # Operators
-    # =====================
-    @functools.cache
-    def Z(self, k):
+        # diagonal of Z_0
+        for m in range(self.N_S):
+            root = np.sqrt((2*self.c*self.dt)**2 - self.L[m]**2)
+            self.Z[0,m,m] = -self.L[m]/2/np.pi * np.log((2*self.c*self.dt + root)/self.L[m]) \
+                           - self.c*self.dt/np.pi * np.arctan(self.L[m]/root)
 
-        tmp = np.sqrt((2 * self.c * self.dt)**2 - self.L**2)
-        Z0 = np.diag(
-            -self.L / (2 * np.pi) * np.log((2 * self.c * self.dt + tmp) / self.L)
-            - self.c * self.dt / np.pi * np.arctan(self.L / tmp)
-        )
-
-        m = np.arange(self.N_S).reshape(self.N_S, 1)
-        n = np.arange(self.N_S).reshape(1, self.N_S)
-        # (N_S,N_S)
-        
-        quad = np.sum(
-            self.weights * self.F(k,
-                                  self.curve_points[:, m],
-                                  self.rho_n(self.coordquad)[:, n]),
-            axis=-1 # over N_G
-        )
-
-        Z = -self.l[n] / (2 * np.pi) * quad
-        Z = np.where((k == 0) & (m == n), Z0, Z)
-        return Z
-
-    def V1(self, j,E_i):
-        return E_i(self.curve_points[:, :-1], j * self.dt)
-
-    def V(self, j):
-        
-        return self.E_i1(self.curve_points[:, :-1], j * self.dt) #(N_s,)
+    def V1(self, j, E_i):
+        return E_i(self.rho[:, :], j * self.dt)
 
     # =====================
     # Time-marching solver
     # =====================
-    def solve(self,E_i=None):
-        A = self.Z(0)
-        b = -self.V(0) 
-        self.U[:, 0], info = spla.gmres(A, b)
-        assert info == 0 # error if equation could not be solved
+    def solve(self, V):
+        """
+        Solves the MOT problem with the excitation V.
+        Assumes Z and all the rest are initiated.
+        
+        :param self: Description
+        :param V: a 2D-array of shape (N_T, N_S). V_jm: the incident field at time j dt and at position rho_m
+        """
+        assert V.shape == (self.N_T, self.N_S)
+
+        # U : (n,i)
+        # solve Z_0 . U = -V_0
+        self.U[:,0], info = spla.gmres(A=self.Z[0,:,:], b=-V[0,:])
+        # throw error if problem could not be solved
+        assert info == 0 
 
         for j in range(1, self.N_T):
-            # k = np.arange(0, j-1 + 1) # k = 0, .., j-1
-            rhs = -self.V(j)
-            conv = sum(self.Z(k) @ self.U[:, j - k - 1]
-                       for k in range(j))
-            self.U[:, j], info = spla.gmres(A, rhs - conv)
+            k = np.arange(j)
+            i = j - k
+            # sum with k from 0 to j-1 over Z_k . U_(j-k)
+            conv = np.einsum(f'kmn,mk->n', self.Z[k,:,:], self.U[:,i])
+            # solve Z_0 . U = -V_j - sum_k Z_k . U_(j-k)
+            self.U[:,j], info = spla.gmres(
+                A=self.Z[0,:,:], 
+                b= -V[j,:] - conv
+            )
             assert info == 0
 
         return self.U
@@ -306,117 +267,36 @@ class MOT:
         return self.omega, self.j
 
 
-    # =====================
-    # analytical
-    # =====================
-    def j_z(self,phi,omega):
-        # omega = 1                   # rad TODO
-        k = omega.reshape(-1, 1, 1)/self.c # rad/m TODO
+    # # =====================
+    # # analytical
+    # # =====================
+    # def j_z(self,phi,omega):
+    #     k = omega.reshape(-1, 1, 1)/self.c # rad/m
         
-        a = self.R                         # m
+    #     a = self.R                         # m
 
-        n = np.arange(np.ceil(np.max(k)*a) + 2).reshape(1, -1, 1)
-        return 1/1j/omega.reshape((-1, 1))/self.mu * 2 * np.sum(1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=1)
+    #     n = np.arange(np.ceil(np.max(k)*a) + 2).reshape(1, -1, 1)
+    #     return 1/1j/omega.reshape((-1, 1))/self.mu * 2 * np.sum(1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=1)
     
 
-    def analytical6_1_(self):
+    # def analytical6_1_(self, R):
 
-        phi = np.linspace(-np.pi, np.pi, 128)
-        self.jzanalyticalfrequency = self.j_z(phi,self.omega)
-        Jz = np.abs(self.j_z(phi,self.omega))
-        self.jzanalyticaltime = np.fft.irfft(self.jzanalyticalfrequency,axis=1)
+    #     phi = np.linspace(-np.pi, np.pi, 128)
+    #     self.jzanalyticalfrequency = self.j_z(phi,self.omega)
+    #     Jz = np.abs(self.j_z(phi,self.omega))
+    #     self.jzanalyticaltime = np.fft.irfft(self.jzanalyticalfrequency,axis=1)
 
-        return phi,Jz
+    #     return phi,Jz
         
     # =====================
     # Visualization
     # =====================
     def plot_geometry(self):
-        plt.plot(*self.curve_points)
+        plt.plot(*self.rho, 'o')
+        plt.plot(*self.rhop[:,0,:], '.')
         plt.axis("equal")
         plt.title("Geometry")
         plt.show()
-
-    def plot61(self):
-        plt.figure()
-        plt.plot(np.arange(0, self.N_T*self.dt, self.dt), self.U[0,:])
-        plt.plot(np.arange(0, self.N_T*self.dt, self.dt), self.U[self.N_S//2,:])
-        plt.xlabel("t (s)")
-        plt.title("j at phi=0")
-
-        # --- Compute excitation spectrum ---
-        A = np.exp(
-            -1j * self.omega * self.t_0
-            - (self.T * self.omega / (8 * self.c))**2
-        ) / self.c
-        
-        A_abs = np.abs(A)
-        A_max = np.max(A_abs)
-
-        # Threshold parameter
-        eps = 1e-3  # you can justify this in the report
-
-        valid = A_abs >= eps * A_max
-        omega_valid = self.omega[valid]
-
-        print("Reliable frequency range:")
-        print(f"  omega_min = {omega_valid[0]:.3e} rad/s")
-        print(f"  omega_max = {omega_valid[-1]:.3e} rad/s")
-        print(f"  (omega/c range = [{omega_valid[0]/self.c:.3e}, {omega_valid[-1]/self.c:.3e}] 1/m)")
-        
-        omega_bad = self.omega[~valid]
-        if omega_bad.size > 0:
-            print("WARNING: excitation spectrum too small outside:")
-            print(f"  omega > {omega_bad[0]:.3e} rad/s")
-        
-        plt.figure()
-        plt.plot(self.omega/self.c, np.abs(A))
-        plt.title("spectrum excitation")
-        plt.xlabel("$\\omega$/c (m$^{-1}$)")
-        plt.ylabel("A (s/m)")
-        j_0 = np.full_like(self.j, np.nan, dtype=float)
-        j_0[:, valid] = np.abs(
-            self.j[:, valid] / A[valid].reshape(1, -1)
-        )
-        fig, axes = plt.subplots(2, 2, sharex='col')
-        # FROM OMEGA[10] INSTABILITY STARTS TO DEVELOP AND ONLY BECOMES WORSE: TODO
-        # instability due to divide by A: becomes nearly zero
-        axes[0,0].plot(self.omega[:], j_0[0,:], label=f"{self.curve_points[[self._x, self._y],0]} m")
-        axes[0,0].plot(self.omega[:], j_0[self.N_S//2,:], label=f"{self.curve_points[[self._x, self._y],self.N_S//2]} m")
-        axes[0,0].set_title("normalized current")
-        # axes[0,0].set_xlabel("$\\omega$ (rad/s)")
-        axes[0,0].set_ylabel("j$_0$")
-        #axes[0,0].set_ylim(0, 1)
-        axes[0,0].legend()
-
-        axes[0,1].plot(np.arctan2(self.curve_points[self._y,:-1], self.curve_points[self._x,:-1]), j_0[:,1], label=f"$\\omega$={self.omega[1]} rad/s")
-        axes[0,1].plot(np.arctan2(self.curve_points[self._y,:-1], self.curve_points[self._x,:-1]), j_0[:,2], label=f"$\\omega$={self.omega[2]} rad/s")
-        axes[0,1].plot(np.arctan2(self.curve_points[self._y,:-1], self.curve_points[self._x,:-1]), j_0[:,3], label=f"$\\omega$={self.omega[3]} rad/s")
-        axes[0,1].set_title("normalized current")
-        # axes[0,1].set_xlabel("$\\phi$ (rad)")
-        axes[0,1].set_ylabel("j$_0$")
-        axes[0,1].legend()
-        
-        phi,jz = self.analytical6_1_()
-
-        axes[1,1].plot(phi, jz[1], label=f"{self.omega[1]} rad/s")
-        axes[1,1].plot(phi, jz[2], label=f"{self.omega[2]} rad/s")
-        axes[1,1].plot(phi, jz[3], label=f"{self.omega[3]} rad/s")
-        axes[1,1].set_title("analytical current")
-        axes[1,1].set_xlabel("$\\phi$ (rad)")
-        axes[1,1].set_ylabel("j$_z$")
-        axes[1,1].legend()
-
-        axes[1,0].plot(self.omega, jz[:,0], label=f"{self.curve_points[[self._x,self._y],0]} m")
-        axes[1,0].plot(self.omega, jz[:,self.N_S//2], label=f"{self.curve_points[[self._x, self._y],self.N_S//2]} m")
-        axes[1,0].set_title("analytical current")
-        axes[1,0].set_xlabel("$\\omega$ (rad/s)")
-        axes[1,0].set_ylabel("j$_z$")
-        axes[1,0].legend()
-
-        plt.show()
-        
-    
     
     def animate_E_i(self, radius, Ei):
         fig, ax = plt.subplots()
@@ -450,7 +330,7 @@ class MOT:
         """
 
         # Element midpoints
-        rho_mid = 0.5 * (self.curve_points[:, :-1] + self.curve_points[:, 1:])
+        rho_mid = 0.5 * (self.curve[:, :-1] + self.curve[:, 1:])
 
         # Angle of each element
         phi = np.arctan2(rho_mid[self._y], rho_mid[self._x])
@@ -511,20 +391,18 @@ class MOT:
     # =====================
     # Animate surface current on circle (FIXED)
     # =====================
-    def animate_current_on_circle1(self, scale=1.0, interval=40):
+    def animate_current_on_circle1(self, R, scale=1.0, interval=40):
         """
         Animate the surface current on the circular boundary.
         """
 
         # Element midpoints
-        rho_mid = 0.5 * (self.curve_points[:, :-1] + self.curve_points[:, 1:])
+        rho_mid = 0.5 * (self.curve[:, :-1] + self.curve[:, 1:])
         phi = np.arctan2(rho_mid[self._y], rho_mid[self._x])
 
         # Sort by angle
         idx = np.argsort(phi)
         phi = phi[idx]
-
-        R = self.R
 
         # Normalize current
         max_j = np.max(np.abs(self.U))
@@ -569,10 +447,8 @@ class MOT:
 
         plt.show()
         return self._ani
-        # =====================
-    # Animate 1D surface current vs angle
+
     # =====================
-        # =====================
     # Animate 1D surface current vs angle
     # =====================
     def animate_current_1d(self, interval=30):
@@ -581,7 +457,7 @@ class MOT:
         (current magnitude vs angular position)
         """
         # Element midpoints
-        rho_mid = 0.5 * (self.curve_points[:, :-1] + self.curve_points[:, 1:])
+        rho_mid = 0.5 * (self.curve[:, :-1] + self.curve[:, 1:])
         phi = np.arctan2(rho_mid[self._y], rho_mid[self._x])
 
         # Sort by angle
@@ -627,22 +503,22 @@ class MOT:
     #============
     #animating the incoming E-field
     #============
-    def animate_Ei1(self, xlim=(-2, 2), interval=30):
-        x = np.linspace(xlim[0]*self.R, xlim[1]*self.R, 400)
+    def animate_Ei1(self, R, E_i, xlim=(-2, 2), interval=30):
+        x = np.linspace(xlim[0]*R, xlim[1]*R, 400)
         rho = np.zeros((2, x.size))
         rho[0, :] = x
 
         fig, ax = plt.subplots()
         line, = ax.plot([], [], lw=2)
         ax.set_xlim(x.min(), x.max())
-        ax.set_ylim(0, 1.2 * 4 / self.T / np.sqrt(np.pi))
+        # ax.set_ylim(0, 1.2 * 4 / self.T / np.sqrt(np.pi))
         ax.set_xlabel("x (m)")
         ax.set_ylabel(r"$E_i$")
         ax.set_title("Incoming electric pulse")
 
         def update(frame):
             t = frame * self.dt
-            Ei = self.E_i1(rho, t)
+            Ei = E_i(rho, t)
             line.set_data(x, Ei)
             ax.set_title(f"Incoming electric pulse, t = {t:.2e} s")
             return line,
@@ -657,10 +533,10 @@ class MOT:
 
         plt.show()
         return ani
-    def animate_Ei1_2D(self, interval=30):
+    def animate_Ei1_2D(self, R, E_i, interval=30):
         # Spatial grid
-        x = np.linspace(-2*self.R, 2*self.R, 300)
-        y = np.linspace(-2*self.R, 2*self.R, 300)
+        x = np.linspace(-2*R, 2*R, 300)
+        y = np.linspace(-2*R, 2*R, 300)
         X, Y = np.meshgrid(x, y, indexing="ij")
 
         rho = np.zeros((2, X.size))
@@ -685,11 +561,11 @@ class MOT:
 
         # Draw PEC circle for reference
         theta = np.linspace(0, 2*np.pi, 200)
-        ax.plot(self.R*np.cos(theta), self.R*np.sin(theta), "k")
+        ax.plot(R*np.cos(theta), R*np.sin(theta), "k")
 
         def update(frame):
             t = frame * self.dt
-            Ei = self.E_i1(rho, t).reshape(X.shape)
+            Ei = E_i(rho, t).reshape(X.shape)
             im.set_array(Ei)
             ax.set_title(f"$E_i(x,y)$ at t = {t:.2e} s")
             return im,
@@ -706,33 +582,189 @@ class MOT:
         return ani
 
 
+# ==============
+# 6.1 VALIDATION
+# ==============
+
+def Q_6_1_validation(R, t_0, T, dt, t_end, N_S, N_G):
+
+    phi = np.linspace(0, 2*np.pi, N_S + 1)
+    curve = R * np.array([np.cos(phi), np.sin(phi)])
+
+    t = np.arange(0, t_end, step=dt)
+    N_T = len(t)
+
+    mot = MOT(curve, dt, N_T, N_G)
+    mot.plot_geometry()
+
+    # incident pulse
+
+    def E_i(rho, t):
+        gamma = 4 / T * (mot.c * (t - t_0) - rho[mot._x])
+        return 4 / T / np.sqrt(np.pi) * np.exp(-gamma**2)
+    
+    # V : (N_T, N_S)
+    V = E_i(mot.rho, t.reshape((-1,1)))
+
+    plt.plot(t, V[:,0],      label="shadow")
+    plt.plot(t, V[:,N_S//2], label="sun")
+    plt.xlabel("t (s)")
+    plt.show(),
+
+    mot.solve(V)
+    omega, j = mot.positivespectrum()
+
+    mot.plot_current_on_circle(time_index=np.argmin(np.abs(t - t_0)))
+    mot.animate_current_on_circle1(R)
+    mot.animate_current_1d()
+
+    plt.figure()
+    plt.plot(t, mot.U[0,:],      label="shadow")
+    plt.plot(t, mot.U[N_S//2,:], label="sun")
+    plt.xlabel("t (s)")
+    plt.title("$dj/dt$")
+    plt.legend()
+
+    # ----------
+    # analytical
+    # ----------
+
+    def j_z(phi,omega):
+        k = omega.reshape(-1, 1, 1)/mot.c # rad/m 
+        a = R                              # m
+        n = np.arange(np.ceil(np.max(k)*a) + 2).reshape(1, -1, 1)
+        return 1/1j/omega.reshape((-1, 1))/mot.mu * 2 * np.sum(1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=1)
+
+    phi = np.arctan2(mot.rho[mot._y,:], mot.rho[mot._x,:])
+    jz = j_z(phi, omega)
+
+    # -------------
+    # normalization
+    # -------------
+
+    # spectrum excitation
+    A = np.exp(
+        -1j * omega * t_0
+        - (T * omega / (8 * mot.c))**2
+    ) / mot.c
+
+    plt.figure()
+    plt.plot(omega/mot.c, np.abs(A))
+    plt.title("spectrum excitation")
+    plt.xlabel("$\\omega$/c (m$^{-1}$)")
+    plt.xlim(0, 1)
+    plt.ylabel("A (s/m)")
+
+    # prevent j_0 from exploding for high omega
+    A_abs = np.abs(A)
+    A_max = np.max(A_abs)
+
+    # Threshold parameter
+    eps = 1e-3  # you can justify this in the report
+    valid = A_abs >= eps * A_max
+    omega_bad = omega[~valid]
+    if omega_bad.size > 0:
+        print("WARNING: excitation spectrum too small outside:")
+        print(f"  omega > {omega_bad[0]:.3e} rad/s")
+
+    j_0 = np.full_like(j, np.nan, dtype=float)
+    # normalized current
+    j_0[:, valid] = np.abs(
+        j[:, valid] / A[valid].reshape(1, -1)
+    )
+
+    # -------------
+    # visualization
+    # -------------
+
+    plt.figure()
+    plt.plot(omega/mot.c, j_0[0,:],      '.', color='tab:blue',   label=f"numerical shadow")
+    plt.plot(omega/mot.c, j_0[N_S//2,:], '.', color='tab:orange', label=f"numerical sun")
+
+    plt.plot(omega/mot.c, jz[:,0],       '-', color='tab:blue',   label=f"analytical shadow")
+    plt.plot(omega/mot.c, jz[:,N_S//2],  '-', color='tab:orange', label=f"analytical sun")
+
+    plt.title("normalized current vs analytical")
+    plt.xlabel("$\\omega/c$ (rad/m)")
+    plt.xlim(0, 1)
+    plt.ylabel("j$_0$")
+    plt.legend()
+
+    plt.figure()
+    plt.plot(phi, j_0[:,1], '.', color='red',   label=f"$\\omega/c$={omega[1]/mot.c} rad/m")
+    plt.plot(phi, j_0[:,2], '.', color='green', label=f"$\\omega/c$={omega[2]/mot.c} rad/m")
+    plt.plot(phi, j_0[:,3], '.', color='blue',  label=f"$\\omega/c$={omega[3]/mot.c} rad/m")
+
+    plt.plot(phi, jz[1], '-',    color='red',   label=f"$\\omega/c$={omega[1]/mot.c} rad/m")
+    plt.plot(phi, jz[2], '-',    color='green', label=f"$\\omega/c$={omega[2]/mot.c} rad/m")
+    plt.plot(phi, jz[3], '-',    color='blue',  label=f"$\\omega/c$={omega[3]/mot.c} rad/m")
+
+    plt.title("normalized current vs analytical")
+    plt.xlabel("$\\phi$ (rad)")
+    plt.ylabel("j$_0$")
+    plt.legend()
+
+    plt.show()
+
+Q_6_1_validation(
+    R     = 10,     # [m] radius of PEC
+    t_0   = 1e-7,   # [s] center of incident pulse
+    T     = 20,     # [m] width of incident pulse
+    dt    = 1e-9,   # [s] timestep
+    t_end = 64e-8,  # [s] end of simulation
+    N_S   = 32,     # [1] number of segments for PEC
+    N_G   = 8       # [1] order of Gaussian quadrature
+)
 
 
-mot = MOT(N_S=80, N_T=400)
-mot.create_spacetimemesh_6_2(100,500)
+# ======================
+# 6.2 Cylindrical Cavity
+# ======================
+
+def Q_6_2_cylindrical_cavity(R, dt, t_end, N_S, N_G):
+
+    phi = np.linspace(0, 2*np.pi, N_S + 1)
+    curve = R * np.array([np.cos(phi), np.sin(phi)])
+
+    t = np.arange(0, t_end, step=dt)
+    N_T = len(t)
+
+    mot = MOT(curve, dt, N_T, N_G)
+    mot.create_spacetimemesh_6_2(R, N_S, N_T)
+
+    Ei2=mot.E_i2(mot.MeshR, mot.Mesht)
+
+    radius= mot.radius
+    mot.animate_E_i(radius,Ei2)
+    U = mot.solve(V=Ei2.T)
+    omega,j = mot.positivespectrum()
+    #print(omega)
+    # mot.analytical6_1_()
+    # mot.plot61()
+    #print(np.shape(mot.U))
+    #print(np.shape(mot.jzanalyticaltime))
 
 
-Ei1= mot.E_i1(mot.curve_points[:, :-1],mot.dt)
-Ei2=mot.E_i2( mot.MeshR, mot.Mesht)
+    mot.plot_current_on_circle(time_index=200, mode="vector")
 
-radius= mot.radius
-#mot.animate_E_i(radius,Ei1)
-U = mot.solve()
-omega,j = mot.positivespectrum()
-#print(omega)
-mot.analytical6_1_()
-mot.plot61()
-#print(np.shape(mot.U))
-#print(np.shape(mot.jzanalyticaltime))
+    mot.animate_current_on_circle1(R, scale=2.0)
+    ani1d = mot.animate_current_1d(interval=20)
+    ani = mot.animate_Ei1(R, Ei2)
+    ani2d = mot.animate_Ei1_2D(R, Ei2, interval=40)
+
+    mot.analyticalzeros(10,20)
+
+    print(mot.zeros)
+
+Q_6_2_cylindrical_cavity(
+    R     = 10,     # [m] radius of PEC
+    dt    = 1e-9,   # [s] timestep
+    t_end = 40e-8,  # [s] end of simulation
+    N_S   = 80,     # [1] number of segments for PEC
+    N_G   = 8       # [1] order of Gaussian quadrature
+)
 
 
-#mot.plot_current_on_circle(time_index=200, mode="vector")
-
-#mot.animate_current_on_circle1(scale=2.0)
-#ani1d = mot.animate_current_1d(interval=20)
-ani = mot.animate_Ei1()
-ani2d = mot.animate_Ei1_2D(interval=40)
-
-mot.analyticalzeros(10,20)
-
-print(mot.zeros)
+# ============
+# 6.3 Creative
+# ============
