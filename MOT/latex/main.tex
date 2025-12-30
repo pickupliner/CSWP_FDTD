@@ -5,11 +5,15 @@
 \author{Alichan Borokov, Sam Hemati, Joran Van Haelst}
 \date{December 2025}
 
+% TODO: email adresses
+
 \begin{document}
 \maketitle
 
+% Don't forget that every figure we put in here also needs to come with an instruction for the prof to reproduce it
+
 \section{Summary of the problem}
-in this assignment we implement the march-on in time algorithm on PEC scatterers.
+In this assignment we implement the march-on in time algorithm on PEC scatterers.
 We implemented  on TM case of the wave equation. This means that the electric field only contains a z-component and the magnetic field only in the x and y- direction.
 the problem is also consistent in the z-direction this means the material is symmetric under the z-axis.
 This reduces our problem to a 2 dimensional problem.\\
@@ -21,16 +25,90 @@ At last we discretize the integral equation as done in the assignment. And we us
 \section{assignment}
 we validate our code by calculating the time domain scattering at a cylinder.
 
-The formulae description is done  in the assignment. Our task is  implement the march-on-in-time algorithm on this example and look if this correspondds with the analytical solution.
+The formula description is done  in the assignment. Our task is  implement the march-on-in-time algorithm on this example and look if this correspondds with the analytical solution.
 \\
 
-for the virst part we calculate the timedomain scattering at a cylinder. Using an incoming wave going to the positive x direction.
+for the first part we calculate the timedomain scattering at a cylinder. Using an incoming wave going to the positive x direction.
 
 
+\section{Implementation}
+
+The algorithm is implemented in Python, using the Numpy and Scipy packages.
+
+The MOT algorithm is fully contained in the \texttt{MOT} class, 
+initiating an instance takes a few arguments:
+
+\begin{itemize}
+    \item \texttt{curve} is a \texttt{numpy} array of shape \((2, N_S+1)\). 
+    The first index is the coordinate 
+    (\texttt{0} for \(x\) or \texttt{1} for \(y\), generally \texttt{\_x} and \texttt{\_y} were written as aliases for 0 and 1).
+    \(N_S\) is the number of segments in which the curve has been discretized. 
+    This field consists out of the edges of these segments (the first and last elements must equal),
+    \item \texttt{dt} is the time step in seconds,
+    \item \texttt{N\_T} is the number of timesteps taken, and
+    \item \texttt{N\_G} the number of points for the Gaussian quadrature.
+\end{itemize}
+
+With these arguments the quadrature points (\texttt{coordquad} and \texttt{weights}),
+the geometry fields (\texttt{rho} are the midpoints, \texttt{tangents} the tangent vectors and \texttt{l} the lengths of the segments, \texttt{rhop[\_x, m, g]} is the \(x\)-coordinate of the \(m\)-th segment, linearly interpolated for \(x_g\)),
+\(F\) (an array of shape \((N_T, N_S, N_S, N_G)\), such that \(F(k,\rho_m,\rho_{n,g}) = \texttt{F[k,m,n,g]}\)) 
+and \(Z\) (with shape \((N_T, N_S, N_S)\), so that \((Z_k)_{m,n} = \texttt{Z[k,m,n]}\))
+are calculated.
+
+Finally the function \texttt{solve} implements the stepping algorithm.
+It takes one argument \texttt{V}, which is an array of shape \((N_T, N_S)\), 
+such that \((V_j)_m = E^i(\rho_m, j \Delta t) = \texttt{V[j,m]}\).
+The solver (and \texttt{\_init\_Z}) uses the Numpy function \texttt{einsum}, 
+which makes translating sums from math into code a lot easier: 
+\[ \sum_{g}^{N_G} w_g F(k, \rho_m, \rho_{n,g}) = \texttt{np.einsum('g,kmng->kmn', weights, F)} \]
+
+This and a few reshapes which had to happen for Numpy to be able to correctly broadcast together some arrays,
+are the only noteworthy difference between the code and its mathematic description from the assignment.
+
+TODO maybe some stuff about the second excercise and the \(E^i\) calculation.
+
+\section{Validation}
+
+\begin{table}
+    \centering
+    \begin{tabular}{c c}
+        \(t_0\) & .. \\
+        \(T\) & .. \\ 
+    \end{tabular}
+    \caption{Parameters for validation}
+    \label{tab:validation-params}
+\end{table}
+
+The spectrum of the incoming wave quickly decays to zero. 
+This means that when dividing by this spectrum the result will explode.
+Due to this the frequency range for which the solver can be used is only limited.
+We chose to limit the frequency range to the region where the spectrum of the incoming wave is more than 0.1 \% of its maximum.
+
+When calculating the Fourier transform of the solution from the MOT-algorithm, 
+Numpy's \texttt{rfft} function was used. 
+It is important to note that this is a discrete transform without any normalization factor.
+To compare it with the continuous transform, a correction factor of \(dt/\sqrt{2 \pi}\) is needed.
+
+TODO plot of (incident?) electric field and induced current (note/show that the electric field is indeed zero at time 0 at the PEC)
+
+\subsection{Analytical Solution}
+
+TODO reproduction of fig 7 (basically done, just missing correct analytical current)
++ discuss influence of simulation params on freq range
 
 
+\section{Resonance Freqeuencies of Cylindrical Cavity}
+
+\subsection{Incident Field by Numerical Quadrature}
+
+\subsection{Resonance Modes}
+
+\subsection{Spectrum Numerical Solution}
+
+\subsection{Off-center Source}
 
 
+\section{Creative Assignment}
 
 
 \end{document}

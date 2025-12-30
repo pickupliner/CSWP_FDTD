@@ -43,6 +43,7 @@ class MOT:
         self._init_incident_pulse()
 
         # Geometry
+        assert np.all(np.abs(curve[:,0] - curve[:,-1]) < 1e-10) 
         self.curve = curve
         self._build_geometry() # creates the geometry of the boundary which is a (2,N_S) matrix with 0 x and 1 y
 
