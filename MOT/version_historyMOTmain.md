@@ -69,3 +69,7 @@ self.rhop is the linear interpolation along the segments, and self.curve is the 
 * Moved analytical current to Q_6_1_validation function
 * Broke functions animate_Ei1 and animate_Ei1_2D, because I moved E_i out of the MOT.
 * Made two functions, Q_6_1_validation and Q_6_2_cylindrical_cavity for those questions repectively.
+
+## Joran 30/12
+* Reinstated _init_incident_pulse function for T1 and T_01 for the second excercise, I removed this without checking if everything still worked. New at least most of the functions still work, except for the two I allready mentioned above.
+* Scaled the Fouriertransformed with dt/sqrt(2 pi), this is because the continuous and discrete FT are not equal (see also comment). 

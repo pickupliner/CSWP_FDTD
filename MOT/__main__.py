@@ -39,6 +39,9 @@ class MOT:
         # Quadrature
         self._init_quadrature() # creates quadrature
 
+        # incident field
+        self._init_incident_pulse()
+
         # Geometry
         self.curve = curve
         self._build_geometry() # creates the geometry of the boundary which is a (2,N_S) matrix with 0 x and 1 y
@@ -101,6 +104,9 @@ class MOT:
     # =====================
     # Incident field
     # =====================
+    def _init_incident_pulse(self):
+        self.T1 = 20*self.dt
+        self.t_01 = 10*self.T1
 
     def E_i2(self,rho,t):
         """
@@ -258,7 +264,8 @@ class MOT:
     # Post-processing
     # =====================
     def positivespectrum(self):
-        u = self.dt * np.fft.rfft(self.U, axis=1)
+        # factor in front is to account for the discrepency between the continuous and discrete FT (see https://stackoverflow.com/questions/24077913/discretized-continuous-fourier-transform-with-numpy)
+        u = self.dt / np.sqrt(2*np.pi) * np.fft.rfft(self.U, axis=1)
         self.omega = 2 * np.pi * np.fft.rfftfreq(self.U.shape[1], self.dt)
 
         self.j = np.zeros_like(u, dtype=complex)
