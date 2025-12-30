@@ -47,3 +47,11 @@
 ## Joran 24/12 (non-cartesian)
 
 * I had the sine and cosine swapped around in the upper PML
+
+## Joran 30/12 (non-cartesian)
+
+* Added free-field
+* changed BC on ground, because that was incorrect
+* made left half triangle and right half, left half is correctly implemented, right half only partly correct (all o is set zero instead of only o_n)
+* added PML beneath v=0 for free field
+* added relative field and also in decibel, plots look strange there tho
