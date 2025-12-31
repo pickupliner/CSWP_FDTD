@@ -1,63 +1,40 @@
-#to do:
-#   -make sceme more efficient-> dont save every time step only the current
-#   -place observers
-#   -triangular obstacle PEC and impedance
-
-
-
-
-
-
-
-
-
-
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 
-#plotting booleans
+#plotting booleans:
 PML=False
 refinement=False
-#parameters
+#parameters:
+
 c=1 #wave speed[m/s]
 Z=2 #impedance[ohm]
 
-#geometry
-distance=5.6 #fundamental distance
+#geometry:
+
+distance=5.6 #fundamental distance d
 a=7*distance  #width [m]
 b=4*distance #height [m]
 d=4  #thickness of PML [gridcells]
-wl=2*distance # distance of wall
+wl=2*distance # distance of fist wall
 wr=3*distance #distance of seccond wall
-wh= 2*distance                  #height of walls/ceiling
-#source position
+wh= 2*distance   #height of walls/ceiling
+#source position:
 xs=distance #[m]
 ys=distance/10 #[m]
 
-#observer points
+#observer points:
 coordinates1=[[3*distance,distance/2],[4*distance,distance/2],[5*distance,distance/2]] #([m],[m]) for thin wall
 coordinates2=[[4*distance,distance/2],[5*distance,distance/2],[6*distance,distance/2]] #([m],[m]) for other obstacles
 
 
-# constructing function for k1 (x) or k2(y)
-kappax=np.linspace(0,a,100)
-kappay=10*(((kappax-(a-d))/d)**5 *np.heaviside(kappax-(a-d),1)-((kappax-d)/d)**5*np.heaviside(-kappax+d,1))
-if PML:
-    plt.plot(kappax,kappay)
-    plt.show()
 
 
-#source in function of time:
-f=4.95*c/(distance*2*np.pi)
-sigma=f
-t0=18
-Ps=lambda t:10*np.sin(2*np.pi*f*(t-t0))*np.exp(-((t-t0)**2)*(sigma**2))
-#Ps = lambda t: 10*np.exp(-(t - .5)**2*16) # source
-plt.plot(np.linspace(0,20,282),Ps(np.linspace(0,20,282)))
-plt.show()
 
-#size of array
+
+
+
+#size of array:
 K=int(665) #dimensioneless
 N=int(250) #dimensioneless
 M=int(150) #dimensioneless
@@ -66,6 +43,11 @@ print(f"M={M}")
 print(f"N={N}")
 print(f"K={K}")
 
+
+
+
+
+#grid refinement functions:
 
 def coordTransform(x, x0, x1, f):
     xM = np.max(x)
@@ -112,6 +94,7 @@ y_o = np.linspace(0, b, M+1) # [m]
 x_p = (x_o[1:] + x_o[:-1])/2
 y_p = (y_o[1:] + y_o[:-1])/2
 
+
 # change coordinates to get more points around wedge
 f, buffer = 0.5, 6
 #x_o = coordTransform(x_o, x0=7, x1=11, f=f)
@@ -133,6 +116,8 @@ if refinement:
     plt.legend()
     plt.show()
 
+#the spatial steps:
+
 # spatial step between x-coord of o_x
 dx_o = (x_o[1:] - x_o[:-1]).reshape((1,-1)) # [m]
 # spatial step between y-coord of o_y
@@ -153,18 +138,38 @@ if refinement:
     plt.show()
 
 #time step based on CN and stabilaty
+
 # dt=np.sqrt(2)*0.05   #[s]
 dt = 1/np.sqrt(1/np.min(dx_o)**2 + 1/np.min(dy_o)**2)/c
 print(f"dt = {dt}")
-T=40 #time of simulation [s]
-
+T=K*dt #time of simulation [s]
+print(f"total time:{T}")
 # courant number
 CN=c**2*dt**2*(1/np.min(dx_o)**2+1/np.min(dy_o)**2) # [s/m]
 # since dx_p is mean of 2 neighbouring dx_o's it is always bigger than min of dx_o
 print(f"CN = {CN} < 1?")
 
 
+#source in function of time:
+t = dt*np.arange(0, K-1)
+f=4.95*c/(distance*2*np.pi)
+sigma=f
+fs=K/T
+t0=18
+Ps=lambda t:10*np.sin(2*np.pi*f*(t-t0))*np.exp(-((t-t0)**2)*(sigma**2)) #short band around f so that kd £[0.1,10]
+#Ps = lambda t: 10*np.exp(-(t - .5)**2*16) # gaussian pulse
+plt.plot(np.linspace(0,20,282),Ps(np.linspace(0,20,282)))
+plt.show()
 
+val=np.fft.fft(Ps(t),n=10*len(Ps(t)))
+omega=np.fft.fftfreq(len(val),d=1/fs)
+print(len(val),len(omega))
+plt.plot(omega,np.abs(val))
+plt.xlim(0,0.25)
+plt.show()
+
+
+#constructing damping coëficcients for PML:
 
 #constructing mesh
 ny, nx = M,N
@@ -213,7 +218,7 @@ if PML:
 
 
 
-#initialise
+#initialise (only saving each time step for plotting purposes):
 px=np.zeros((K,M,N))  # (M,N) matrix
 py=np.zeros((K,M,N))  # (M,N) matrix
 ox=np.zeros((K,M,N+1)) #(M,N+1) matrix
@@ -223,7 +228,7 @@ print(K)
 dx=a/N
 dy=b/M
 
-print("CN fr fr",c**2*dt**2*(1/dx**2+1/dy**2))
+
 
 # Special interpolation (x[i] must lie between x0[i-1] and x0[i+1]).
 # Quadratic interpolation in body,
@@ -266,6 +271,10 @@ def do_d(ox, oy):
     dox_dx = interp(x_p.reshape((-1,1)), x_dox_dx, dox_dx.T).T
     doy_dy = interp(y_p.reshape((-1,1)), y_doy_dy, doy_dy)
     return dox_dx, doy_dy
+
+
+#simulations:
+
 
 #simulation in empty universe
 def empty(px,py,ox,oy,F1,F3,K,xs,ys,co):
@@ -315,7 +324,7 @@ def empty(px,py,ox,oy,F1,F3,K,xs,ys,co):
             i_obs = np.argmin(np.abs(x_p - r[1]))
             j_obs = np.argmin(np.abs(y_p - r[0]))
             observations[ind].append(px[i+1,i_obs,j_obs]+py[i+1,i_obs,j_obs])
-    return px+py,ox,oy,observations
+    return px+py,ox,oy,np.array(observations)
 
 #simulation with floor and wall
 def wall(px,py,ox,oy,F1,F2,K,xs,ys,co):
@@ -501,11 +510,11 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
             i_obs = np.argmin(np.abs(x_p - r[1]))
             j_obs = np.argmin(np.abs(y_p - r[0]))
             observations[ind].append(px[i+1,i_obs,j_obs]+py[i+1,i_obs,j_obs])
-    return px+py,ox,oy,observations
+    return px+py,ox,oy,np.array(observations)
 
 
 # p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates1)
-# p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
+p_empty,ox_empty,oy_empty,obs_empty=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
 #p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
 #p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates2)
 p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
@@ -601,8 +610,28 @@ def animate_heatmap(frames,xs,ys, coords,
 
 animate_heatmap(p,xs,ys,coordinates2)
 
-t = dt*np.arange(0, K-1)
 
-plt.plot(t,obs[1])
+plt.title("triangle in comparison with empthy")
+plt.plot(t,obs[0],label="with triangle")
+plt.plot(t,obs_empty[0],label="empty")
+plt.legend()
 plt.show()
 
+
+P=np.fft.fft(obs_empty[0],n=10*len(obs_empty[0]))
+P_t=np.fft.fft(obs[0],n=10*len(obs[0]))
+plt.title("triangle in comparison with empthy in ferquency")
+plt.xlabel("omega")
+plt.plot(omega,np.abs(P),label="empty")
+plt.plot(omega,np.abs(P_t),label="triangle")
+plt.legend()
+plt.xlim(0,0.27)
+plt.show()
+
+plt.title("triangle relative to empty")
+plt.xlabel("omega")
+plt.plot(omega,np.abs(P_t)/np.abs(P),label="empty")
+plt.scatter(omega,np.abs(P_t)/np.abs(P),label="triangle")
+plt.legend()
+plt.xlim(0,0.27)
+plt.show()
