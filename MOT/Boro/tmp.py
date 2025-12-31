@@ -19,7 +19,9 @@ class MOT:
                  N_T=512,        # [1]   temporal nodes
                  N_G=8,          # [1]   amount of weights for quadrature
                  c=3e8,          # [m/s] light constant
-                 mu=np.pi * 4e-7 # [H/m] permeability
+                 mu=np.pi * 4e-7, # [H/m] permeability
+                 t_0=0,          #[s] starting time
+                 T=20            #[] pulse width
                  ):
 
         # Physical constants
@@ -31,6 +33,8 @@ class MOT:
         self.N_T = N_T
         self.N_G = N_G
         
+        self.t_0 = t_0
+        self.T = T
         self.dt = dt
 
         # Indices
@@ -39,11 +43,7 @@ class MOT:
         # Quadrature
         self._init_quadrature() # creates quadrature
 
-        # incident field
-        self._init_incident_pulse()
-
         # Geometry
-        assert np.all(np.abs(curve[:,0] - curve[:,-1]) < 1e-10) 
         self.curve = curve
         self._build_geometry() # creates the geometry of the boundary which is a (2,N_S) matrix with 0 x and 1 y
 
@@ -94,7 +94,7 @@ class MOT:
         N_rho = discretizationpointsrho
         N_time = discretizationpointstime
 
-        self.timeframe = self.t_01 + np.arange(self.N_T)* self.dt
+        self.timeframe = self.t_0 + np.arange(self.N_T)* self.dt
         eps=R/10000
         self.radius  = np.linspace(eps,R,N_rho)
 
@@ -105,9 +105,6 @@ class MOT:
     # =====================
     # Incident field
     # =====================
-    def _init_incident_pulse(self):
-        self.T1 = 20*self.dt
-        self.t_01 = 10*self.T1
 
     def E_i2(self,rho,t):
         """
@@ -133,7 +130,7 @@ class MOT:
                     continue
 
                 # Compute u_max, avoid NaN
-                arg = self.c / r * (tt - self.t_01)
+                arg = self.c / r * (tt - self.t_0)
                 arg = np.maximum(arg, 1.0)
                 umax = np.arccosh(arg)
 
@@ -244,18 +241,19 @@ class MOT:
         """
         Time derivative of the source pulse f(t), stable for narrow pulses.
         """
-        alpha = 4/self.T1
-        norm = 4 / (self.T1 * np.sqrt(np.pi))
-        x = alpha * (t - self.t_01)
+        alpha = 4/self.T
+        norm = 4 / (self.T * np.sqrt(np.pi))
+        x = alpha * (t - self.t_0)
         mask = np.abs(x) < 20  # compute only significant values
         result = np.zeros_like(t, dtype=float)
-        result[mask] = -2 * alpha**2 * (t[mask] - self.t_01) * norm * np.exp(-(x[mask])**2)
+        result[mask] = -2 * alpha**2 * (t[mask] - self.t_0) * norm * np.exp(-(x[mask])**2)
         return result
     
     def analyticalzeros(self,totalnorder,amountofzeros):
+        R=int(input('type in radius of circle in 0'))
         zeros = []
         for n in range(totalnorder+1):
-            zeros.append((self.c/self.R)*fns.jn_zeros(n,amountofzeros))
+            zeros.append((self.c/R)*fns.jn_zeros(n,amountofzeros))
 
         self.zeros = zeros
         return zeros
@@ -265,8 +263,7 @@ class MOT:
     # Post-processing
     # =====================
     def positivespectrum(self):
-        # factor in front is to account for the discrepency between the continuous and discrete FT (see https://stackoverflow.com/questions/24077913/discretized-continuous-fourier-transform-with-numpy)
-        u = self.dt / np.sqrt(2*np.pi) * np.fft.rfft(self.U, axis=1)
+        u = self.dt * np.fft.rfft(self.U, axis=1)
         self.omega = 2 * np.pi * np.fft.rfftfreq(self.U.shape[1], self.dt)
 
         self.j = np.zeros_like(u, dtype=complex)
@@ -510,8 +507,6 @@ class MOT:
         return self._ani1d
     #============
     #animating the incoming E-field
-       #============
-    #animating the incoming E-field
     #============
     def animate_Ei1(self,curve, E_i=None, xlim=(-2, 2), interval=30):
         x = np.linspace(xlim[0]*np.max(curve), xlim[1]*np.max(curve), 400)
@@ -646,8 +641,9 @@ def Q_6_1_validation(R, t_0, T, dt, t_end, N_S, N_G):
     mot.plot_current_on_circle(time_index=np.argmin(np.abs(t - t_0)))
     mot.animate_current_on_circle1(R)
     mot.animate_current_1d()
-    mot.animate_Ei1(curve,E_i)
-    mot.animate_Ei1_2D(curve,E_i)
+    ani = mot.animate_Ei1(curve,E_i)
+    ani2d = mot.animate_Ei1_2D(curve,E_i)
+
 
     plt.figure()
     plt.plot(t, mot.U[0,:],      label="shadow")
@@ -733,19 +729,11 @@ def Q_6_1_validation(R, t_0, T, dt, t_end, N_S, N_G):
     plt.title("normalized current vs analytical")
     plt.xlabel("$\\phi$ (rad)")
     plt.ylabel("j$_0$")
-    plt.legend()
+    plt.legend()      
 
-    plt.show()
+    #plt.show()
 
-Q_6_1_validation(
-    R     = 10,     # [m] radius of PEC
-    t_0   = 1e-7,   # [s] center of incident pulse
-    T     = 20,     # [m] width of incident pulse
-    dt    = 1e-9,   # [s] timestep
-    t_end = 64e-8,  # [s] end of simulation
-    N_S   = 32,     # [1] number of segments for PEC
-    N_G   = 8       # [1] order of Gaussian quadrature
-)
+
 
 
 # ======================
@@ -779,23 +767,44 @@ def Q_6_2_cylindrical_cavity(R, dt, t_end, N_S, N_G):
     mot.plot_current_on_circle(time_index=200, mode="vector")
 
     mot.animate_current_on_circle1(R, scale=2.0)
-    mot.animate_current_1d(interval=20)
-    mot.animate_Ei1(curve, Ei2)
-    mot.animate_Ei1_2D(curve, Ei2, interval=40)
+    ani1d = mot.animate_current_1d(interval=20)
+    ani = mot.animate_Ei1(R, Ei2)
+    ani2d = mot.animate_Ei1_2D(R, Ei2, interval=40)
 
     mot.analyticalzeros(10,20)
 
     print(mot.zeros)
 
-Q_6_2_cylindrical_cavity(
-    R     = 10,     # [m] radius of PEC
-    dt    = 1e-9,   # [s] timestep
-    t_end = 40e-8,  # [s] end of simulation
-    N_S   = 80,     # [1] number of segments for PEC
-    N_G   = 8       # [1] order of Gaussian quadrature
-)
+
 
 
 # ============
 # 6.3 Creative
 # ============
+
+def main():
+    Q_6_1_validation(
+    R     = 10,     # [m] radius of PEC
+    t_0   = 1e-7,   # [s] center of incident pulse
+    T     = 20,     # [m] width of incident pulse
+    dt    = 1e-9,   # [s] timestep
+    t_end = 64e-8,  # [s] end of simulation
+    N_S   = 32,     # [1] number of segments for PEC
+    N_G   = 8       # [1] order of Gaussian quadrature  
+    )
+
+    Q_6_2_cylindrical_cavity(
+    R     = 10,     # [m] radius of PEC
+    dt    = 1e-9,   # [s] timestep
+    t_end = 40e-8,  # [s] end of simulation
+    N_S   = 80,     # [1] number of segments for PEC
+    N_G   = 8       # [1] order of Gaussian quadrature
+    )
+
+
+    # ============
+    # 6.3 Creative
+    # ============
+
+if __name__ == "__main__":
+    main()
