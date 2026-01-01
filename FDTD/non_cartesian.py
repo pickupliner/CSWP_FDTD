@@ -2,9 +2,6 @@ from matplotlib import animation
 import numpy as np
 import matplotlib.pyplot as plt
 
-# TODO:
-# - finite Z
-
 # Where normally one uses x and y direction orthogonal to eachother
 # Use here u and v which make an angle theta
 # e_u = e_x                                  e_x = e_u
@@ -14,33 +11,30 @@ import matplotlib.pyplot as plt
 theta = np.arctan(2 / (1/2)) # [rad]
 def to_xy(u, v):
     return u + v*np.cos(theta), v*np.sin(theta)
+def to_uv(x, y):
+    return x - y/np.tan(theta), y/np.sin(theta)
 
 c = 1 # wavespeed [m/s]
 
-d = 6 # characteristic distance [m]
+d = 5.6 # characteristic distance [m]
 
-us = d                               # u-coordinate of source [m]
-vs = d/10                            # v-coordinate of source [m]
-xs, ys = to_xy(us, vs)               # x- and y-coordinate    [m]
-Ps = lambda t: 4*np.exp(-(t - 3)**2) # source
-
-# Currently using a padding of d around important stuff (temporary)
+# use a padding of d around important stuff
 a = 5*d + 2*d                 # width in u-direction  [m]
 b = (2*d + 2*d)/np.sin(theta) # height in v-direction [m]
-T = 2*b/c                     # timespan              [s]
+T = 6*b/c                     # timespan              [s]
 
 # Courant Number
-CN  = 0.9
+CN  = 0.8
 
 du = 0.2                                             # step in u-direction [m]
 dv = du/np.sin(theta)                                # step in v-direction [m]
-dt = CN/np.sqrt(1/du**2 + 1/(dv*np.sin(theta))**2)/c # timestep            [s]
+dt = np.sqrt(CN)/np.sqrt(1/(du + dv*np.cos(theta))**2 + 1/(dv*np.sin(theta))**2)/c # timestep            [s]
 print(f"du x dv x dt = {du} x {dv} x {dt}")
 
 # PML parameters
-m = 5         # damping exp         [1]
-kappaM = 10   # maximum kappa value [1/s]
-d_PML = 20*dv # thickness of PML    [m]
+m = 5             # damping exp         [1]
+kappaM = 10       # maximum kappa value [1/s]
+d_PML = 4 # 20*dv # thickness of PML    [m]
 def kappa(x):
     return kappaM * ((d_PML - x)/d_PML)**m * np.heaviside(d_PML - x, 1)
 
@@ -72,11 +66,42 @@ u_ov = u_p
 v_ov = np.arange(-d_PML, b, dv).reshape((1, nv + 1, 1))
 t_ov = t_ow
 
+# plt.plot(*to_xy(u_p[:2,:,0],  v_p[:,:2,0]),  'o', color='black')
+# x, y = to_xy(u_ow[:3,:,0], v_ow[:,:2,0])
+# dx, dy = du/8*np.sin(theta), -du/8*np.cos(theta)
+# for (x, y) in zip(x.reshape(-1), y.reshape(-1)):
+#     plt.arrow(x - dx, y - dy, 2*dx, 2*dy, width=0.004, fc='black')
+# x, y = to_xy(u_ov[:2,:,0], v_ov[:,:3,0])
+# dx, dy = du/8*np.cos(theta), du/8*np.sin(theta)
+# for (x, y) in zip(x.reshape(-1), y.reshape(-1)):
+#     plt.arrow(x - dx, y - dy, 2*dx, 2*dy, width=0.004, fc='black')
+# plt.gca().set_aspect('equal', 'box')
+# plt.xlabel("x (m)")
+# plt.ylabel("y (m)")
+# plt.show()
+
+# source
+us = d                               # u-coordinate of source [m]
+vs = d/10                            # v-coordinate of source [m]
+xs, ys = to_xy(us, vs)               # x- and y-coordinate    [m]
+f = 4.95*c/(d*2*np.pi)               # central frequency      [Hz]
+sigma = f
+t0 = 18                              # center of pulse        [s]
+Ps = lambda t: 10 * np.sin(2*np.pi*f*(t - t0)) * np.exp(-((t - t0)**2)*(sigma**2)) # short band around f so that kd £[0.1,10]
+# Ps = lambda t: 4*np.exp(-(t - 3)**2) # source
 # source indices
 i_s, j_s = np.argmin(np.abs(u_p - us)), np.argmin(np.abs(v_p - vs))
 plt.plot(t_p.reshape(-1), Ps(t_p.reshape(-1)))
 plt.title('source')
 plt.show()
+
+# Observers
+xo = [4*d, 5*d, 6*d]   # x coords of observers [m]
+yo = [d/2, d/2, d/2]   # y coords of observers [m]
+uo, vo = to_uv(xo, yo) # u- and v-coords       [m]
+# observer indices
+i_o = [np.argmin(np.abs(u_p - u)) for u in uo]
+j_o = [np.argmin(np.abs(v_p - v)) for v in vo]
 
 # damping coefficients PML
 kappa_horizontal_p  = kappa(u_p .reshape((-1,1))) + kappa(a - u_p .reshape((-1,1)))
@@ -179,9 +204,6 @@ p_free, ow_free, ov_free = solve(with_triangle=False, with_ground=False)
 p_rel, ow_rel, ov_rel = np.ones_like(p), np.ones_like(ow), np.ones_like(ov)
 p_rel, ow_rel, ov_rel = p/p_free, ow/ow_free, ov/ov_free
 
-# in decibel
-p_db, ow_db, ov_db = 20*np.log10(p_rel), 20*np.log10(ow_rel), 20*np.log10(ov_rel)
-
 U, V = np.meshgrid(u_p, v_p, indexing='ij')
 X, Y = to_xy(U, V)
 
@@ -190,13 +212,34 @@ plt.colorbar(cm)
 plt.show()
 
 fig, ax = plt.subplots()
-cm = ax.pcolormesh(X, Y, p_db[:,:,0], vmin=-48, vmax=48)
+cm = ax.pcolormesh(X, Y, p[:,:,0])
 
 def update(frame):
-    cm.set_array(p_db[:,:,frame])
+    cm.set_array(p[:,:,frame])
     return (cm,)
 ani = animation.FuncAnimation(fig=fig, func=update, frames=nt, repeat=True)
 ax.set_aspect('equal', 'box')
 # ani.save('tmp.gif', writer='pillow')
 fig.colorbar(cm)
+plt.show()
+
+# frequency domain at observer points
+kd = 2*np.pi * np.fft.rfftfreq(nt, dt) / c * d
+
+plt.plot(kd, np.abs(np.fft.rfft(Ps(t_p.reshape(-1)))))
+plt.show()
+
+for (i, j) in zip(i_o, j_o):
+    P      = np.fft.rfft(p     [i, j, :])
+    plt.plot(kd, np.abs(P))
+plt.figure()
+for (i, j) in zip(i_o, j_o):
+    P_free = np.fft.rfft(p_free[i, j, :])
+    plt.plot(kd, np.abs(P_free))
+plt.show()
+
+for (i, j) in zip(i_o, j_o):
+    P      = np.fft.rfft(p     [i, j, :])
+    P_free = np.fft.rfft(p_free[i, j, :])
+    plt.plot(kd, np.abs(P/P_free))
 plt.show()

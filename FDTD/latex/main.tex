@@ -81,7 +81,7 @@ in which \(\theta\) is the angle between the \(v\)-axis and the \(x\)-axis.
     y = v \sin \theta
 \end{equation}
 
-In figure \ref{fig:x-y-w-and-v} the basis-vectors are given. % TODO: figure of ex, ey, ev and ew with annotation of theta
+In figure \ref{fig:x-y-w-and-v} the basis-vectors are given.
 Note that \(\vec{e_x} = \vec{e_u}\), but \(x \ne u\). 
 In this figure another vector, \(\vec{e_w}\), is introduced.
 This vector is perpendicular to \(\vec{e_v}\).
@@ -94,6 +94,19 @@ With this figure the relations given in equations \ref{eq:ew-of-ex-and-ey} and \
     \vec{e_v} = \cos \theta \vec{e_x} + \sin \theta \vec{e_y}
 \end{equation}
 
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.3\linewidth]{figures/x_y_w_and_v.png}
+    \caption{Important unit vectors}
+    \label{fig:x-y-w-and-v}
+\end{figure}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/p_ow_and_ov.png}
+    \caption{Discretised fields}
+    \label{fig:discretised-p-ow-and-ov}
+\end{figure}
+
 There is still an important choice remaining,
 namely, which directions of \(\vec{o}\) to store.
 A first idea might be to choose \(o_u = \vec{e_u} \cdot \vec{o}\) and \(o_v = \vec{e_v} \cdot \vec{o}\),
@@ -105,7 +118,9 @@ For this boundary condition to be implemented simply,
 \(o_w\) and \(o_v\) are chosen, 
 in which \(\vec{e_w}\) is the normal of the tilted boundary (on the left side).
 An added benefit is that now both stored directions of \(\vec{o}\) are orthogonal to eachother,
-so no data overlaps. Figure \ref{fig:discretised-p-ow-and-ov} shows the location of a few \(p\), \(o_w\) and \(o_v\)'s. % TODO: figure showcasing the discretisation of p, ow and ov
+so no data overlaps. Figure \ref{fig:discretised-p-ow-and-ov} shows the location of a few \(p\), \(o_w\) and \(o_v\)'s.
+
+\subsubsection{Update Scheme}
 
 Now the update scheme can be adjusted for the tilted grid.
 To update \(p\), 
@@ -128,13 +143,26 @@ combined with
 \[ o_w|_{u_0 + \Delta u/2} \approx \frac{o_w|_{u_0} + o_w|_{u_0 + \Delta u}}{2} . \]
 For the update equations of \(\vec{o}\) an analogous approach is followed.
 
+In a hand-waving approach a rough approximation was made for the Courant Number.
+Starting from the standard form, 
+and substituting \(dx = du + dv \cos \theta\) and \(dy = dv \sin \theta\) 
+(derived from equations \ref{eq:x-of-u-and-v} and \ref{eq:y-of-u-and-v}),
+equation \ref{eq:tilted-grid-CN} is calculated.
+\begin{equation}\label{eq:tilted-grid-CN}
+    \mbox{CN} = c^2 dt^2 \left( ({du + dv \cos \theta})^{-2} + (dv \sin \theta)^{-2} \right)
+\end{equation}
+For stability to be achieved, CN \(\approx 0.8\) is the maximum (for \(\tan \theta = 4\)). 
+The adjusted update scheme involves a lot of interpolation of missing values,
+which decrease the stability.
+
+\subsubsection{Perfectly Matched Layers}
+
 \begin{equation}\label{eq:update-p-perp-PML}
     \frac{dp_\perp}{dt} + c^2 \frac{do_\alpha}{d\alpha} + \kappa_\perp p_\perp = 0
 \end{equation}
 \begin{equation}\label{eq:update-p-para-PML}
     \frac{dp_\parallel}{dt} + c^2 \frac{do_\gamma}{d\gamma} + \kappa_\parallel p_\parallel = 0
 \end{equation}
-
 The perfectly matched layers in the tilted grid become a bit more complex.
 This especially for the upper PML.
 The update equations for \(p = p_\perp + p_\parallel\) are given by equations \ref{eq:update-p-perp-PML} and \ref{eq:update-p-para-PML}.
@@ -149,11 +177,54 @@ these can be rewritten in one equation as follows
 The absolute value of \(\vec{e_i} \cdot \vec{\kappa}\) is important: 
 if we chose \(-\vec{e_y}\) instead of \(\vec{e_y}\) as the perpendicular direction, ... % TODO
 
-CN
+\subsubsection{PEC-Boundaries}
 
-BOUNDARY
+The tilted boundary on the left side of the triangle is, 
+as mentioned above, easy to implement. 
+It just requires setting \(o_w = 0\).
+The right-hand side isn't as simple to implement correctly 
+(ie. such that only \(o_n = 0\)), 
+instead a slightly incorrect alternative was used,
+setting all components of \(\vec{o}\) to zero.
+Lastly the ground-plane had to be implemented. 
+Neither of the simple approaches above are viable here,
+as \(o_n = o_y\) is not stored directly so can't be set to zero,
+and neither can all components of \(\vec{o}\) be set to zero.
+This last one is due to the fact that \(o_w\) and \(o_v\) aren't discretised at the same location,
+so that in reality the incoming wave will either see \(o_w = 0\) or \(o_v = 0\).
+
+With this there is only one solution remaining, 
+calculate \(o_y\) at the boundary by interpolation and remove this part from the stored \(o_v\).
+In practice the opposite was done, \(o_x\) was calculated and \(o_v\) was set to only include this part.
+Approximating \(o_w\) at the ground by the one just above it,
+and using \(o_x = o_w \sin \theta + o_v \cos \theta\),
+yields \(o_x\).
+This boundary condition does not prevent waves from entering the PEC,
+which was mitigated by setting \(p\) equal to zero inside the PEC.
+
+Finally another approach was tried.
+The goal is for \(o_y\) to be zero at the ground.
+Looking at its update equation, 
+\[ \frac{do_y}{dt} + \frac{dp}{dy} = 0, \]
+and using \(o_y = 0\) for all \(t\) at \(y=0\),
+it follows that \(\frac{dp}{dy} = 0\) at \(y=0\).
+As done before, this derivative can be written in terms of derivatives to \(u\) and \(v\).
+The derivative towards \(v\) is easily approximated at the ground by using central difference,
+but towards \(u\) requires interpolation. 
+From this equation \(p\) just below the ground can be set such that the boundary condition is achieved.
+Sadly this method turned out to be very unstable and it was not useable.
+
+Boundaries with finite impedance were not studied for the tilted grid. 
 
 
 \section{Conclusion}
+
+...
+The tilted grid makes the implementation of the tilted PEC easier and more accurate. 
+But comes with a few drawbacks.
+Mainly it becomes less stable, 
+leading to smaller timesteps and more phase-error. 
+Besides this it makes the implementation of the PML and ground more complex.
+TODO: summarize results
 
 \end{document}

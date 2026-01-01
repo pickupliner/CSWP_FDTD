@@ -49,6 +49,16 @@ INPUT c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
 INPUT c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
 OUTPUT main.pdf
 INPUT c:/tools/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map
+INPUT ./figures/x_y_w_and_v.png
+INPUT ./figures/x_y_w_and_v.png
+INPUT ./figures/x_y_w_and_v.png
+INPUT ./figures/x_y_w_and_v.png
+INPUT ./figures/x_y_w_and_v.png
+INPUT ./figures/p_ow_and_ov.png
+INPUT ./figures/p_ow_and_ov.png
+INPUT ./figures/p_ow_and_ov.png
+INPUT ./figures/p_ow_and_ov.png
+INPUT ./figures/p_ow_and_ov.png
 INPUT c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
 INPUT main.aux
 INPUT c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb

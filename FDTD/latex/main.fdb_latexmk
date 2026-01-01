@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1766587840.31901 "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" "main.pdf" "main" 1766587840.57362 0
+["pdflatex"] 1767310260.18652 "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" "main.pdf" "main" 1767310260.54308 0
   "c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1733023854 1328 c834bbb027764024c09d3d2bf908b5f0 ""
   "c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1733023854 1324 c910af8c371558dc20f2d7822f66fe64 ""
   "c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1733023854 1524 4414a8315f39513458b80dfc63bff03a ""
@@ -40,9 +40,11 @@
   "c:/tools/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1733023980 94259 aec9939469efac8f0cf917369f632359 ""
   "c:/tools/TinyTeX/texmf-var/web2c/pdftex/pdflatex.fmt" 1733024004 1918134 af6f731535e8305d900c5f91f63e81b1 ""
   "c:/tools/TinyTeX/texmf.cnf" 1733023869 903 164c5b127cd0d6dc91abad2f62421ea2 ""
-  "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" 1766587839 7466 c129f75e9c29a475bdbddc7972dd09c0 ""
-  "main.aux" 1766587840 1543 fcd1ec5438ba355d25c10e3894da8d4c "pdflatex"
-  "main.tex" 1766587839 7466 c129f75e9c29a475bdbddc7972dd09c0 ""
+  "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" 1767310259 10844 6238bce695fe54c8a8e0f87796397142 ""
+  "figures/p_ow_and_ov.png" 1767307429 14637 625b92d71abc15f65eaa594845888953 ""
+  "figures/x_y_w_and_v.png" 1767304933 28726 27aff6c020c1f9947a504ec5df327a12 ""
+  "main.aux" 1767310260 2297 0cace9ac83a0727cf6b177693fb5d0ff "pdflatex"
+  "main.tex" 1767310259 10844 6238bce695fe54c8a8e0f87796397142 ""
   (generated)
   "main.aux"
   "main.log"

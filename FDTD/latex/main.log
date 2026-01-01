@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.12.1)  24 DEC 2025 15:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.12.1)  2 JAN 2026 00:31
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -83,39 +83,43 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 [1
 
 {c:/tools/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+<figures/x_y_w_and_v.png, id=12, 405.01312pt x 446.41782pt>
+File: figures/x_y_w_and_v.png Graphic file (type png)
+<use figures/x_y_w_and_v.png>
+Package pdftex.def Info: figures/x_y_w_and_v.png  used on input line 99.
+(pdftex.def)             Requested size: 103.50105pt x 114.07684pt.
+<figures/p_ow_and_ov.png, id=14, 462.528pt x 346.896pt>
+File: figures/p_ow_and_ov.png Graphic file (type png)
+<use figures/p_ow_and_ov.png>
+Package pdftex.def Info: figures/p_ow_and_ov.png  used on input line 105.
+(pdftex.def)             Requested size: 207.0021pt x 155.25484pt.
 
-LaTeX Warning: Reference `fig:x-y-w-and-v' on page 2 undefined on input line 84.
 
+[2 <./figures/x_y_w_and_v.png>]
 
-LaTeX Warning: Reference `fig:discretised-p-ow-and-ov' on page 2 undefined on input line 108.
+[3 <./figures/p_ow_and_ov.png>]
 
+[4]
 
-
-[2]
-
-[3] (./main.aux)
+[5] (./main.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 1
 L3 programming layer <2024-11-02>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
  ) 
 Here is how much of TeX's memory you used:
- 1009 strings out of 475289
- 17470 string characters out of 5766684
- 409074 words of memory out of 5000000
- 23929 multiletter control sequences out of 15000+600000
+ 1026 strings out of 475289
+ 17963 string characters out of 5766684
+ 410142 words of memory out of 5000000
+ 23946 multiletter control sequences out of 15000+600000
  562324 words of font info for 50 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 57i,6n,65p,304b,199s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 57i,6n,65p,264b,228s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
-Output written on main.pdf (3 pages, 153508 bytes).
+Output written on main.pdf (5 pages, 200542 bytes).
 PDF statistics:
- 79 PDF objects out of 1000 (max. 8388607)
- 47 compressed objects within 1 object stream
+ 90 PDF objects out of 1000 (max. 8388607)
+ 52 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 
