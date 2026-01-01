@@ -258,14 +258,20 @@ class MOT:
     # Post-processing
     # =====================
     def positivespectrum(self):
-        # factor in front is to account for the discrepency between the continuous and discrete FT (see https://stackoverflow.com/questions/24077913/discretized-continuous-fourier-transform-with-numpy)
         u = self.dt / np.sqrt(2*np.pi) * np.fft.rfft(self.U, axis=1)
-        self.omega = 2 * np.pi * np.fft.rfftfreq(self.U.shape[1], self.dt)
+        self.omega = 2 * np.pi * np.fft.rfftfreq(self.N_T, self.dt)
 
         self.j = np.zeros_like(u, dtype=complex)
-        self.j[:, 1:] = u[:, 1:] / (1j * self.omega[1:].reshape((1,-1))) / self.mu
 
-        return self.omega, self.j
+        eps = 1e-12 * np.max(self.omega)
+        valid = self.omega > eps
+
+        self.j[:, valid] = u[:, valid] / (1j * self.omega[valid]) / self.mu
+        self.Jt = np.fft.irfft(self.j, n=self.N_T, axis=1)
+
+        return self.omega, self.j, self.Jt
+    
+
     
     # =====================
     # Visualization
@@ -292,6 +298,82 @@ class MOT:
         plt.show()
         return anim
     # =====================
+    # Plot current on circle
+    # =====================
+    def plot_current_on_circle(self,curve, time_index, mode="polar"):
+        """
+        Plot surface current on the circular boundary.
+
+        Parameters
+        ----------
+        time_index : int
+            Time step index
+        mode : str
+            "angle"  -> j vs phi
+            "polar"  -> polar plot
+            "vector" -> quiver plot on circle
+        """
+
+        # Element midpoints
+        rho_mid = 0.5 * (curve[:, :-1] + curve[:, 1:])
+
+        # Angle of each element
+        phi = np.arctan2(rho_mid[self._y], rho_mid[self._x])
+
+        # Sort by angle for clean plotting
+        idx = np.argsort(phi)
+        phi = phi[idx]
+
+        # Current at this time step
+        j = self.Jt[:, time_index][idx]
+
+        # ----------------------------------
+        # 1) j vs angle
+        # ----------------------------------
+        if mode == "angle":
+            plt.figure()
+            plt.plot(phi, j)
+            plt.xlabel(r"$\phi$ (rad)")
+            plt.ylabel("Surface current")
+            plt.title(f"Surface current at t = {time_index*self.dt:.2e} s")
+            plt.grid(True)
+            plt.show()
+
+        # ----------------------------------
+        # 2) Polar plot
+        # ----------------------------------
+        elif mode == "polar":
+            plt.figure()
+            ax = plt.subplot(111, projection="polar")
+            ax.plot(phi, np.abs(j))
+            ax.set_title(f"|Surface current| at t = {time_index*self.dt:.2e} s")
+            plt.show()
+
+        # ----------------------------------
+        # 3) Vector plot on the circle
+        # ----------------------------------
+        elif mode == "vector":
+            x = rho_mid[self._x, idx]
+            y = rho_mid[self._y, idx]
+
+            # Tangent direction (current flows tangentially)
+            tangent = self.tangents[:, idx]
+            tangent /= np.linalg.norm(tangent, axis=0)
+
+            jx = j * tangent[self._x]
+            jy = j * tangent[self._y]
+
+            plt.figure()
+            plt.quiver(x, y, jx, jy, scale=1, scale_units="xy")
+            plt.gca().set_aspect("equal")
+            plt.xlabel("x")
+            plt.ylabel("y")
+            plt.title(f"Surface current vectors at t = {time_index*self.dt:.2e} s")
+            plt.show()
+
+        else:
+            raise ValueError("mode must be 'angle', 'polar', or 'vector'")
+    # =====================
     # Animate surface current on circle (FIXED)
     # =====================
     def animate_current_on_circle1(self, R, scale=1.0, interval=40):
@@ -308,7 +390,7 @@ class MOT:
         phi = phi[idx]
 
         # Normalize current
-        max_j = np.max(np.abs(self.U))
+        max_j = np.max(np.abs(self.Jt))
         if max_j == 0:
             max_j = 1.0
 
@@ -329,7 +411,7 @@ class MOT:
             return line,
 
         def update(frame):
-            j = self.U[:, frame][idx]
+            j = self.Jt[:, frame][idx]
             r = R * (1 + scale * j / max_j)
 
             x = r * np.cos(phi)
@@ -367,7 +449,7 @@ class MOT:
         normals = np.vstack([-tangents[self._y], tangents[self._x]])
 
         # Normalize current
-        max_j = np.max(np.abs(self.U))
+        max_j = np.max(np.abs(self.Jt))
         if max_j == 0:
             max_j = 1.0
 
@@ -389,7 +471,7 @@ class MOT:
             return line,
 
         def update(frame):
-            j = self.U[:, frame]
+            j = self.Jt[:, frame]
             displacement = scale * j / max_j
 
             x = rho_mid[0] + displacement * normals[0]
@@ -428,7 +510,7 @@ class MOT:
         phi = phi[idx]
 
         # Normalize current for visualization
-        max_j = np.max(np.abs(self.U))
+        max_j = np.max(np.abs(self.Jt))
         if max_j == 0:
             max_j = 1.0
 
@@ -447,7 +529,7 @@ class MOT:
             return line,
 
         def update(frame):
-            j = self.U[:, frame][idx]
+            j = self.Jt[:, frame][idx]
             line.set_data(phi, j)
             ax.set_title(f"Surface current along circle, t = {frame*self.dt:.2e}s")
             return line,
@@ -636,15 +718,17 @@ def Q_6_1_validation(R, t_0, T, dt, t_end, N_S, N_G):
     plt.show(),
 
     mot.solve(V)
-    omega, j = mot.positivespectrum()
-    peakcomparison(mot,omega,j)
+    omega, j,jt = mot.positivespectrum()
     
+    time_index = np.argmin(np.abs(mot.dt * np.arange(mot.N_T) - t_0))
+    mot.plot_current_on_circle(curve, time_index, mode="angle")
     
     mot.animate_current_on_circle1(R)
     mot.animate_current_1d()
     mot.animate_Ei1(curve,E_i)
     mot.animate_Ei1_2D(curve,E_i)
-
+    
+    
     plt.figure()
     plt.plot(t, mot.U[0,:],      label="shadow")
     plt.plot(t, mot.U[N_S//2,:], label="sun")
@@ -767,7 +851,7 @@ def peakcomparison(model,omega,numerical):
 # ======================
 Q_6_1_validation(
     R     = 10,     # [m] radius of PEC
-    t_0   = 1e-7,   # [s] center of incident pulse
+    t_0   = 9e-8,   # [s] center of incident pulse
     T     = 20,     # [m] width of incident pulse
     dt    = 1e-9,   # [s] timestep
     t_end = 64e-8,  # [s] end of simulation
@@ -1037,7 +1121,7 @@ def rounded_square_curve(
 
 def Q_6_3rounded_validation(L, t_0, T, dt, t_end,N_per_side,N_G):
 
-    curve = rounded_square_curve(L,1, N_per_side)
+    curve = rounded_square_curve(L,0.5, N_per_side)
     N_S= N_per_side*4
     t = np.arange(0, t_end, step=dt)
     N_T = len(t)
@@ -1060,7 +1144,7 @@ def Q_6_3rounded_validation(L, t_0, T, dt, t_end,N_per_side,N_G):
     plt.show(),
 
     mot.solve(V)
-    omega, j = mot.positivespectrum()
+    omega, j,jt= mot.positivespectrum()
     peakcomparison(mot,omega,j)
     
     mot.animate_current_on_curve(curve)
@@ -1121,10 +1205,9 @@ def Q_6_3rounded_validation(L, t_0, T, dt, t_end,N_per_side,N_G):
     # -------------
 
     analyticalvsnumerical(omega,j_0,jz,N_S,phi)
-
 Q_6_3rounded_validation(
     L     = 10,     # [m] length of square PEC
-    t_0   = 1e-7,   # [s] center of incident pulse
+    t_0   = 1e-6,   # [s] center of incident pulse
     T     = 20,     # [m] width of incident pulse
     dt    = 1e-9,   # [s] timestep
     t_end = 64e-8,  # [s] end of simulation
