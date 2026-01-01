@@ -73,3 +73,8 @@ self.rhop is the linear interpolation along the segments, and self.curve is the 
 ## Joran 30/12
 * Reinstated _init_incident_pulse function for T1 and T_01 for the second excercise, I removed this without checking if everything still worked. New at least most of the functions still work, except for the two I allready mentioned above.
 * Scaled the Fouriertransformed with dt/sqrt(2 pi), this is because the continuous and discrete FT are not equal (see also comment). 
+
+## Boro 1/1
+* created a way to plot the spectra and compare them with analytical solutions
+* added a square and a rounded square for the simulation.
+* the square doesnt work because the solution doesnt exists.
