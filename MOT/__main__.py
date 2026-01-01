@@ -266,29 +266,7 @@ class MOT:
         self.j[:, 1:] = u[:, 1:] / (1j * self.omega[1:].reshape((1,-1))) / self.mu
 
         return self.omega, self.j
-
-
-    # # =====================
-    # # analytical
-    # # =====================
-    # def j_z(self,phi,omega):
-    #     k = omega.reshape(-1, 1, 1)/self.c # rad/m
-        
-    #     a = self.R                         # m
-
-    #     n = np.arange(np.ceil(np.max(k)*a) + 2).reshape(1, -1, 1)
-    #     return 1/1j/omega.reshape((-1, 1))/self.mu * 2 * np.sum(1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=1)
     
-
-    # def analytical6_1_(self, R):
-
-    #     phi = np.linspace(-np.pi, np.pi, 128)
-    #     self.jzanalyticalfrequency = self.j_z(phi,self.omega)
-    #     Jz = np.abs(self.j_z(phi,self.omega))
-    #     self.jzanalyticaltime = np.fft.irfft(self.jzanalyticalfrequency,axis=1)
-
-    #     return phi,Jz
-        
     # =====================
     # Visualization
     # =====================
@@ -313,82 +291,6 @@ class MOT:
         anim = FuncAnimation(fig, update, frames=Ei.shape[1])
         plt.show()
         return anim
-    # =====================
-    # Plot current on circle
-    # =====================
-    def plot_current_on_circle(self,curve, time_index, mode="polar"):
-        """
-        Plot surface current on the circular boundary.
-
-        Parameters
-        ----------
-        time_index : int
-            Time step index
-        mode : str
-            "angle"  -> j vs phi
-            "polar"  -> polar plot
-            "vector" -> quiver plot on circle
-        """
-
-        # Element midpoints
-        rho_mid = 0.5 * (curve[:, :-1] + curve[:, 1:])
-
-        # Angle of each element
-        phi = np.arctan2(rho_mid[self._y], rho_mid[self._x])
-
-        # Sort by angle for clean plotting
-        idx = np.argsort(phi)
-        phi = phi[idx]
-
-        # Current at this time step
-        j = self.U[:, time_index][idx]
-
-        # ----------------------------------
-        # 1) j vs angle
-        # ----------------------------------
-        if mode == "angle":
-            plt.figure()
-            plt.plot(phi, j)
-            plt.xlabel(r"$\phi$ (rad)")
-            plt.ylabel("Surface current")
-            plt.title(f"Surface current at t = {time_index*self.dt:.2e} s")
-            plt.grid(True)
-            plt.show()
-
-        # ----------------------------------
-        # 2) Polar plot
-        # ----------------------------------
-        elif mode == "polar":
-            plt.figure()
-            ax = plt.subplot(111, projection="polar")
-            ax.plot(phi, np.abs(j))
-            ax.set_title(f"|Surface current| at t = {time_index*self.dt:.2e} s")
-            plt.show()
-
-        # ----------------------------------
-        # 3) Vector plot on the circle
-        # ----------------------------------
-        elif mode == "vector":
-            x = rho_mid[self._x, idx]
-            y = rho_mid[self._y, idx]
-
-            # Tangent direction (current flows tangentially)
-            tangent = self.tangents[:, idx]
-            tangent /= np.linalg.norm(tangent, axis=0)
-
-            jx = j * tangent[self._x]
-            jy = j * tangent[self._y]
-
-            plt.figure()
-            plt.quiver(x, y, jx, jy, scale=1, scale_units="xy")
-            plt.gca().set_aspect("equal")
-            plt.xlabel("x")
-            plt.ylabel("y")
-            plt.title(f"Surface current vectors at t = {time_index*self.dt:.2e} s")
-            plt.show()
-
-        else:
-            raise ValueError("mode must be 'angle', 'polar', or 'vector'")
     # =====================
     # Animate surface current on circle (FIXED)
     # =====================
@@ -665,7 +567,13 @@ def j_z(model,phi, omega,R):
         omega_safe = np.where(omega == 0, 1e-20, omega)  # avoid divide by zero
         k = omega_safe.reshape(-1, 1, 1) / c
         a = R
-        n = np.arange(np.ceil(np.max(k)*a) + 2).reshape(1, -1, 1)
+        # assuming k and a are defined
+        N = int(np.ceil(np.max(k) * a) + 2)  # maximum |n| based on the decay rule
+
+        # create n from -N to N
+        n = np.arange(-N, N+1).reshape(1, -1, 1)  # shape (1, 2N+1, 1)
+       
+        print(n)
         return 1/1j/omega_safe.reshape((-1,1))/model.mu * 2 * np.sum(
             1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=1
         )
@@ -731,7 +639,7 @@ def Q_6_1_validation(R, t_0, T, dt, t_end, N_S, N_G):
     omega, j = mot.positivespectrum()
     peakcomparison(mot,omega,j)
     
-    mot.plot_current_on_circle(time_index=np.argmin(np.abs(t - t_0)))
+    
     mot.animate_current_on_circle1(R)
     mot.animate_current_1d()
     mot.animate_Ei1(curve,E_i)
@@ -857,7 +765,7 @@ def peakcomparison(model,omega,numerical):
 # ======================
 # 6.2 Cylindrical Cavity
 # ======================
-"""Q_6_1_validation(
+Q_6_1_validation(
     R     = 10,     # [m] radius of PEC
     t_0   = 1e-7,   # [s] center of incident pulse
     T     = 20,     # [m] width of incident pulse
@@ -866,7 +774,7 @@ def peakcomparison(model,omega,numerical):
     N_S   = 32,     # [1] number of segments for PEC
     N_G   = 8       # [1] order of Gaussian quadrature
 )
-
+"""
 
 # ======================
 # 6.2 Cylindrical Cavity
@@ -991,8 +899,7 @@ def Q_6_3_validation(L, t_0, T, dt, t_end,N_per_side,N_G):
     omega, j = mot.positivespectrum()
     peakcomparison(mot,omega,j)
     
-    mot.plot_current_on_circle(time_index=np.argmin(np.abs(t - t_0)))
-    mot.animate_current_on_circle1(R)
+
     mot.animate_current_1d()
     mot.animate_Ei1(curve,E_i)
     mot.animate_Ei1_2D(curve,E_i)

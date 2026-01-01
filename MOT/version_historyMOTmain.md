@@ -78,3 +78,4 @@ self.rhop is the linear interpolation along the segments, and self.curve is the 
 * created a way to plot the spectra and compare them with analytical solutions
 * added a square and a rounded square for the simulation.
 * the square doesnt work because the solution doesnt exists.
+* analytical solution summation only went from 1 to n where -n to n is needed
