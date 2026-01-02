@@ -36,9 +36,16 @@ This was achieved by making \(dx\) and \(dy\) functions of respectively \(x\) an
 As a first attempt both were made a step-function,
 in which around the boundaries they are both half of what they are elsewhere.
 This however results in reflections at the discontinuity in \(dx\) or \(dy\), 
-as can be seen in ??. % TODO: insert figure of reflections by step function in dx/dy
+which can be seen when looking at an animation of a short Gaussian pulse.
 Next, to remove these reflections, 
-a buffer zone was added in both \(x\)- and \(y\)-direction in which \(dx\) and \(dy\) are linearly interpolated (see fig ??). % TODO: add figure of dx or dy
+a buffer zone was added in both \(x\)- and \(y\)-direction in which \(dx\) and \(dy\) are linearly interpolated (see fig \ref{fig:dx-after-refinement}). % TODO: add figure of dx or dy
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/dx_after_refinement.png}
+    \caption{\(dx\) after refinement (linear)}
+    \label{fig:dx-after-refinement}
+\end{figure}
 
 Both these were in practice implemented by taking the original discretisation coordinates,
 and transforming these, either partswise linearly (for the step-function in \(dx\) or \(dy\)),
@@ -175,9 +182,20 @@ By defining \(\vec{p} = p_\perp \vec{e_y} + p_\parallel \vec{e_x}\) and \(\vec{\
 these can be rewritten in one equation as follows
 \[ \frac{d}{dt} \vec{e_i} \cdot \vec{p} + c^2 \vec{e_i} \cdot \nabla \vec{o} \cdot \vec{e_i} + \left| \vec{e_i} \cdot \vec{\kappa} \right| \vec{p} \cdot \vec{e_i} = 0\]
 The absolute value of \(\vec{e_i} \cdot \vec{\kappa}\) is important: 
-if we chose \(-\vec{e_y}\) instead of \(\vec{e_y}\) as the perpendicular direction, ... % TODO
+if we chose \(-\vec{e_y}\) instead of \(\vec{e_y}\) as the perpendicular direction, 
+the same equation should be gotten.
+Intuitively it is also non-sensical to have a negative damping-coefficient, 
+as this would amplify.
+By now substituting \(\vec{e_i} = \vec{e_w}\) or \(\vec{e_i} = \vec{e_v}\),
+the equations for \(p_w\) and \(p_v\) are received.
 
-\subsubsection{PEC-Boundaries}
+It is important to note that this last step is not valid.
+Since this is an equation involving tensors, 
+it cannot be generalized to any vector starting from two basis-vectors.
+This method, however, results in easy to implement PML's
+and, by visual validation, results in correct absorption.
+
+\subsubsection{Perfectly Hard Boundaries}
 
 The tilted boundary on the left side of the triangle is, 
 as mentioned above, easy to implement. 

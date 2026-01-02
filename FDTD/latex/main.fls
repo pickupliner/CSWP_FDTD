@@ -47,7 +47,12 @@ INPUT c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmsy6.tfm
 INPUT c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmr12.tfm
 INPUT c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
 INPUT c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
+INPUT ./figures/dx_after_refinement.png
+INPUT ./figures/dx_after_refinement.png
+INPUT ./figures/dx_after_refinement.png
+INPUT ./figures/dx_after_refinement.png
 OUTPUT main.pdf
+INPUT ./figures/dx_after_refinement.png
 INPUT c:/tools/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map
 INPUT ./figures/x_y_w_and_v.png
 INPUT ./figures/x_y_w_and_v.png

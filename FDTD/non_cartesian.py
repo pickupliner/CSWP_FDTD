@@ -224,29 +224,32 @@ fig.colorbar(cm)
 plt.show()
 
 # frequency domain at observer points
-kd = 2*np.pi * np.fft.rfftfreq(nt, dt) / c * d
+kd = 2*np.pi * np.fft.rfftfreq(4*nt, dt) / c * d
 
-plt.plot(kd, np.abs(np.fft.rfft(Ps(t_p.reshape(-1)))))
+plt.plot(kd, np.abs(np.fft.rfft(Ps(t_p.reshape(-1)), 4*nt)))
+plt.title("source")
+plt.xlabel("kd")
 plt.show()
 
 for (i, j) in zip(i_o, j_o):
-    P      = np.fft.rfft(p     [i, j, :])
+    P      = np.fft.rfft(p     [i, j, :], 4*nt)
     plt.plot(kd, np.abs(P))
 plt.xlim(0.1, 10)
+plt.xlabel("kd")
 plt.figure()
 for (i, j) in zip(i_o, j_o):
-    P_free = np.fft.rfft(p_free[i, j, :])
+    P_free = np.fft.rfft(p_free[i, j, :], 4*nt)
     plt.plot(kd, np.abs(P_free))
 plt.xlim(0.1, 10)
+plt.xlabel("kd")
 plt.show()
 
-kd = 2*np.pi * np.fft.rfftfreq(10*nt, dt) / c * d
-
-for (i, j) in zip(i_o, j_o):
-    P      = np.fft.rfft(p     [i, j, :], 10*nt)
-    P_free = np.fft.rfft(p_free[i, j, :], 10*nt)
-    plt.plot(kd, np.abs(P/P_free))
+for (i, j, x) in zip(i_o, j_o, xo):
+    P      = np.fft.rfft(p     [i, j, :], 4*nt)
+    P_free = np.fft.rfft(p_free[i, j, :], 4*nt)
+    plt.plot(kd, np.abs(P/P_free), label=f"x/d={x/d}")
 plt.xlim(0.1, 10)
 plt.xlabel("kd")
 plt.ylabel("p/p_free")
+plt.legend()
 plt.show()

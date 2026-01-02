@@ -97,15 +97,15 @@ y_p = (y_o[1:] + y_o[:-1])/2
 
 
 # change coordinates to get more points around wedge
-f, buffer = 0.5, 6
-#x_o = coordTransform(x_o, x0=7, x1=11, f=f)
-#x_p = coordTransform(x_p, x0=7, x1=11, f=f)
-# x_o = parabolicCoordTransform(x_o, x0=7, x1=11, f=f, buffer=buffer)
-# x_p = parabolicCoordTransform(x_p, x0=7, x1=11, f=f, buffer=buffer)
-#y_o = coordTransform(y_o, x0=0, x1=6, f=f)
-#y_p = coordTransform(y_p, x0=0, x1=6, f=f)
-# y_o = parabolicCoordTransform(y_o, x0=0, x1=6, f=f, buffer=buffer)
-# y_p = parabolicCoordTransform(y_p, x0=0, x1=6, f=f, buffer=buffer)
+f, buffer = 0.5, distance
+# x_o = coordTransform(x_o, x0=wl, x1=wr, f=f)
+# x_p = coordTransform(x_p, x0=wl, x1=wr, f=f)
+# x_o = parabolicCoordTransform(x_o, x0=wl, x1=wr, f=f, buffer=buffer)
+# x_p = parabolicCoordTransform(x_p, x0=wl, x1=wr, f=f, buffer=buffer)
+# y_o = coordTransform(y_o, x0=floor_height, x1=wh, f=f)
+# y_p = coordTransform(y_p, x0=floor_height, x1=wh, f=f)
+# y_o = parabolicCoordTransform(y_o, x0=floor_height, x1=wh, f=f, buffer=buffer)
+# y_p = parabolicCoordTransform(y_p, x0=floor_height, x1=wh, f=f, buffer=buffer)
 if refinement:
     plt.plot(x_o, np.arange(N+1),    ".", label="x$_o$")
     plt.plot(y_o, np.arange(M+1),    ".", label="y$_o$")
@@ -128,15 +128,15 @@ dx_p = (x_p[1:] - x_p[:-1]).reshape((1,-1)) # [m]
 dy_p = (y_p[1:] - y_p[:-1]).reshape((-1,1)) # [m]
 print(f"dx_o={np.min(dx_o)} dy_o={np.min(dy_o)} dx_p={np.min(dx_p)} dy_p={np.min(dy_p)}")
 if refinement:
-    plt.plot(np.arange(N) + 0.5, dx_o[0,:], ".", label="dx$_o$")
-    plt.plot(np.arange(M) + 0.5, dy_o[:,0], ".", label="dy$_o$")
+    # plt.plot(np.arange(N) + 0.5, dx_o[0,:], ".", label="dx$_o$")
+    # plt.plot(np.arange(M) + 0.5, dy_o[:,0], ".", label="dy$_o$")
     plt.plot(np.arange(N-1) + 1, dx_p[0,:], ".", label="dx$_p$")
-    plt.plot(np.arange(M-1) + 1, dy_p[:,0], ".", label="dy$_p$")
+    # plt.plot(np.arange(M-1) + 1, dy_p[:,0], ".", label="dy$_p$")
     plt.xlabel("n")
-    plt.ylabel("(m)")
+    plt.ylabel("dx (m)")
     plt.ylim(bottom=0)
-    plt.title("spatial steps after transformation")
-    plt.legend()
+    # plt.title("spatial steps after transformation")
+    # plt.legend()
     plt.show()
 
 #time step based on CN and stabilaty:
@@ -160,7 +160,7 @@ sigma=f*1.25 #fresuency spread
 fs=K/T #sample frequency
 t0=18 #offset in time domain
 Ps=lambda t:10*np.sin(2*np.pi*f*(t-t0))*np.exp(-((t-t0)**2)*(sigma**2)) #short band around f so that kd £[0.1,10]
-#Ps = lambda t: 10*np.exp(-(t - 20)**2*(1/50)) # gaussian pulse
+# Ps = lambda t: 100*np.exp(-(t - 3)**2*(4)) # gaussian pulse
 plt.plot(np.linspace(0,71,282),Ps(np.linspace(0,71,282)))
 plt.show()
 
@@ -277,6 +277,10 @@ def do_d(ox, oy):
     return dox_dx, doy_dy
 
 
+#source index
+i_s = np.argmin(np.abs(y_p - ys))
+j_s = np.argmin(np.abs(x_p - xs))
+
 #simulations:
 
 
@@ -289,10 +293,6 @@ def empty(px,py,ox,oy,F1,F3,K,xs,ys,co):
     k1_p=F1
     k2_o=F3[1:,:]
     k2_p=F3
-
-    #source index
-    i_s = np.argmin(np.abs(y_p - ys))
-    j_s = np.argmin(np.abs(x_p - xs))
 
     #observation
     observations=[]
@@ -342,11 +342,7 @@ def wall(px,py,ox,oy,F1,F2,K,xs,ys,co):
     k1_p=F1
     k2_o=F2[1:,:]
     k2_p=F2
-    
-    #source index
-    i_s = np.argmin(np.abs(y_p - ys))
-    j_s = np.argmin(np.abs(x_p - xs))
-  
+
     #observation
     observations=[]
     for i in range(len(co)):
@@ -398,11 +394,6 @@ def rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,co):
     k1_p=F1
     k2_o=F2[1:,:]
     k2_p=F2
-
-    #source index
-    i_s = np.argmin(np.abs(y_p - ys))
-    j_s = np.argmin(np.abs(x_p - xs))
-
 
     #observation
     observations=[]
@@ -460,10 +451,6 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
     k2_o=F2[1:,:]
     k2_p=F2
 
-    #source index
-    i_s = np.argmin(np.abs(y_p - ys))
-    j_s = np.argmin(np.abs(x_p - xs))
-
     #observation
     observations=[]
     for i in range(len(co)):
@@ -472,9 +459,9 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
     
     
     #determie obstacle indexes
-    wall_left=int(wl/a*(N+1))
-    wall_right=int(wr/a*(N+1))
-    ceiling=int(wh/b*(M+1))
+    wall_left = int(wl/a*(N+1))
+    wall_right = int(wr/a*(N+1))
+    ceiling = int(wh/b*(M+1))
     print("-"*20)
     print(ceiling)
     print((wall_right-wall_left)*2)

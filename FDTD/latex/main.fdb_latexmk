@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1767310260.18652 "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" "main.pdf" "main" 1767310260.54308 0
+["pdflatex"] 1767355636.64871 "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" "main.pdf" "main" 1767355637.03345 0
   "c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1733023854 1328 c834bbb027764024c09d3d2bf908b5f0 ""
   "c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1733023854 1324 c910af8c371558dc20f2d7822f66fe64 ""
   "c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1733023854 1524 4414a8315f39513458b80dfc63bff03a ""
@@ -40,11 +40,12 @@
   "c:/tools/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1733023980 94259 aec9939469efac8f0cf917369f632359 ""
   "c:/tools/TinyTeX/texmf-var/web2c/pdftex/pdflatex.fmt" 1733024004 1918134 af6f731535e8305d900c5f91f63e81b1 ""
   "c:/tools/TinyTeX/texmf.cnf" 1733023869 903 164c5b127cd0d6dc91abad2f62421ea2 ""
-  "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" 1767310259 10844 6238bce695fe54c8a8e0f87796397142 ""
-  "figures/p_ow_and_ov.png" 1767307429 14637 625b92d71abc15f65eaa594845888953 ""
-  "figures/x_y_w_and_v.png" 1767304933 28726 27aff6c020c1f9947a504ec5df327a12 ""
-  "main.aux" 1767310260 2297 0cace9ac83a0727cf6b177693fb5d0ff "pdflatex"
-  "main.tex" 1767310259 10844 6238bce695fe54c8a8e0f87796397142 ""
+  "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" 1767355636 11637 bfb7f57c9ad40073a51fb65d113f9621 ""
+  "figures/dx_after_refinement.png" 1767354877 14703 a15029c20abd53310f682cd6d5370e2a ""
+  "figures/p_ow_and_ov.png" 1767347616 14637 625b92d71abc15f65eaa594845888953 ""
+  "figures/x_y_w_and_v.png" 1767347616 28726 27aff6c020c1f9947a504ec5df327a12 ""
+  "main.aux" 1767355636 2500 28d942f9c1361eb1653b5649dca157c4 "pdflatex"
+  "main.tex" 1767355636 11637 bfb7f57c9ad40073a51fb65d113f9621 ""
   (generated)
   "main.aux"
   "main.log"
