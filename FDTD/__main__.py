@@ -870,9 +870,3 @@ plt.xlabel("kd")
 plt.ylabel("p/p_free")
 plt.legend()
 plt.show()
-
-
-
-
-
-
