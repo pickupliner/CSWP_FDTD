@@ -655,42 +655,37 @@ def j_z(model,phi, omega,R):
         # create n from -N to N
         n = np.arange(-N, N+1).reshape(1, -1, 1)  # shape (1, 2N+1, 1)
        
+        print(n)
         return 1/1j/omega_safe.reshape((-1,1))/model.mu * 2 * np.sum(
             1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=1
         )
-def analyticalvsnumerical(frequency,numerical,analytical,N_S,phi, A=[]):
+def analyticalvsnumerical(frequency,numerical,analytical,N_S,phi):
         plt.figure()
-
-        if len(A) != 0:
-            plt.plot(frequency/c, np.abs(A), color='black')
-            plt.ylabel("A (s/m)")
-            plt.twinx()
-
         plt.plot(frequency/c, numerical[0,:],      '.', color='tab:blue',   label=f"numerical shadow")
         plt.plot(frequency/c, numerical[N_S//2,:], '.', color='tab:orange', label=f"numerical sun")
 
         plt.plot(frequency/c, analytical[:,0],       '-', color='tab:blue',   label=f"analytical shadow")
         plt.plot(frequency/c, analytical[:,N_S//2],  '-', color='tab:orange', label=f"analytical sun")
 
-        # plt.title("normalized current vs analytical")
+        plt.title("normalized current vs analytical")
         plt.xlabel("$\\omega/c$ (rad/m)")
         plt.xlim(0, 1)
         plt.ylabel("j$_0$")
         plt.legend()
 
-        # plt.figure()
-        # plt.plot(phi, numerical[:,1], '.', color='red',   label=f"$\\omega/c$={frequency[1]/c} rad/m")
-        # plt.plot(phi, numerical[:,2], '.', color='green', label=f"$\\omega/c$={frequency[2]/c} rad/m")
-        # plt.plot(phi, numerical[:,3], '.', color='blue',  label=f"$\\omega/c$={frequency[3]/c} rad/m")
+        plt.figure()
+        plt.plot(phi, numerical[:,1], '.', color='red',   label=f"$\\omega/c$={frequency[1]/c} rad/m")
+        plt.plot(phi, numerical[:,2], '.', color='green', label=f"$\\omega/c$={frequency[2]/c} rad/m")
+        plt.plot(phi, numerical[:,3], '.', color='blue',  label=f"$\\omega/c$={frequency[3]/c} rad/m")
 
-        # plt.plot(phi, analytical[1], '-',    color='red',   label=f"$\\omega/c$={frequency[1]/c} rad/m")
-        # plt.plot(phi, analytical[2], '-',    color='green', label=f"$\\omega/c$={frequency[2]/c} rad/m")
-        # plt.plot(phi, analytical[3], '-',    color='blue',  label=f"$\\omega/c$={frequency[3]/c} rad/m")
+        plt.plot(phi, analytical[1], '-',    color='red',   label=f"$\\omega/c$={frequency[1]/c} rad/m")
+        plt.plot(phi, analytical[2], '-',    color='green', label=f"$\\omega/c$={frequency[2]/c} rad/m")
+        plt.plot(phi, analytical[3], '-',    color='blue',  label=f"$\\omega/c$={frequency[3]/c} rad/m")
 
-        # plt.title("normalized current vs analytical")
-        # plt.xlabel("$\\phi$ (rad)")
-        # plt.ylabel("j$_0$")
-        # plt.legend()
+        plt.title("normalized current vs analytical")
+        plt.xlabel("$\\phi$ (rad)")
+        plt.ylabel("j$_0$")
+        plt.legend()
 
         plt.show()
 # ==============
@@ -720,14 +715,13 @@ def Q_6_1_validation(R, t_0, T, dt, t_end, N_S, N_G):
     plt.plot(t, V[:,0],      label="shadow")
     plt.plot(t, V[:,N_S//2], label="sun")
     plt.xlabel("t (s)")
-    plt.legend()
     plt.show(),
 
     mot.solve(V)
     omega, j,jt = mot.positivespectrum()
     
     time_index = np.argmin(np.abs(mot.dt * np.arange(mot.N_T) - t_0))
-    mot.plot_current_on_circle(curve, time_index, mode="polar")
+    mot.plot_current_on_circle(curve, time_index, mode="angle")
     
     mot.animate_current_on_circle1(R)
     mot.animate_current_1d()
@@ -736,10 +730,10 @@ def Q_6_1_validation(R, t_0, T, dt, t_end, N_S, N_G):
     
     
     plt.figure()
-    plt.plot(t, mot.Jt[0,:],      label="shadow")
-    plt.plot(t, mot.Jt[N_S//2,:], label="sun")
+    plt.plot(t, mot.U[0,:],      label="shadow")
+    plt.plot(t, mot.U[N_S//2,:], label="sun")
     plt.xlabel("t (s)")
-    plt.title("j")
+    plt.title("$dj/dt$")
     plt.legend()
 
     # ----------
@@ -787,7 +781,7 @@ def Q_6_1_validation(R, t_0, T, dt, t_end, N_S, N_G):
     # visualization
     # -------------
 
-    analyticalvsnumerical(omega,j_0,np.abs(jz),N_S,phi, A)
+    analyticalvsnumerical(omega,j_0,jz,N_S,phi)
 
 
 def peakcomparison(model,omega,numerical):
@@ -855,6 +849,7 @@ def peakcomparison(model,omega,numerical):
 # ======================
 # 6.2 Cylindrical Cavity
 # ======================
+"""
 Q_6_1_validation(
     R     = 10,     # [m] radius of PEC
     t_0   = 9e-8,   # [s] center of incident pulse
@@ -869,11 +864,102 @@ Q_6_1_validation(
 # ======================
 # 6.2 Cylindrical Cavity
 # ======================
+def J_surface(omega, phi, R, mu):
+    """
+    Compute analytical surface current on a PEC cylinder for a plane wave pulse.
+    
+    Parameters
+    ----------
+    omega : array, shape (N_ω,)
+        Angular frequencies
+    phi : array, shape (N_φ,)
+        Angular positions along the cylinder
+    R : float
+        Cylinder radius
+    mu : float
+        Permeability of medium
+    
+    Returns
+    -------
+    J : array, shape (N_φ, N_ω)
+        Surface current at each angle and frequency
+    """
+    import numpy as np
+    import scipy.special as fns
 
+    c = 3e8
+    k = omega / c  # shape (N_ω,)
+
+    # Determine N_max based on max(k*R)
+    N_max = int(np.ceil(np.max(k)*R)) + 5
+    n = np.arange(-N_max, N_max + 1)  # shape (2*N_max+1,)
+
+    # Initialize J
+    J = np.zeros((len(phi), len(omega)), dtype=complex)  # shape (N_φ, N_ω)
+
+    # Sum over n
+    for ni in n:
+        H = fns.hankel2(ni, k*R)           # shape (N_ω,)
+        exp_factor = np.exp(1j * ni * phi)  # shape (N_φ,)
+        i_factor = 1j**(ni + 1)
+        J += i_factor * exp_factor[:, None] / H[None, :]  # broadcast -> (N_φ, N_ω)
+
+    # Apply prefactor
+    J *= 2 / (1j * mu * omega[None, :]) / np.pi / R
+
+    return J
+
+def normalized_fft_and_plot(signal, incident, dt, title="Normalized MOT Spectrum"):
+    """
+    Compute and plot the normalized Fourier spectrum of a signal.
+
+    Parameters
+    ----------
+    signal : array_like
+        Numerical solution of the MOT system (e.g. x(t), v(t), fluorescence)
+    incident : array_like
+        Incident wave time series
+    dt : float
+        Time step
+    title : str
+        Plot title
+    """
+
+    N = len(signal)
+
+    # Fourier transforms
+    S = np.fft.fft(signal)
+    I = np.fft.fft(incident)
+
+    # Frequency axis
+    freq = np.fft.fftfreq(N, dt)
+
+    # Avoid division by zero
+    eps = 1e-12
+    normalized_spectrum = np.abs(S) / (np.abs(I) + eps)
+
+    # Keep only positive frequencies
+    mask = freq > 0
+    freq = freq[mask]
+    normalized_spectrum = normalized_spectrum[mask]
+
+    # Plot
+    plt.figure()
+    plt.plot(freq, normalized_spectrum)
+    plt.xlabel("Frequency")
+    plt.ylabel("Normalized amplitude")
+    plt.title(title)
+    plt.grid(True)
+    plt.show()
+
+    return freq, normalized_spectrum
 def Q_6_2_cylindrical_cavity(R, dt, t_end, N_S, N_G):
 
     phi = np.linspace(0, 2*np.pi, N_S + 1)
     curve = R * np.array([np.cos(phi), np.sin(phi)])
+    
+    # phi at segment midpoints (length N_S)
+    phi_mid = 0.5 * (phi[:-1] + phi[1:])  # phi from curve nodes
 
     t = np.arange(0, t_end, step=dt)
     N_T = len(t)
@@ -890,22 +976,23 @@ def Q_6_2_cylindrical_cavity(R, dt, t_end, N_S, N_G):
     # Replicate for each boundary segment
     V = np.tile(Ei_boundary.T, (1, mot2.N_S))  # (N_T, N_S)
     radius= mot2.radius
-    mot2.animate_E_i(radius,Ei_boundary)
+    #mot2.animate_E_i(radius,Ei_boundary)
     mot2.solve(V)
-    omega,j = mot2.positivespectrum()
+    omega,j,jt = mot2.positivespectrum()
 
-    peakcomparison(mot2,omega,j)
+    #peakcomparison(mot2,omega,j)
+    jz= J_surface(omega,phi_mid,R,mot2.mu).T
+    print(np.shape(jz),np.shape(j),np.shape(omega),np.shape(phi))
+    analyticalvsnumerical(omega,j,jz,N_S,phi_mid)
 
-
-
-    mot2.plot_current_on_circle(time_index=200, mode="vector")
+    mot2.plot_current_on_circle(curve,time_index=200, mode="vector")
 
     mot2.animate_current_on_circle1(R, scale=2.0)
     mot2.animate_current_1d(interval=20)
     mot2.animate_Ei1(curve, Ei_boundary)
     #mot2.animate_Ei1_2D(curve, Ei_boundary, interval=40)
 
-    zeros = mot2.analyticalzeros(10,20)
+    mot2.analyticalzeros(10,20)
    
 
 Q_6_2_cylindrical_cavity(
@@ -915,7 +1002,7 @@ Q_6_2_cylindrical_cavity(
     N_S   = 80,     # [1] number of segments for PEC
     N_G   = 8       # [1] order of Gaussian quadrature
 )
-"""
+
 
 # ============
 # 6.3 Creative
@@ -1211,12 +1298,15 @@ def Q_6_3rounded_validation(L, t_0, T, dt, t_end,N_per_side,N_G):
     # -------------
 
     analyticalvsnumerical(omega,j_0,jz,N_S,phi)
-# Q_6_3rounded_validation(
-#     L     = 10,     # [m] length of square PEC
-#     t_0   = 1e-6,   # [s] center of incident pulse
-#     T     = 20,     # [m] width of incident pulse
-#     dt    = 1e-9,   # [s] timestep
-#     t_end = 64e-8,  # [s] end of simulation
-#     N_per_side=20,   # [1]amount of segments per side of the PEC
-#     N_G   = 8       # [1] order of Gaussian quadrature
-# )
+
+"""
+Q_6_3rounded_validation(
+    L     = 10,     # [m] length of square PEC
+    t_0   = 1e-6,   # [s] center of incident pulse
+    T     = 20,     # [m] width of incident pulse
+    dt    = 1e-9,   # [s] timestep
+    t_end = 64e-8,  # [s] end of simulation
+    N_per_side=20,   # [1]amount of segments per side of the PEC
+    N_G   = 8       # [1] order of Gaussian quadrature
+)
+"""
