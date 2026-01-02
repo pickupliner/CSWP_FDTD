@@ -216,10 +216,19 @@ def phid(a, b, thetad, thetar, thetas, n):
     alpha_plus  = thetar + thetas
     alpha_minus = thetar - thetas
     F = F_UTD
-    return  np.exp(1j*(2*np.pi*omega/c*(a+b)+np.pi/4))*(1/np.sin(thetad))*(1/np.sqrt(2*np.pi*2*np.pi*omega/c*a*b/(a+b)))*1/(2*n)*(cot((np.pi-alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_minus))+cot((np.pi-alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_plus))+cot((np.pi+alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_plus))+cot((np.pi+alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_minus)))
+    return np.exp(1j*(2*np.pi*omega/c*(a+b)+np.pi/4))*(1/np.sin(thetad))*(1/np.sqrt(2*np.pi*2*np.pi*omega/c*a*b/(a+b)))*1/(2*n)*( cot((np.pi-alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_minus))
+                                                                                                                                + cot((np.pi-alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_plus))
+                                                                                                                                + cot((np.pi+alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_plus))
+                                                                                                                                + cot((np.pi+alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_minus)))
 plt.title("analitycal?")
-phi=phid(2.14*distance, 1.802*distance, 0.14*np.pi,0.187*np.pi, 0.147*np.pi, 2)+phid(2.32*distance, 1.802*distance, 0.141*np.pi,0.187*np.pi, 0.14*np.pi, 2)+phid(2.32*distance, 2.69*distance, 0.141*np.pi,0.12*np.pi, 0.14*np.pi, 2)+phid(2.14*distance, 2.69*distance, 0.147*np.pi,0.12*np.pi, 0.14*np.pi, 2)
-plt.plot(omega,np.abs(phi))
+# mirror problem about ground, to get 2 wedges x 2 sources
+phi = phid(2.14*distance, 1.802*distance, 0.14*np.pi,0.187*np.pi,  0.147*np.pi, 2) \
+    + phid(2.32*distance, 1.802*distance, 0.141*np.pi,0.187*np.pi, 0.14*np.pi,  2) \
+    + phid(2.32*distance, 2.69*distance,  0.141*np.pi,0.12*np.pi,  0.14*np.pi,  2) \
+    + phid(2.14*distance, 2.69*distance,  0.147*np.pi,0.12*np.pi,  0.14*np.pi,  2)
+plt.plot(2*np.pi*omega/c*distance,np.abs(phi))
+plt.xlabel("kd")
+plt.xlim(0.1,10)
 plt.show()
 
 
@@ -573,7 +582,7 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
 p_empty,ox_empty,oy_empty,obs_empty=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
 p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
 #p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates2)
-#p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
+# p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
 
 #print(f"max |p| = {np.max(np.abs(p))}")
 
@@ -687,8 +696,9 @@ plt.xlim(-0.1,10)
 plt.show()
 
 plt.title("comparison")
-plt.plot(omega,np.abs(P_w)/np.abs(P),label="simulations")
-plt.plot(omega,phi,label="analytical")
+plt.xlabel("kd")
+plt.plot(2*np.pi*omega/c*distance,np.abs(P_w)/np.abs(P),label="simulations")
+plt.plot(2*np.pi*omega/c*distance,np.abs(phi),label="analytical")
 #plt.ylim(0,1)
 plt.xlim(0.1,10)
 plt.legend()
