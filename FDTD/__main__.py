@@ -5,11 +5,11 @@ from scipy.special import fresnel
 from scipy.special import erf
 #plotting booleans:
 PML=False
-refinement=True
+refinement=False
 #parameters:
 
 c=1 #wave speed[m/s]
-Z=2 #impedance[ohm]
+Z=2*c #impedance[ohm]
 
 #geometry:
 floor_height=4.1
@@ -38,7 +38,7 @@ coordinates2=[[4*distance,distance/2+floor_height],[5*distance,distance/2+floor_
 #size of array:
 K=int(800) #dimensioneless
 N=int(250) #dimensioneless
-M=int(150) #dimensioneless
+M=int(143) #dimensioneless
 
 print(f"M={M}")
 print(f"N={N}")
@@ -97,7 +97,7 @@ y_p = (y_o[1:] + y_o[:-1])/2
 
 
 # change coordinates to get more points around wedge
-f, buffer = 0.5, d
+f, buffer = 0.5, distance
 # x_o = coordTransform(x_o, x0=wl, x1=wr, f=f)
 # x_p = coordTransform(x_p, x0=wl, x1=wr, f=f)
 # x_o = parabolicCoordTransform(x_o, x0=wl, x1=wr, f=f, buffer=buffer)
@@ -128,10 +128,10 @@ dx_p = (x_p[1:] - x_p[:-1]).reshape((1,-1)) # [m]
 dy_p = (y_p[1:] - y_p[:-1]).reshape((-1,1)) # [m]
 print(f"dx_o={np.min(dx_o)} dy_o={np.min(dy_o)} dx_p={np.min(dx_p)} dy_p={np.min(dy_p)}")
 if refinement:
-    plt.plot(np.arange(N) + 0.5, dx_o[0,:], ".", label="dx$_o$")
-    plt.plot(np.arange(M) + 0.5, dy_o[:,0], ".", label="dy$_o$")
+    # plt.plot(np.arange(N) + 0.5, dx_o[0,:], ".", label="dx$_o$")
+    # plt.plot(np.arange(M) + 0.5, dy_o[:,0], ".", label="dy$_o$")
     plt.plot(np.arange(N-1) + 1, dx_p[0,:], ".", label="dx$_p$")
-    plt.plot(np.arange(M-1) + 1, dy_p[:,0], ".", label="dy$_p$")
+    # plt.plot(np.arange(M-1) + 1, dy_p[:,0], ".", label="dy$_p$")
     plt.xlabel("n")
     plt.ylabel("dx (m)")
     plt.ylim(bottom=0)
@@ -161,6 +161,9 @@ fs=K/T #sample frequency
 t0=18 #offset in time domain
 Ps=lambda t:10*np.sin(2*np.pi*f*(t-t0))*np.exp(-((t-t0)**2)*(sigma**2)) #short band around f so that kd £[0.1,10]
 # Ps = lambda t: 100*np.exp(-(t - 3)**2*(4)) # gaussian pulse
+plt.title("current source")
+plt.xlabel("time(s)")
+plt.ylabel("pressure(Pa)")
 plt.plot(np.linspace(0,71,282),Ps(np.linspace(0,71,282)))
 plt.show()
 
@@ -168,6 +171,9 @@ plt.show()
 val=np.fft.fft(Ps(t),n=10*len(Ps(t)))
 omega=np.fft.fftfreq(len(val),d=1/fs)
 print(len(val),len(omega))
+plt.title("source in the frequency domain")
+plt.xlabel("kd")
+plt.ylabel("pressure")
 plt.plot(2*np.pi*omega/c*distance,np.abs(val))
 
 plt.show()
@@ -216,19 +222,10 @@ def phid(a, b, thetad, thetar, thetas, n):
     alpha_plus  = thetar + thetas
     alpha_minus = thetar - thetas
     F = F_UTD
-    return np.exp(1j*(2*np.pi*omega/c*(a+b)+np.pi/4))*(1/np.sin(thetad))*(1/np.sqrt(2*np.pi*2*np.pi*omega/c*a*b/(a+b)))*1/(2*n)*( cot((np.pi-alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_minus))
-                                                                                                                                + cot((np.pi-alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_plus))
-                                                                                                                                + cot((np.pi+alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_plus))
-                                                                                                                                + cot((np.pi+alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_minus)))
+    return  np.exp(1j*(2*np.pi*omega/c*(a+b)+np.pi/4))*(1/np.sin(thetad))*(1/np.sqrt(2*np.pi*2*np.pi*omega/c*a*b/(a+b)))*1/(2*n)*(cot((np.pi-alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_minus))+cot((np.pi-alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_plus))+cot((np.pi+alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_plus))+cot((np.pi+alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_minus)))
 plt.title("analitycal?")
-# mirror problem about ground, to get 2 wedges x 2 sources
-phi = phid(2.14*distance, 1.802*distance, 0.14*np.pi,0.187*np.pi,  0.147*np.pi, 2) \
-    + phid(2.32*distance, 1.802*distance, 0.141*np.pi,0.187*np.pi, 0.14*np.pi,  2) \
-    + phid(2.32*distance, 2.69*distance,  0.141*np.pi,0.12*np.pi,  0.14*np.pi,  2) \
-    + phid(2.14*distance, 2.69*distance,  0.147*np.pi,0.12*np.pi,  0.14*np.pi,  2)
-plt.plot(2*np.pi*omega/c*distance,np.abs(phi))
-plt.xlabel("kd")
-plt.xlim(0.1,10)
+phi=phid(2.14*distance, 1.802*distance, 0.14*np.pi,0.187*np.pi, 0.147*np.pi, 2)+phid(2.32*distance, 1.802*distance, 0.141*np.pi,0.187*np.pi, 0.14*np.pi, 2)+phid(2.32*distance, 2.69*distance, 0.141*np.pi,0.12*np.pi, 0.14*np.pi, 2)+phid(2.14*distance, 2.69*distance, 0.147*np.pi,0.12*np.pi, 0.14*np.pi, 2)
+plt.plot(omega,np.abs(phi))
 plt.show()
 
 
@@ -572,17 +569,17 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
 
         #observing:
         for ind,r in enumerate(co):
-            i_obs = np.argmin(np.abs(y_p - r[1]))
-            j_obs = np.argmin(np.abs(x_p - r[0]))
+            i_obs = np.argmin(np.abs(x_p - r[1]))
+            j_obs = np.argmin(np.abs(y_p - r[0]))
             observations[ind].append(px[i+1,i_obs,j_obs]+py[i+1,i_obs,j_obs])
     return px+py,ox,oy,np.array(observations)
 
 
-# p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates1)
-p_empty,ox_empty,oy_empty,obs_empty=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
-# p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
-#p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates2)
-p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
+p_empty,ox_empty,oy_empty,obs_empty=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates1)
+#p_empty,ox_empty,oy_empty,obs_empty=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
+p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
+p_rec,ox_rec,oy_rec,obs_rec=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates2)
+#p_tri,ox_tri,oy_tri,obs_tri=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
 
 #print(f"max |p| = {np.max(np.abs(p))}")
 
@@ -673,14 +670,44 @@ def animate_heatmap(frames,xs,ys, coords,
     return ani
 
 
-animate_heatmap(p,xs,ys,coordinates2)
+animate_heatmap(p_rec,xs,ys,coordinates2)
 
 
-plt.title("triangle in comparison with empty")
-#plt.plot(t,obs[0],label="with triangle")
-plt.plot(t,obs_empty[0],label="empty")
+plt.title("thin wall in comparison with observers")
+plt.plot(t,obs[0],label="thin wall observer1")
+plt.plot(t,obs[1],label="thin wall observer2")
+plt.plot(t,obs[2],label="thin wall observer3")
+#plt.plot(t,Ps(t),label="source")
 plt.legend()
 plt.show()
+
+
+#plt.title("thin wall in comparison with source")
+#plt.plot(t,obs[0],label="thin wall")
+#plt.plot(t,obs[2],label="thin wall observer3")
+#plt.plot(t,Ps(t),label="source")
+plt.legend()
+#plt.show()
+
+
+plt.title("thin wall in comparison with real impedance wall")
+plt.plot(t,obs[1],label="thin wall")
+plt.plot(t,obs_rec[0],label="rectangle")
+plt.legend()
+plt.show()
+
+plt.title("thin wall in comparison with hard triangle")
+#plt.plot(t,obs[1],label="thin wall")
+#plt.plot(t,obs_tri[0],label="triangle")
+plt.legend()
+#plt.show()
+
+
+
+
+
+
+
 
 
 P_w=np.fft.fft(obs[0],n=10*len(obs_empty[0]))
@@ -696,10 +723,15 @@ plt.xlim(-0.1,10)
 plt.show()
 
 plt.title("comparison")
-plt.xlabel("kd")
-plt.plot(2*np.pi*omega/c*distance,np.abs(P_w)/np.abs(P),label="simulations")
-plt.plot(2*np.pi*omega/c*distance,np.abs(phi),label="analytical")
+plt.plot(omega,np.abs(P_w)/np.abs(P),label="simulations")
+plt.plot(omega,np.abs(phi),label="analytical")
 #plt.ylim(0,1)
 plt.xlim(0.1,10)
 plt.legend()
 plt.show()
+
+
+
+
+
+
