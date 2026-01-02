@@ -196,11 +196,35 @@ All plots (along with some extra animations) in the validation section can be re
 with as arguments the parameters given by table \ref{tab:validation-params}.
 
 
-\section{Resonance Freqeuencies of Cylindrical Cavity}
+\section{Resonance Frequencies of Cylindrical Cavity}
+for the cylindrical cavity we start with the current source 
+
+\begin{equation}
+    J(\boldsymbol{\rho},t) = \frac{4}{T\sqrt{\pi}}e^{-(4c\frac{t-t_o}{T})^2}\frac{\delta(\rho)}{2\pi\rho}
+\end{equation}
 
 \subsection{Incident Field by Numerical Quadrature}
+To compute this integral. We do as the assignemnt tells us using the 2D time-domain Green's function and with using numerical quadrature get our incident field.
+
 
 \subsection{Resonance Modes}
+to calculate the resonance modes in our cavity we start to calculate the sourceless resonance mode from the sourseless wave equation in the frequency domain.
+This is
+\begin{equation}
+\nabla_t^2e_z(\rho,\phi) +k^2e_z(\rho,\phi)=0
+\end{equation}
+in the 2 dimensional case the solution are the besselfunction in the form like
+
+\begin{equation}
+R(\rho)= AJ_n(k\rho)
+\end{equation}
+the Bessely function dissapears because it is non-physical at $rho=0$
+in the ent you have \[e_z=R(\rho)\Phi(\phi)=\sum^{\infty}_{n=-\infty}A_nJ_n(k\rho)e^{jn\phi}\]
+
+the zeroes of this function is when $\rho=a$ and thus we find the it that
+$J_n(x)=0$ with $x = ka$ with $k=\omega/c)$ thus you have $J_n(\omega/c\cdot a)$ you have $\omega_{m,n}=\frac{c}{a}x_{n,m}$
+
+which stands for the mth zero and the nth order bessel function.
 
 \subsection{Spectrum Numerical Solution}
 

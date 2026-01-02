@@ -1,51 +1,51 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.12.1)  2 JAN 2026 17:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.1.2)  2 JAN 2026 17:48
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/MOT/latex/main.tex
-(d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/MOT/latex/main.tex
-LaTeX2e <2024-11-01> patch level 1
-L3 programming layer <2024-11-02>
-(c:/tools/TinyTeX/texmf-dist/tex/latex/base/article.cls
-Document Class: article 2024/06/29 v1.4n Standard LaTeX document class
-(c:/tools/TinyTeX/texmf-dist/tex/latex/base/size10.clo
-File: size10.clo 2024/06/29 v1.4n Standard LaTeX file (size option)
+**"c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex"
+(c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+(C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/base\size10.clo
+File: size10.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
 )
-\c@part=\count196
-\c@section=\count197
-\c@subsection=\count198
-\c@subsubsection=\count199
-\c@paragraph=\count266
-\c@subparagraph=\count267
-\c@figure=\count268
-\c@table=\count269
+\c@part=\count275
+\c@section=\count276
+\c@subsection=\count277
+\c@subsubsection=\count278
+\c@paragraph=\count279
+\c@subparagraph=\count280
+\c@figure=\count281
+\c@table=\count282
 \abovecaptionskip=\skip49
 \belowcaptionskip=\skip50
-\bibindent=\dimen141
-) (c:/tools/TinyTeX/texmf-dist/tex/latex/graphics/graphicx.sty
-Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
- (c:/tools/TinyTeX/texmf-dist/tex/latex/graphics/keyval.sty
+\bibindent=\dimen148
+) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+ (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks17
-) (c:/tools/TinyTeX/texmf-dist/tex/latex/graphics/graphics.sty
+) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
 Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
- (c:/tools/TinyTeX/texmf-dist/tex/latex/graphics/trig.sty
+ (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
 Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
-) (c:/tools/TinyTeX/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 106.
- (c:/tools/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def
-File: pdftex.def 2024/04/13 v1.2c Graphics/color driver for pdftex
+ (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
 ))
-\Gin@req@height=\dimen142
-\Gin@req@width=\dimen143
-) (c:/tools/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
-File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count270
-\l__pdf_internal_box=\box52
-) (./main.aux)
+\Gin@req@height=\dimen149
+\Gin@req@width=\dimen150
+) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
+File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count283
+)
+No file main.aux.
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 10.
@@ -62,11 +62,24 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 10.
 LaTeX Font Info:    ... okay on input line 10.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 10.
 LaTeX Font Info:    ... okay on input line 10.
- (c:/tools/TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+(C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count284
+\scratchdimen=\dimen151
+\scratchbox=\box53
+\nofMPsegments=\count285
+\nofMParguments=\count286
+\everyMPshowfont=\toks18
+\MPscratchCnt=\count287
+\MPscratchDim=\dimen152
+\MPnumerator=\count288
+\makeMPintoPDFobject=\count289
+\everyMPtoPDFconversion=\toks19
+) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
- (c:/tools/TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
-File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+ (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <12> on input line 11.
@@ -88,11 +101,14 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 42.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <5> on input line 42.
-
-
 [1
 
-{c:/tools/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+{C:/Users/alich/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
+
+LaTeX Warning: Reference `fig:validation-incident-field' on page 2 undefined on input line 89.
+
+
+LaTeX Warning: Reference `tab:validation-params' on page 2 undefined on input line 92.
 
 [2]
 <figures/validation/incident_field.png, id=21, 462.528pt x 346.896pt>
@@ -100,6 +116,13 @@ File: figures/validation/incident_field.png Graphic file (type png)
 <use figures/validation/incident_field.png>
 Package pdftex.def Info: figures/validation/incident_field.png  used on input line 96.
 (pdftex.def)             Requested size: 207.0021pt x 155.25484pt.
+
+
+LaTeX Warning: Reference `fig:validation-current-polar' on page 3 undefined on input line 102.
+
+
+LaTeX Warning: Reference `fig:validation-current' on page 3 undefined on input line 103.
+
 <figures/validation/polar_current.png, id=23, 462.528pt x 346.896pt>
 File: figures/validation/polar_current.png Graphic file (type png)
 <use figures/validation/polar_current.png>
@@ -111,38 +134,58 @@ File: figures/validation/current.png Graphic file (type png)
 Package pdftex.def Info: figures/validation/current.png  used on input line 113.
 (pdftex.def)             Requested size: 207.0021pt x 155.25484pt.
 
+LaTeX Warning: Reference `eq:analytical-ez' on page 3 undefined on input line 134.
 
-[3 <./figures/validation/incident_field.png>]
+[3 <./figures/validation/incident_field.png>] [4 <./figures/validation/polar_current.png> <./figures/validation/current.png>]
 
-[4 <./figures/validation/polar_current.png> <./figures/validation/current.png>]
+LaTeX Warning: Reference `eq:analytical-jz' on page 5 undefined on input line 140.
+
+
+LaTeX Warning: Reference `fig:validation-analytical-vs-numerical' on page 5 undefined on input line 152.
+
 <figures/validation/analytical_vs_numerical.png, id=36, 584.6643pt x 346.896pt>
 File: figures/validation/analytical_vs_numerical.png Graphic file (type png)
 <use figures/validation/analytical_vs_numerical.png>
 Package pdftex.def Info: figures/validation/analytical_vs_numerical.png  used on input line 161.
 (pdftex.def)             Requested size: 207.0021pt x 122.8181pt.
-
-
 [5 <./figures/validation/analytical_vs_numerical.png>]
 
-[6] (./main.aux)
+LaTeX Warning: Reference `tab:validation-params' on page 6 undefined on input line 196.
+
+c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:203: Undefined control sequence.
+l.203     J(\boldsymbol
+                       {\rho},t) = \frac{4}{T\sqrt{\pi}}e^{-(4c\frac{t-t_o}{...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[6] [7] (main.aux)
  ***********
-LaTeX2e <2024-11-01> patch level 1
-L3 programming layer <2024-11-02>
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
  ***********
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 1049 strings out of 475289
- 18974 string characters out of 5766684
- 409165 words of memory out of 5000000
- 23967 multiletter control sequences out of 15000+600000
- 562688 words of font info for 52 fonts, out of 8000000 for 9000
- 14 hyphenation exceptions out of 8191
- 57i,10n,65p,365b,264s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <c:/tools/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (6 pages, 288707 bytes).
+ 1352 strings out of 467871
+ 23397 string characters out of 5418377
+ 445733 words of memory out of 5000000
+ 30265 multiletter control sequences out of 15000+600000
+ 632648 words of font info for 57 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 57i,10n,65p,355b,267s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\alich\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi5.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on main.pdf (7 pages, 332990 bytes).
 PDF statistics:
- 102 PDF objects out of 1000 (max. 8388607)
- 58 compressed objects within 1 object stream
+ 120 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  21 words of extra memory for PDF output out of 10000 (max. 10000000)
 
