@@ -2,9 +2,7 @@
 \usepackage{graphicx} % Required for inserting images
 
 \title{FDTD: diffraction over objects}
-\author{Alichan Borokov \\ \texttt{Alichan.Borokov@UGent.be}
-    \and Sam Hemati \\ \texttt{Sam.Hemati@UGent.be}
-    \and Joran Van Haelst \\ \texttt{Joran.VanHaelst@UGent.be} }
+\author{Alichan Borokov, Sam Hemati, Joran Van Haelst}
 \date{December 2025}
 
 \begin{document}
@@ -12,15 +10,323 @@
 
 \section{Introduction}
 
+\section{method}
 
+\subsection{The equations}
+The equations to be solved are the following wave equation equations
+
+\begin{equation}
+    \frac{\partial \boldsymbol{o}}{\partial t}+\nabla p=0
+\end{equation}
+
+\begin{equation}
+    \frac{\partial p}{\partial t}+c^2 \nabla \cdot \boldsymbol{o}=0
+\end{equation}
+
+or in carthesian coördinates
+
+\begin{equation}
+    \frac{\partial o_x}{\partial t}+\frac{\partial p}{\partial x}=0
+\end{equation}
+\begin{equation}
+    \frac{\partial o_y}{\partial t}+\frac{\partial p}{\partial y}=0
+\end{equation}
+\begin{equation}
+    \frac{\partial p}{\partial t}+\frac{\partial o_x}{\partial x}+ \frac{\partial o_y}{\partial y}=0
+\end{equation}
+The fact that the simulated domain is limtited means that there will be boundrys. This means there will always be reflections while the physical situations requires the waves to be able to leave the domain. To solve this problem an absorbing layer can be included so that by the time the wave reaches the edge of the domain there is no wave left to reflect seeing as it is already fully absorbed. Unfortunatly this creates it's own problems. The first one is that the sudden change of material from free space into an absorbing material wil allow for both transmission and reflection. Thus even if there are no more reflections at the boundry there will still be reflections at the edge of the absorbing layer. The seccond problem arises due to the angle of incidence. To solve the first one the absorbtion coëffiecient can be gradually increased from zero in the simulation domain to desired maximum damping coëfficient in the material.This ramping up of the damping coëfficient in the material is given by 
+
+\begin{equation}
+    \kappa=\kappa_{max}(\frac{x}{d})^5
+\end{equation}
+The second problem is solved through splitting the pressure in to an orthogonal and a parallel component. This doesn't neccecarly make sense for a scalar but this can simply be thought of as orthogonal and parallel contributions to the pressure caused by the orthogonal and parallel components of the velocity. This can be seen in eq \ref{eq:pre PML}
+
+\begin{equation}
+    \frac{\partial o_x}{\partial t}+\frac{\partial p_x}{\partial x}=0
+\end{equation}
+\begin{equation}
+    \frac{\partial o_y}{\partial t}+\frac{\partial p_y}{\partial y}=0
+\end{equation}
+\begin{equation}
+    \frac{\partial p_x}{\partial t}+\frac{\partial o_x}{\partial x}=0
+\end{equation}
+\begin{equation}
+    \frac{\partial p_y}{\partial t}+\frac{\partial o_y}{\partial y}=0
+\end{equation}
+where the assumptian has been made that the all 4 boudnrys are either parallel with with the y-axis or x-axis(i.e  a recatngle).
+
+The only thing still to be added to these equations is a damping coefficient.To get the desired result and full damping of the wave the damping coëfficients for the orthogonal components should be equal to eachother while the parallel components should be zero and this for each boundry. This was accomplished by solving the four equations with a damping coëfficient in the whole of the domain. Where the vertical damping coëfficents for the vertical boundrys is zero while the horizontal coëfficients are equal to eachother and ramp up from zero in the domain to a $\kappa_{max}$ in the boundry layer.The exact oposite was done for the horizontal boundry's.This leads to the following equations to be solved:
+
+\begin{equation}
+    \frac{\partial o_x}{\partial t}+\frac{\partial p_x}{\partial x}+\kappa_x o_x=0
+\end{equation}
+\begin{equation}
+    \frac{\partial o_y}{\partial t}+\frac{\partial p_y}{\partial y}+\kappa_y o_y=0
+\end{equation}
+\begin{equation}
+    \frac{\partial p_x}{\partial t}+\frac{\partial o_x}{\partial x}+\kappa_x p_x=0
+\end{equation}
+\begin{equation}
+    \frac{\partial p_y}{\partial t}+\frac{\partial o_y}{\partial y}+\kappa_y p_y=0
+\end{equation}
+ with the follwoing damping coëfficients throughout space.
+
+ \begin{equation}
+     \kappa_{x}=10((\frac{x-(a-d)}{d})^5H(x-(a-d))-(\frac{x-d}{d})^5H(-x+d))
+ \end{equation}
+  \begin{equation}
+     \kappa_{y}=10((\frac{y-(b-d)}{d})^5H(y-(b-d))-(\frac{y-d}{d})^5H(-y+d))
+ \end{equation}
+With a and b the width and height of the domain repsectivly and H the heaviside function.This can be seen in the heatmap in fig
+
+\subsection{The source}
+The equations described above will not produce any waves on their own, for this a source is nececary.In these simulation the domain of intrest lies for in $kd \in[0.1,10]$ or thus $f \in[0.0028,0.28]$. To this end the following source is used.
+
+\begin{equation}
+    P_{source}=sin(2 \pi f_o) exp(-\frac{(t-t_0)^2}{\sigma^2})
+\end{equation}
+ This source can be seen in the time domain in fig. and in the frequencey domain in fig. It is clear that the source forms a short band around $f_0$ spanning the values of kd.
+ 
+
+
+
+\subsection{finite difference equations}
+Now to solve these equations the pressure and velocity fields need to be discretised. This sampling can be done the same for all fields i.e evaluting all the fields in the same points(a collocated grid)
+\begin{equation}
+\begin{gathered}
+p_x=p_x|_{i,j}^l=p_x(idx,jdy,ldt) \qquad
+p_y= p_y|_{i,j}^l=p_y(idx,jdy,ldt)  
+\end{gathered}
+\end{equation}
+
+\begin{equation}
+\begin{gathered}
+o_x= o_x|_{i+,j}^{l}=o_x(idx,jdy,ldt)   \qquad
+o_y= o_y|_{i,j}^{l}=o_y(idx,jdy,ldt) 
+\end{gathered}
+\end{equation}
+but as will be further explained later, this is a bad idea beceause it leaves half the points untouched for pressure and the other half untouched for the velocitys. This is why a staggered grid was chosen so that the fields are evaluated as seen in
+
+\begin{equation}
+\begin{gathered}
+p_x=p_x|_{i,j}^l \qquad
+p_y= p_y|_{i,j}^l \qquad
+o_x= o_x|_{i+1/2,j}^{l+1/2}  \qquad
+o_y= o_y|_{i,j+1/2}^{l+1/2}
+\end{gathered}
+\end{equation}
+
+
+This grid can be seein in fig
+
+Now to solve for these discretised functions the equations also need to be discretised. Seeing as the derivatives are based on continiuous functions. This can be done through central finite difference based on the taylor expansion.
+\begin{equation}
+    f(x+dx/2)=f(x)+f'(x)\frac{dx}{2}+\frac{1}2{}f''(x)\frac{dx^2}{4}+...
+\end{equation}
+\begin{equation}
+    f(x-dx/2)=f(x)-f'(x)\frac{dx}{2}+\frac{1}2{}f''(x)\frac{dx^2}{4}+...
+\end{equation}
+Substracting these two equations and rearanging gives
+\begin{equation}
+    f'(x)=\frac{f(x+dx/2)-f(x-dx/2)}{dx}
+\end{equation}
+
+Where it is clear that this aproximation is seccond order accurate seeing as only third order terms and higher are omited.
+For derivatives in space this becomes
+
+\begin{equation}
+\begin{gathered}
+\frac{\partial p_x}{\partial x}|_{i+1/2,j}^l = \frac{p_x|_{i+1,j}^l-p_x|_{i,j}^l}{dx} \qquad
+\frac{\partial p_y}{\partial y}|_{i,j+1/2}^l = \frac{p_y|_{i,j+1}^l-p_y|_{i,j}^l}{dy}  
+\end{gathered}
+\end{equation}
+
+\begin{equation}
+\begin{gathered}
+\frac{\partial o_x}{\partial x}|_{i,j}^{l+1/2} = \frac{o_x|_{i+1/2,j}^{l+1/2}-o_x|_{i-1/2,j}^{l+1/2}}{dx} \qquad
+\frac{\partial o_y}{\partial y}|_{i,j}^{l+1/2} = \frac{o_y|_{i,j+1/2}^{l+1/2}-o_y|_{i,j-1/2}^{l+1/2}}{dy} 
+\end{gathered}
+\end{equation}
+and for derivatives in time this becomes
+\begin{equation}
+\begin{gathered}
+\frac{\partial p_x}{\partial t}|_{i,j}^{l+1/2} = \frac{p_x|_{i,j}^{l+1} -p_x|_{i,j}^{l} }{dt} \qquad
+\frac{\partial p_y}{\partial t}|_{i,j}^{l+1/2}  = \frac{p_y|_{i,j}^{l+1} -p_y|_{i,j}^{l} }{dt} 
+\end{gathered}
+\end{equation}
+
+\begin{equation}
+\begin{gathered}
+\frac{\partial o_x}{\partial t}|_{i+1/2,j}^{l}  = \frac{o_x|_{i+1/2,j}^{l+1/2}-o_x|_{i+1/2,j}^{l-1/2}}{dt} \qquad
+\frac{\partial o_y}{\partial t}|_{i,j+1/2}^{l}  = \frac{o_y|_{i,j+1/2}^{l+1/2}-o_y|_{i,j+1/2}^{l-1/2}}{dt} 
+\end{gathered}
+\end{equation}
+When substituting this in the equation the following equations can be found
+\begin{equation}
+    o_x|_{i+1/2,j}^{l+1/2}=o_x|_{i+1/2,j}^{l-1/2}-\frac{dt}{dx}(p_x|_{i+1,j}^l-p_x|_{i,j}^l)-\kappa_x o_x|_{i+1/2,j}^l
+\end{equation}
+\begin{equation}
+    o_y|_{i,j+1/2}^{l+1/2}=o_y|_{i,j+1/2}^{l-1/2}-\frac{dt}{dx}(p_x|_{i,j+1}^l-p_x|_{i,j}^l)-\kappa_y o_y|_{i,j+1/2}^l
+\end{equation}
+\begin{equation}
+    p_x|_{i,j}^{l+1}=p_x|_{i,j}^{l}-\frac{dt}{dx}(p_x|_{i+1/2,j}^{l+1/2}-o_x|_{i+1/2,j}^{l-1/2})-\kappa_x p_x|_{i,j}^{l+1/2}
+\end{equation}
+\begin{equation}
+    p_y|_{i,j}^{l+1}=p_y|_{i,j}^{l-1}-\frac{dt}{dx}(o_y|_{i,j+1/2}^{l+1/2}-o_y|_{i,j+1/2}^{l+1/2})-\kappa_y p_y|_{i,j}^{l+1/2}
+\end{equation}
+
+Where each next time step can be calculated based on the previous step.There is still a problem however seeing as for the damping one needs to know the value of $o_x$ and $o_y$ at time steps ldt and $p_x$ and $p_y$ at time steps (l+1/2)dt eventhough these values are not evaluated at those points in the grid. To solve this issue interpolation is used as can be seen in eq.
+\begin{equation}
+    \kappa_x o_x|_{i+1/2,j}^l= \kappa_x \frac{o_x|_{i+1/2,j}^{l-1/2}+o_x|_{i+1/2,j}^{l+1/2}}{2}
+\end{equation}
+\begin{equation}
+    \kappa_y o_y|_{i,j+1/2}^l= \kappa _y \frac{o_y|_{i,j+1/2}^{l-1/2}+o_y|_{i,j+1/2}^{l+1/2}}{2}
+\end{equation}
+\begin{equation}
+    \kappa_x p_x|_{i+1/2,j}^l= \kappa_x \frac{p_x|_{i,j}^{l}+p_x|_{i,j}^{l+1}}{2}
+\end{equation}
+\begin{equation}
+    \kappa_y p_y|_{i+1/2,j}^l= \kappa_y \frac{p_y|_{i,j}^{l}+p_y|_{i,j}^{l+1}}{2}
+\end{equation}
+
+Now each next time step can be calculated based on the previous step.
+This means only an initial condition for the field in each point is required and the field through out time and space can be calculated. This initial value is chosen as zero in each point. However with these equations the field would remain zero seeing as a source is still to be added. To do this the value of the source at each time step is devided by two and added to both pressure equations(at the position of the source ofcourse). This way the total pressure at each time is still the pressure of the source and this total pressure is equally devided between the two contributions. After including the source and interpolation these are the final equations
+\begin{equation}
+    (1+\kappa_x\frac{dt}{2})o_x|_{i+1/2,j}^{l+1/2}=(1-\kappa_x\frac{dt}{2})o_x|_{i+1/2,j}^{l-1/2}-\frac{dt}{dx}(p_x|_{i+1,j}^l-p_x|_{i,j}^l)
+\end{equation}
+\begin{equation}
+    (1+\kappa_y\frac{dt}{2})o_y|_{i,j+1/2}^{l+1/2}=(1-\kappa_y\frac{dt}{2})o_y|_{i,j+1/2}^{l-1/2}-\frac{dt}{dx}(p_x|_{i,j+1}^l-p_x|_{i,j}^l)
+\end{equation}
+\begin{equation}
+    (1+\kappa_x\frac{dt}{2})p_x|_{i,j}^{l+1}=(1-\kappa_x\frac{dt}{2})p_x|_{i,j}^{l}-\frac{dt}{dx}(p_x|_{i+1/2,j}^{l+1/2}-o_x|_{i+1/2,j}^{l-1/2})
+\end{equation}
+\begin{equation}
+    (1+\kappa_y\frac{dt}{2})p_y|_{i,j}^{l+1}=(1-\kappa_y\frac{dt}{2})p_y|_{i,j}^{l-1}-\frac{dt}{dx}(o_y|_{i,j+1/2}^{l+1/2}-o_y|_{i,j+1/2}^{l+1/2})
+\end{equation}
+\subsection{stabilaty and accuracy}
+To make sure the solution is stable the time step is chosen in such a way that combined with the spatial steps the courant condition is fufilled.
+\begin{equation}
+    CN \le 1
+\end{equation}
+with CN the courant number 
+\begin{equation}
+    CN=\sqrt{c^2dt^2(\frac{1}{dx^2}+\frac{1}{dy^2})}
+\end{equation}
+On the other hand the dt must be as big as possible for accuracy and so dt is chosen such that 
+\begin{equation}
+    CN=1
+\end{equation}
+\subsection{finite difference boundry conditions}
+
+\subsubsection{empty}
+With the equations described in the section above the simulation of an empty domain can now be calculated. However boundry conditions on the edge of the simulation domain still need to be implemented seeing as the domain is still finite. This boundry condition was chosen as perfectly hard. This is implemented by leaving all the values at the edges at zero.
+
+\subsubsection{Infinitly thin structure}
+For the infinitly thin structure the parameters of the empty simulation can be reused but this time a perfectly hard floor and wall need to be included. This can be done by assuming the plane representing the floor is at a plane where $o_y$ is discretised and to put $o_y$ on this plane equal to zero at each time step. To include the wall, the assumption is made that it lies in the plane where $o_x$ is discretised. Then the values of $o_x$ between the ground and the height of the wall in this plane are put equal to zero at each step.This can be seein in the following formulas
+\begin{equation}
+    o_y|_{i,J+1/2}^{l+1/2}=0
+\end{equation}
+\begin{equation}
+    o_x|_{I+1/2,j}^{l+1/2}=0
+\end{equation}
+with J+1/2 the index of the ground plane, I+1/2 the index of the wall plane, j the indexes between J and the index at the top of the wall and i spanning all indexes in the domain.
+
+\subsubsection{Thick object}
+The procedure to inlcude a hard wall and a hard thick object are completly analagous to the the infinitly thin structure. The only difference is that now there are two walls.These are implemented in the exact same way as the one wall in the previous section.And lastly a "ceiling" needs to be implemented which is done in the same way as the floor but at a different height and instead of spanning the entire horizontal space, only the x values between the walls is considered.
+
+\begin{equation}
+    o_y|_{i,J_{ground}+1/2}^{l+1/2}=0
+\end{equation}
+\begin{equation}
+    o_x|_{I1+1/2,j}^{l+1/2}=0
+\end{equation}
+\begin{equation}
+    o_x|_{I2+1/2,j}^{l+1/2}=0
+\end{equation}
+\begin{equation}
+    o_y|_{ind,J_{ceiling}+1/2}^{l+1/2}=0
+\end{equation}
+with $J_ground$+1/2 the index of the ground plane,I1+1/2 and I2+1/2 the index of the left wall- and right wall plane respectively,$J_{ceiling}+1/2$ the index of the ceiling plane,ind the indexes spanning from the left wall to the right wall and j the indexes going from the ground to the ceiling.
+
+To implement a real impedance one needs to take a look at the update equations on the boundry for example on the left wall it looks like
+\begin{equation}
+    o_x|_{I1+1/2,j}^{l+1/2}=o_x|_{I1+1/2,j}^{l-1/2}-\frac{2dt}{dx}(p|_{I1+1/2,j}^l-p|_{I1,j}^{l})
+\end{equation}
+Where a one sided finite difference was used seeing as the pressure beyond the boundry doesn't exist. Using the real impedance relation
+\begin{equation}
+    p|_{I1+1/2,j}^l=Zo_x|_{I1+1/2,j}^l
+\end{equation}
+the pressure on the boundry can be found in terms of the velocity on the boundry which is ideal seeing as it is a boundry where $o_x$ is being discretised. However it is not ideal that the velocity needs to be evaluated at a time step ldt.This problem can be solved trhough interpolation as follows
+
+\begin{equation}
+    o_x|_{I1+1/2,j}^l=\frac{o_x|_{I1+1/2,j}^{l+1/2}+o_x|_{I1+1/2,j}^{l-1/2}}{2}
+\end{equation}
+after substituting this in and rearanging the following formula is achieved
+\begin{equation}
+    (1+Z\frac{dt}{dx})o_x|_{I1+1/2,j}^{l+1/2}=(1-Z\frac{dt}{dx})o_x|_{I1+1/2,j}^{l-1/2}+\frac{2dt}{dx}p|_{I1,j}^{l}
+\end{equation}
+and analougously for the other boundry's 
+\begin{equation}
+    (1+Z\frac{dt}{dx})o_x|_{I2+1/2,j}^{l+1/2}=(1-Z\frac{dt}{dx})o_x|_{I2+1/2,j}^{l-1/2}-\frac{2dt}{dx}p|_{I2,j}^{l}
+\end{equation}
+\begin{equation}
+    (1+Z\frac{dt}{dx})o_y|_{ind,J_{ceiling-1/2}}^{l+1/2}=(1-Z\frac{dt}{dx})o_y|_{ind,J_{ceiling}-1/2}^{l-1/2}-\frac{2dt}{dx}p|_{J_{ceiling},j}^{l}
+\end{equation}
+Where the oposite one sided difference is used in combination with the following impedance relationships
+\begin{equation}
+    p=-Zo_x
+\end{equation}
+\begin{equation}
+    p=-Zo_y
+\end{equation}
+seeing as the direction of the impinging velocity is now against the unit axes.
+\subsubsection{Tilted boundry's}
+
+To aproach tilted perfectly hard boundry condition a first attempt was made by trying to aproximate it with a "stair case"
+The boundry conditions in this case look like 
+
+\begin{equation}
+o_y|_{index,4index-1/2+J_{ground}}^{l+1/2}=0
+\end{equation}
+
+\begin{equation}
+o_x|_{index+1/2,4index+J_{ground}}^{l+1/2}=0
+\end{equation}
+
+\begin{equation}
+o_x|_{index+1/2,4index+1+J_{ground}}^{l+1/2}=0
+\end{equation}
+
+\begin{equation}
+o_x|_{index+1/2,4index+2+J_{ground}}^{l+1/2}=0
+\end{equation}
+
+\begin{equation}
+o_x|_{index+1/2,4index+3+J_{ground}}^{l+1/2}=0
+\end{equation}
+for the positive slope and 
+\begin{equation}
+    o_y|_{index+midle+I1+1,4midle+3-4index}^{l+1/2}=0
+\end{equation}
+
+for the negative slope. Where $index$ denotes all the indeces between zero and $midle$, the amount of points between the start of the obstatcle and the midle. In this aproximation $o_x$ represents "vertical parts" of each staircase step and $o_y$ the horizontal part of every staircase step.
 \section{Infinitely Thin Structure}
 
 \subsection{Analytical diffraction around wedge}
+The analytcial solution for the infinitly thin wall can be calculated by using the follwoing formula from the unified difraction theory
 
+\begin{equation}
+    
+\end{equation}
+This is however not the full contribution. Seeing as this is meant for a source and an obstacle in free space while our set up has a ground plane. This plane can be removed if another virtual source and wedge is added at the perfect reflected position (around the ground plane).This introduces 2 wedges and 2 sources and 4 contributions.When adding all these up one gets the analytical solution.
 \subsection{Results}
+When comparing the source with the observation it is clear that there is a time delay due to the field having to arive at the observation point.And that there is  decrease in amplitude seeings a lot of the ower is radiated away in other directions.In the frequency domain...
+
 
 
 \section{Thick Object with Finite Impedance}
+
+
 
 \subsection{Results}
 
@@ -38,16 +344,9 @@ This was achieved by making \(dx\) and \(dy\) functions of respectively \(x\) an
 As a first attempt both were made a step-function,
 in which around the boundaries they are both half of what they are elsewhere.
 This however results in reflections at the discontinuity in \(dx\) or \(dy\), 
-which can be seen when looking at an animation of a short Gaussian pulse.
+as can be seen in ??. % TODO: insert figure of reflections by step function in dx/dy
 Next, to remove these reflections, 
-a buffer zone was added in both \(x\)- and \(y\)-direction in which \(dx\) and \(dy\) are linearly interpolated (see fig \ref{fig:dx-after-refinement}). % TODO: add figure of dx or dy
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\linewidth]{figures/dx_after_refinement.png}
-    \caption{\(dx\) after refinement (linear)}
-    \label{fig:dx-after-refinement}
-\end{figure}
+a buffer zone was added in both \(x\)- and \(y\)-direction in which \(dx\) and \(dy\) are linearly interpolated (see fig ??). % TODO: add figure of dx or dy
 
 Both these were in practice implemented by taking the original discretisation coordinates,
 and transforming these, either partswise linearly (for the step-function in \(dx\) or \(dy\)),
@@ -90,7 +389,7 @@ in which \(\theta\) is the angle between the \(v\)-axis and the \(x\)-axis.
     y = v \sin \theta
 \end{equation}
 
-In figure \ref{fig:x-y-w-and-v} the basis-vectors are given.
+In figure \ref{fig:x-y-w-and-v} the basis-vectors are given. % TODO: figure of ex, ey, ev and ew with annotation of theta
 Note that \(\vec{e_x} = \vec{e_u}\), but \(x \ne u\). 
 In this figure another vector, \(\vec{e_w}\), is introduced.
 This vector is perpendicular to \(\vec{e_v}\).
@@ -103,33 +402,18 @@ With this figure the relations given in equations \ref{eq:ew-of-ex-and-ey} and \
     \vec{e_v} = \cos \theta \vec{e_x} + \sin \theta \vec{e_y}
 \end{equation}
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.3\linewidth]{figures/x_y_w_and_v.png}
-    \caption{Important unit vectors}
-    \label{fig:x-y-w-and-v}
-\end{figure}
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.6\linewidth]{figures/p_ow_and_ov.png}
-    \caption{Discretised fields}
-    \label{fig:discretised-p-ow-and-ov}
-\end{figure}
-
 There is still an important choice remaining,
 namely, which directions of \(\vec{o}\) to store.
 A first idea might be to choose \(o_u = \vec{e_u} \cdot \vec{o}\) and \(o_v = \vec{e_v} \cdot \vec{o}\),
 as analogous to the cartesian grid.
-Remember however that the goal is to implement a tilted perfectly hard boundary,
+Remember however that the goal is to implement a tilted PEC-boundary,
 which has as boundary condition that \(o_n = 0\), 
 with \(n\) the normal of the boundary.
 For this boundary condition to be implemented simply, 
 \(o_w\) and \(o_v\) are chosen, 
 in which \(\vec{e_w}\) is the normal of the tilted boundary (on the left side).
 An added benefit is that now both stored directions of \(\vec{o}\) are orthogonal to eachother,
-so no data overlaps. Figure \ref{fig:discretised-p-ow-and-ov} shows the location of a few \(p\), \(o_w\) and \(o_v\)'s.
-
-\subsubsection{Update Scheme}
+so no data overlaps. Figure \ref{fig:discretised-p-ow-and-ov} shows the location of a few \(p\), \(o_w\) and \(o_v\)'s. % TODO: figure showcasing the discretisation of p, ow and ov
 
 Now the update scheme can be adjusted for the tilted grid.
 To update \(p\), 
@@ -152,26 +436,13 @@ combined with
 \[ o_w|_{u_0 + \Delta u/2} \approx \frac{o_w|_{u_0} + o_w|_{u_0 + \Delta u}}{2} . \]
 For the update equations of \(\vec{o}\) an analogous approach is followed.
 
-In a hand-waving approach a rough approximation was made for the Courant Number.
-Starting from the standard form, 
-and substituting \(dx = du + dv \cos \theta\) and \(dy = dv \sin \theta\) 
-(derived from equations \ref{eq:x-of-u-and-v} and \ref{eq:y-of-u-and-v}),
-equation \ref{eq:tilted-grid-CN} is calculated.
-\begin{equation}\label{eq:tilted-grid-CN}
-    \mbox{CN} = c^2 dt^2 \left( ({du + dv \cos \theta})^{-2} + (dv \sin \theta)^{-2} \right)
-\end{equation}
-For stability to be achieved, CN \(\approx 0.8\) is the maximum (for \(\tan \theta = 4\)). 
-The adjusted update scheme involves a lot of interpolation of missing values,
-which decrease the stability.
-
-\subsubsection{Perfectly Matched Layers}
-
 \begin{equation}\label{eq:update-p-perp-PML}
     \frac{dp_\perp}{dt} + c^2 \frac{do_\alpha}{d\alpha} + \kappa_\perp p_\perp = 0
 \end{equation}
 \begin{equation}\label{eq:update-p-para-PML}
     \frac{dp_\parallel}{dt} + c^2 \frac{do_\gamma}{d\gamma} + \kappa_\parallel p_\parallel = 0
 \end{equation}
+
 The perfectly matched layers in the tilted grid become a bit more complex.
 This especially for the upper PML.
 The update equations for \(p = p_\perp + p_\parallel\) are given by equations \ref{eq:update-p-perp-PML} and \ref{eq:update-p-para-PML}.
@@ -184,67 +455,13 @@ By defining \(\vec{p} = p_\perp \vec{e_y} + p_\parallel \vec{e_x}\) and \(\vec{\
 these can be rewritten in one equation as follows
 \[ \frac{d}{dt} \vec{e_i} \cdot \vec{p} + c^2 \vec{e_i} \cdot \nabla \vec{o} \cdot \vec{e_i} + \left| \vec{e_i} \cdot \vec{\kappa} \right| \vec{p} \cdot \vec{e_i} = 0\]
 The absolute value of \(\vec{e_i} \cdot \vec{\kappa}\) is important: 
-if we chose \(-\vec{e_y}\) instead of \(\vec{e_y}\) as the perpendicular direction, 
-the same equation should be gotten.
-Intuitively it is also non-sensical to have a negative damping-coefficient, 
-as this would amplify.
-By now substituting \(\vec{e_i} = \vec{e_w}\) or \(\vec{e_i} = \vec{e_v}\),
-the equations for \(p_w\) and \(p_v\) are received.
+if we chose \(-\vec{e_y}\) instead of \(\vec{e_y}\) as the perpendicular direction, ... % TODO
 
-It is important to note that this last step is not valid.
-Since this is an equation involving tensors, 
-it cannot be generalized to any vector starting from two basis-vectors.
-This method, however, results in easy to implement PML's
-and, by visual validation, results in correct absorption.
+CN
 
-\subsubsection{Perfectly Hard Boundaries}
-
-The tilted boundary on the left side of the triangle is, 
-as mentioned above, easy to implement. 
-It just requires setting \(o_w = 0\).
-The right-hand side isn't as simple to implement correctly 
-(ie. such that only \(o_n = 0\)), 
-instead a slightly incorrect alternative was used,
-setting all components of \(\vec{o}\) to zero.
-Lastly the ground-plane had to be implemented. 
-Neither of the simple approaches above are viable here,
-as \(o_n = o_y\) is not stored directly so can't be set to zero,
-and neither can all components of \(\vec{o}\) be set to zero.
-This last one is due to the fact that \(o_w\) and \(o_v\) aren't discretised at the same location,
-so that in reality the incoming wave will either see \(o_w = 0\) or \(o_v = 0\).
-
-With this there is only one solution remaining, 
-calculate \(o_y\) at the boundary by interpolation and remove this part from the stored \(o_v\).
-In practice the opposite was done, \(o_x\) was calculated and \(o_v\) was set to only include this part.
-Approximating \(o_w\) at the ground by the one just above it,
-and using \(o_x = o_w \sin \theta + o_v \cos \theta\),
-yields \(o_x\).
-This boundary condition does not prevent waves from entering the boundary,
-which was mitigated by setting \(p\) equal to zero under the ground.
-
-Finally another approach was tried.
-The goal is for \(o_y\) to be zero at the ground.
-Looking at its update equation, 
-\[ \frac{do_y}{dt} + \frac{dp}{dy} = 0, \]
-and using \(o_y = 0\) for all \(t\) at \(y=0\),
-it follows that \(\frac{dp}{dy} = 0\) at \(y=0\).
-As done before, this derivative can be written in terms of derivatives to \(u\) and \(v\).
-The derivative towards \(v\) is easily approximated at the ground by using central difference,
-but towards \(u\) requires interpolation. 
-From this equation \(p\) just below the ground can be set such that the boundary condition is achieved.
-Sadly this method turned out to be very unstable and it was not useable.
-
-Boundaries with finite impedance were not studied for the tilted grid. 
+BOUNDARY
 
 
 \section{Conclusion}
-
-...
-The tilted grid makes the implementation of the tilted boundary easier and more accurate. 
-But comes with a few drawbacks.
-Mainly it becomes less stable, 
-leading to smaller timesteps and more phase-error. 
-Besides this it makes the implementation of the PML and ground more complex.
-TODO: summarize results
 
 \end{document}
