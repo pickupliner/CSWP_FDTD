@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1767371143.72711 "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" "main.pdf" "main" 1767371144.14851 0
+["pdflatex"] 1767375363.05705 "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" "main.pdf" "main" 1767375363.66565 2
   "c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1733023854 1328 c834bbb027764024c09d3d2bf908b5f0 ""
   "c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1733023854 1324 c910af8c371558dc20f2d7822f66fe64 ""
   "c:/tools/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1733023854 1524 4414a8315f39513458b80dfc63bff03a ""
@@ -25,6 +25,7 @@
   "c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb" 1733023892 31809 8670ca339bf94e56da1fc21c80635e2a ""
   "c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb" 1733023892 32762 7fee39e011c23b3589931effd97b9702 ""
   "c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1733023892 32569 5e5ddc8df908dea60932f3c484a54c0d ""
+  "c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb" 1733023892 32915 7bf7720c61a5b3a7ff25b0964421c9b6 ""
   "c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb" 1733023892 32716 08e384dc442464e7285e891af9f45947 ""
   "c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb" 1733023892 24252 1e4e051947e12dfb50fee0b7f4e26e3a ""
   "c:/tools/TinyTeX/texmf-dist/tex/latex/base/article.cls" 1733023912 20144 d7d3a15c7efd9458741458961c8a96e7 ""
@@ -42,12 +43,12 @@
   "c:/tools/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1733023980 94259 aec9939469efac8f0cf917369f632359 ""
   "c:/tools/TinyTeX/texmf-var/web2c/pdftex/pdflatex.fmt" 1733024004 1918134 af6f731535e8305d900c5f91f63e81b1 ""
   "c:/tools/TinyTeX/texmf.cnf" 1733023869 903 164c5b127cd0d6dc91abad2f62421ea2 ""
-  "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" 1767371143 11785 f7f1d4d9072a2bb7ec42a89b86ab0a57 ""
-  "figures/dx_after_refinement.png" 1767371057 14703 a15029c20abd53310f682cd6d5370e2a ""
-  "figures/p_ow_and_ov.png" 1767371057 14637 625b92d71abc15f65eaa594845888953 ""
-  "figures/x_y_w_and_v.png" 1767371057 28726 27aff6c020c1f9947a504ec5df327a12 ""
-  "main.aux" 1767371144 2500 f4a6d46bb93add901132435f6d47981c "pdflatex"
-  "main.tex" 1767371143 11785 f7f1d4d9072a2bb7ec42a89b86ab0a57 ""
+  "d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex" 1767374875 29310 e0470020fd79adc995b6feceb1514ca1 ""
+  "figures/dx_after_refinement.png" 1767374517 14703 a15029c20abd53310f682cd6d5370e2a ""
+  "figures/p_ow_and_ov.png" 1767374517 14637 625b92d71abc15f65eaa594845888953 ""
+  "figures/x_y_w_and_v.png" 1767374517 28726 27aff6c020c1f9947a504ec5df327a12 ""
+  "main.aux" 1767375363 3743 eb05559c86868e11c0c9e98d3468c1c5 "pdflatex"
+  "main.tex" 1767374875 29310 e0470020fd79adc995b6feceb1514ca1 ""
   (generated)
   "main.aux"
   "main.log"

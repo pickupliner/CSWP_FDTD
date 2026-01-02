@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.12.1)  2 JAN 2026 17:25
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.12.1)  2 JAN 2026 18:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -75,58 +75,384 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 11.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 37.
+(Font)              <7> on input line 20.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 37.
-<figures/dx_after_refinement.png, id=1, 462.528pt x 346.896pt>
-File: figures/dx_after_refinement.png Graphic file (type png)
-<use figures/dx_after_refinement.png>
-Package pdftex.def Info: figures/dx_after_refinement.png  used on input line 47.
-(pdftex.def)             Requested size: 172.5pt x 129.37639pt.
+(Font)              <5> on input line 20.
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:21: Undefined control sequence.
+<argument> \partial \boldsymbol 
+                                {o}
+l.21 ...\frac{\partial \boldsymbol{o}}{\partial t}
+                                                  +\nabla p=0
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:25: Undefined control sequence.
+l.25 ...}{\partial t}+c^2 \nabla \cdot \boldsymbol
+                                                  {o}=0
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
 
 
 [1
 
 {c:/tools/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 
-[2 <./figures/dx_after_refinement.png>]
-<figures/x_y_w_and_v.png, id=20, 405.01312pt x 446.41782pt>
-File: figures/x_y_w_and_v.png Graphic file (type png)
-<use figures/x_y_w_and_v.png>
-Package pdftex.def Info: figures/x_y_w_and_v.png  used on input line 108.
-(pdftex.def)             Requested size: 103.50105pt x 114.07684pt.
-<figures/p_ow_and_ov.png, id=21, 462.528pt x 346.896pt>
-File: figures/p_ow_and_ov.png Graphic file (type png)
-<use figures/p_ow_and_ov.png>
-Package pdftex.def Info: figures/p_ow_and_ov.png  used on input line 114.
-(pdftex.def)             Requested size: 207.0021pt x 155.25484pt.
+LaTeX Warning: Reference `eq:pre PML' on page 2 undefined on input line 44.
 
 
-[3 <./figures/x_y_w_and_v.png> <./figures/p_ow_and_ov.png>]
+
+[2]
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:98: LaTeX Error: Environment gathered undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.98 \begin{gathered}
+                     
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:101: LaTeX Error: \begin{equation} on input line 97 ended by \end{gathered}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.101 \end{gathered}
+                    
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:105: LaTeX Error: Environment gathered undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.105 \begin{gathered}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:108: LaTeX Error: \begin{equation} on input line 104 ended by \end{gathered}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.108 \end{gathered}
+                    
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:113: LaTeX Error: Environment gathered undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.113 \begin{gathered}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:118: LaTeX Error: \begin{equation} on input line 112 ended by \end{gathered}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.118 \end{gathered}
+                    
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+
+[3]
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:140: LaTeX Error: Environment gathered undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.140 \begin{gathered}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:143: LaTeX Error: \begin{equation} on input line 139 ended by \end{gathered}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.143 \end{gathered}
+                    
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:147: LaTeX Error: Environment gathered undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.147 \begin{gathered}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:150: LaTeX Error: \begin{equation} on input line 146 ended by \end{gathered}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.150 \end{gathered}
+                    
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:154: LaTeX Error: Environment gathered undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.154 \begin{gathered}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:157: LaTeX Error: \begin{equation} on input line 153 ended by \end{gathered}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.157 \end{gathered}
+                    
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:161: LaTeX Error: Environment gathered undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.161 \begin{gathered}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:164: LaTeX Error: \begin{equation} on input line 160 ended by \end{gathered}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.164 \end{gathered}
+                    
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (1.69492pt too wide) in paragraph at lines 180--181
+[]\OT1/cmr/m/n/10 Where each next time step can be cal-cu-lated based on the pre-vi-ous step.There
+ []
+
+
 
 [4]
 
 [5]
 
-[6] (./main.aux)
+[6]
+
+[7]
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:321: Missing $ inserted.
+<inserted text> 
+                $
+l.321 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:321: Display math should end with $$.
+<to be read again> 
+                   \tex_par:D 
+l.321 
+      
+The `$' that I just saw supposedly matches a previous `$$'.
+So I shall assume that you typed `$$' both times.
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:322: You can't use `\eqno' in vertical mode.
+\eqno ->\@kernel@eqno 
+                      \aftergroup \ignorespaces 
+l.322 \end{equation}
+                    
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:322: Missing $ inserted.
+<inserted text> 
+                $
+l.322 \end{equation}
+                    
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+d:/joran/Documents/UGent/ComputationalSolutionsOfWaveProblems/CSWP_FDTD/FDTD/latex/main.tex:322: Display math should end with $$.
+<to be read again> 
+                   \endgroup 
+l.322 \end{equation}
+                    
+The `$' that I just saw supposedly matches a previous `$$'.
+So I shall assume that you typed `$$' both times.
+
+
+LaTeX Warning: Reference `fig:dx-after-refinement' on page 8 undefined on input line 351.
+
+<figures/dx_after_refinement.png, id=40, 462.528pt x 346.896pt>
+File: figures/dx_after_refinement.png Graphic file (type png)
+<use figures/dx_after_refinement.png>
+Package pdftex.def Info: figures/dx_after_refinement.png  used on input line 355.
+(pdftex.def)             Requested size: 172.5pt x 129.37639pt.
+
+
+[8]
+
+LaTeX Warning: Reference `eq:x-of-u-and-v' on page 9 undefined on input line 391.
+
+
+LaTeX Warning: Reference `eq:y-of-u-and-v' on page 9 undefined on input line 391.
+
+
+LaTeX Warning: Reference `fig:x-y-w-and-v' on page 9 undefined on input line 401.
+
+
+LaTeX Warning: Reference `eq:ew-of-ex-and-ey' on page 9 undefined on input line 405.
+
+
+LaTeX Warning: Reference `eq:ev-of-ex-and-ey' on page 9 undefined on input line 405.
+
+
+
+[9 <./figures/dx_after_refinement.png>]
+<figures/x_y_w_and_v.png, id=49, 405.01312pt x 446.41782pt>
+File: figures/x_y_w_and_v.png Graphic file (type png)
+<use figures/x_y_w_and_v.png>
+Package pdftex.def Info: figures/x_y_w_and_v.png  used on input line 416.
+(pdftex.def)             Requested size: 103.50105pt x 114.07684pt.
+<figures/p_ow_and_ov.png, id=50, 462.528pt x 346.896pt>
+File: figures/p_ow_and_ov.png Graphic file (type png)
+<use figures/p_ow_and_ov.png>
+Package pdftex.def Info: figures/p_ow_and_ov.png  used on input line 422.
+(pdftex.def)             Requested size: 207.0021pt x 155.25484pt.
+
+
+LaTeX Warning: Reference `fig:discretised-p-ow-and-ov' on page 10 undefined on input line 438.
+
+
+
+[10 <./figures/x_y_w_and_v.png> <./figures/p_ow_and_ov.png>]
+
+LaTeX Warning: Reference `eq:ev-of-ex-and-ey' on page 11 undefined on input line 450.
+
+
+LaTeX Warning: Reference `eq:ew-of-ex-and-ey' on page 11 undefined on input line 450.
+
+
+LaTeX Warning: Reference `eq:x-of-u-and-v' on page 11 undefined on input line 466.
+
+
+LaTeX Warning: Reference `eq:y-of-u-and-v' on page 11 undefined on input line 466.
+
+
+LaTeX Warning: Reference `eq:tilted-grid-CN' on page 11 undefined on input line 467.
+
+
+LaTeX Warning: Reference `eq:update-p-perp-PML' on page 11 undefined on input line 486.
+
+
+LaTeX Warning: Reference `eq:update-p-para-PML' on page 11 undefined on input line 486.
+
+
+
+[11]
+
+[12]
+
+[13] (./main.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 1
 L3 programming layer <2024-11-02>
  ***********
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 1037 strings out of 475289
- 18283 string characters out of 5766684
- 410250 words of memory out of 5000000
- 23956 multiletter control sequences out of 15000+600000
+ 1044 strings out of 475289
+ 18392 string characters out of 5766684
+ 412016 words of memory out of 5000000
+ 23963 multiletter control sequences out of 15000+600000
  562493 words of font info for 51 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 57i,6n,65p,313b,264s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (6 pages, 219976 bytes).
+ 57i,6n,65p,1113b,264s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on main.pdf (13 pages, 261166 bytes).
 PDF statistics:
- 100 PDF objects out of 1000 (max. 8388607)
- 57 compressed objects within 1 object stream
+ 129 PDF objects out of 1000 (max. 8388607)
+ 77 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  16 words of extra memory for PDF output out of 10000 (max. 10000000)
 
