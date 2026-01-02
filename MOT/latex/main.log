@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.1.2)  2 JAN 2026 17:48
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.1.2)  2 JAN 2026 21:01
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -41,127 +41,311 @@ File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen149
 \Gin@req@width=\dimen150
+) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+Package: amsmath 2025/07/09 v2.17z AMS math features
+\@mathmargin=\skip51
+
+For additional information on amsmath, use the `?' option.
+(C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+ (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks18
+\ex@=\dimen151
+)) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen152
+) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count283
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count284
+\leftroot@=\count285
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count286
+\DOTSCASE@=\count287
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box53
+\strutbox@=\box54
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen153
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count288
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count289
+\dotsspace@=\muskip17
+\c@parentequation=\count290
+\dspbrk@lvl=\count291
+\tag@help=\toks19
+\row@=\count292
+\column@=\count293
+\maxfields@=\count294
+\andhelp@=\toks20
+\eqnshift@=\dimen154
+\alignsep@=\dimen155
+\tagshift@=\dimen156
+\tagwidth@=\dimen157
+\totwidth@=\dimen158
+\lineht@=\dimen159
+\@envbody=\toks21
+\multlinegap=\skip52
+\multlinetaggap=\skip53
+\mathdisplay@stack=\toks22
+LaTeX Info: Redefining \[ on input line 2950.
+LaTeX Info: Redefining \] on input line 2951.
 ) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count283
+\l__color_backend_stack_int=\count295
 )
 No file main.aux.
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
 (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count284
-\scratchdimen=\dimen151
-\scratchbox=\box53
-\nofMPsegments=\count285
-\nofMParguments=\count286
-\everyMPshowfont=\toks18
-\MPscratchCnt=\count287
-\MPscratchDim=\dimen152
-\MPnumerator=\count288
-\makeMPintoPDFobject=\count289
-\everyMPtoPDFconversion=\toks19
+\scratchcounter=\count296
+\scratchdimen=\dimen160
+\scratchbox=\box55
+\nofMPsegments=\count297
+\nofMParguments=\count298
+\everyMPshowfont=\toks23
+\MPscratchCnt=\count299
+\MPscratchDim=\dimen161
+\MPnumerator=\count300
+\makeMPintoPDFobject=\count301
+\everyMPtoPDFconversion=\toks24
 ) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+ (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/grfext\grfext.sty
+Package: grfext 2019/12/03 v1.3 Manage graphics extensions (HO)
+ (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+)) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+ (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+)) (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
+ (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+Package grfext Info: Graphics extension search list:
+(grfext)             [.pdf,.png,.jpg,.mps,.jpeg,.jbig2,.jb2,.PDF,.PNG,.JPG,.JPEG,.JBIG2,.JB2,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 504.
  (C:\Users\alich\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 11.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 11.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 11.
-
-Underfull \hbox (badness 10000) in paragraph at lines 16--20
+Underfull \hbox (badness 10000) in paragraph at lines 17--21
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 28--30
+Underfull \hbox (badness 10000) in paragraph at lines 29--31
 
  []
 
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 42.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 42.
 [1
 
 {C:/Users/alich/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
 
-LaTeX Warning: Reference `fig:validation-incident-field' on page 2 undefined on input line 89.
+LaTeX Warning: Reference `fig:validation-incident-field' on page 2 undefined on input line 90.
 
 
-LaTeX Warning: Reference `tab:validation-params' on page 2 undefined on input line 92.
+LaTeX Warning: Reference `tab:validation-params' on page 2 undefined on input line 93.
 
 [2]
 <figures/validation/incident_field.png, id=21, 462.528pt x 346.896pt>
 File: figures/validation/incident_field.png Graphic file (type png)
 <use figures/validation/incident_field.png>
-Package pdftex.def Info: figures/validation/incident_field.png  used on input line 96.
+Package pdftex.def Info: figures/validation/incident_field.png  used on input line 97.
 (pdftex.def)             Requested size: 207.0021pt x 155.25484pt.
 
 
-LaTeX Warning: Reference `fig:validation-current-polar' on page 3 undefined on input line 102.
+LaTeX Warning: Reference `fig:validation-current-polar' on page 3 undefined on input line 103.
 
 
-LaTeX Warning: Reference `fig:validation-current' on page 3 undefined on input line 103.
+LaTeX Warning: Reference `fig:validation-current' on page 3 undefined on input line 104.
 
 <figures/validation/polar_current.png, id=23, 462.528pt x 346.896pt>
 File: figures/validation/polar_current.png Graphic file (type png)
 <use figures/validation/polar_current.png>
-Package pdftex.def Info: figures/validation/polar_current.png  used on input line 107.
+Package pdftex.def Info: figures/validation/polar_current.png  used on input line 108.
 (pdftex.def)             Requested size: 207.0021pt x 155.25484pt.
 <figures/validation/current.png, id=24, 462.528pt x 346.896pt>
 File: figures/validation/current.png Graphic file (type png)
 <use figures/validation/current.png>
-Package pdftex.def Info: figures/validation/current.png  used on input line 113.
+Package pdftex.def Info: figures/validation/current.png  used on input line 114.
 (pdftex.def)             Requested size: 207.0021pt x 155.25484pt.
 
-LaTeX Warning: Reference `eq:analytical-ez' on page 3 undefined on input line 134.
+LaTeX Warning: Reference `eq:analytical-ez' on page 3 undefined on input line 135.
 
 [3 <./figures/validation/incident_field.png>] [4 <./figures/validation/polar_current.png> <./figures/validation/current.png>]
 
-LaTeX Warning: Reference `eq:analytical-jz' on page 5 undefined on input line 140.
+LaTeX Warning: Reference `eq:analytical-jz' on page 5 undefined on input line 141.
 
 
-LaTeX Warning: Reference `fig:validation-analytical-vs-numerical' on page 5 undefined on input line 152.
+LaTeX Warning: Reference `fig:validation-analytical-vs-numerical' on page 5 undefined on input line 153.
 
 <figures/validation/analytical_vs_numerical.png, id=36, 584.6643pt x 346.896pt>
 File: figures/validation/analytical_vs_numerical.png Graphic file (type png)
 <use figures/validation/analytical_vs_numerical.png>
-Package pdftex.def Info: figures/validation/analytical_vs_numerical.png  used on input line 161.
+Package pdftex.def Info: figures/validation/analytical_vs_numerical.png  used on input line 162.
 (pdftex.def)             Requested size: 207.0021pt x 122.8181pt.
 [5 <./figures/validation/analytical_vs_numerical.png>]
 
-LaTeX Warning: Reference `tab:validation-params' on page 6 undefined on input line 196.
+LaTeX Warning: Reference `tab:validation-params' on page 6 undefined on input line 197.
 
-c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:203: Undefined control sequence.
-l.203     J(\boldsymbol
-                       {\rho},t) = \frac{4}{T\sqrt{\pi}}e^{-(4c\frac{t-t_o}{...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
+c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:212: Missing $ inserted.
+<inserted text> 
+                $
+l.212 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
 
-[6] [7] (main.aux)
+c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:212: Display math should end with $$.
+<to be read again> 
+                   \tex_par:D 
+l.212 
+      
+The `$' that I just saw supposedly matches a previous `$$'.
+So I shall assume that you typed `$$' both times.
+
+c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:213: Missing $ inserted.
+<inserted text> 
+                $
+l.213 \partial
+              _t J_z(\boldsymbol{\rho}',t) , dV', \end{equation} where $H(\c...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:213: You can't use `\eqno' in math mode.
+\veqno ->\@kernel@eqno 
+                       \aftergroup \ignorespaces 
+l.213 ...oldsymbol{\rho}',t) , dV', \end{equation}
+                                                   where $H(\cdot)$ is the H...
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:213: Missing $ inserted.
+<inserted text> 
+                $
+l.213 ...oldsymbol{\rho}',t) , dV', \end{equation}
+                                                   where $H(\cdot)$ is the H...
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:216: Missing $ inserted.
+<inserted text> 
+                $
+l.216 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:216: Display math should end with $$.
+<to be read again> 
+                   \tex_par:D 
+l.216 
+      
+The `$' that I just saw supposedly matches a previous `$$'.
+So I shall assume that you typed `$$' both times.
+
+[6]
+c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:217: Missing $ inserted.
+<inserted text> 
+                $
+l.217 \partial
+              _t \left( \frac{4}{T\sqrt{\pi}} \exp!\left[-\left(\frac{4c(t-t...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:217: You can't use `\eqno' in math mode.
+\veqno ->\@kernel@eqno 
+                       \aftergroup \ignorespaces 
+l.217 ...}\right)^2\right] \right), \end{equation}
+                                                   where $\rho=\lvert\boldsy...
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+c:/Users/alich/OneDrive - UGent/Documenten/GitHub/CSWP_FDTD/MOT/latex/main.tex:217: Missing $ inserted.
+<inserted text> 
+                $
+l.217 ...}\right)^2\right] \right), \end{equation}
+                                                   where $\rho=\lvert\boldsy...
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Overfull \hbox (10.30028pt too wide) detected at line 219
+[]\OML/cmm/m/it/10 E[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^Z; t\OT1/cmr/m/n/10 ) = \OMS/cmsy/m/n/10 ^^@[] [][] []\OML/cmm/m/it/10 ; @[] [] dt[]:
+ []
+
+
+Overfull \hbox (8.09564pt too wide) detected at line 219
+[]\OML/cmm/m/it/10 @[] [] \OT1/cmr/m/n/10 = \OMS/cmsy/m/n/10 ^^@[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 t[] \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/it/10 t[]\OT1/cmr/m/n/10 ) []! [] \OML/cmm/m/it/10 :
+ []
+
+
+Overfull \hbox (1.80893pt too wide) detected at line 225
+[]\OML/cmm/m/it/10 E[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^Z; t\OT1/cmr/m/n/10 ) = [] [][][]\OML/cmm/m/it/10 t \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/it/10 t[] \OMS/cmsy/m/n/10 ^^@ [] [] \OML/cmm/m/it/10 u[] []\OT1/cmr/m/n/10 ! [] \OML/cmm/m/it/10 ; du:
+ []
+
+[7]
+Overfull \hbox (4.30801pt too wide) detected at line 254
+[]\OML/cmm/m/it/10 E[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^Z; t\OT1/cmr/m/n/10 ) = [] [][][]\OML/cmm/m/it/10 t \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/it/10 t[] \OMS/cmsy/m/n/10 ^^@ [] [] \OML/cmm/m/it/10 u[] []  []  du:
+ []
+
+
+Overfull \hbox (30.39302pt too wide) detected at line 277
+[]\OML/cmm/m/it/10 E[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^Z; t\OT1/cmr/m/n/10 ) = [] [][][]\OML/cmm/m/it/10 t \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/it/10 t[] \OMS/cmsy/m/n/10 ^^@ [] [] \OML/cmm/m/it/10 u\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^X\OT1/cmr/m/n/10 )[] []  []  \OML/cmm/m/it/10 d^^X;
+ []
+
+[8] [9] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -175,17 +359,17 @@ LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
  ) 
 Here is how much of TeX's memory you used:
- 1352 strings out of 467871
- 23397 string characters out of 5418377
- 445733 words of memory out of 5000000
- 30265 multiletter control sequences out of 15000+600000
- 632648 words of font info for 57 fonts, out of 8000000 for 9000
+ 2666 strings out of 467871
+ 44129 string characters out of 5418377
+ 455445 words of memory out of 5000000
+ 31520 multiletter control sequences out of 15000+600000
+ 636561 words of font info for 72 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 57i,10n,65p,355b,267s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\alich\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi5.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (7 pages, 332990 bytes).
+ 59i,10n,67p,919b,267s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\alich\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi5.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmib10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/alich/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on main.pdf (9 pages, 363845 bytes).
 PDF statistics:
- 120 PDF objects out of 1000 (max. 8388607)
+ 131 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  21 words of extra memory for PDF output out of 10000 (max. 10000000)
 

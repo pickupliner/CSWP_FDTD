@@ -664,8 +664,8 @@ def analyticalvsnumerical(frequency,numerical,analytical,N_S,phi):
         plt.plot(frequency/c, numerical[0,:],      '.', color='tab:blue',   label=f"numerical shadow")
         plt.plot(frequency/c, numerical[N_S//2,:], '.', color='tab:orange', label=f"numerical sun")
 
-        plt.plot(frequency/c, analytical[:,0],       '-', color='tab:blue',   label=f"analytical shadow")
-        plt.plot(frequency/c, analytical[:,N_S//2],  '-', color='tab:orange', label=f"analytical sun")
+        plt.plot(frequency/c, analytical[:,0],       '-', color='tab:orange',   label=f"analytical shadow")
+        plt.plot(frequency/c, analytical[:,N_S//2],  '-', color='tab:blue', label=f"analytical sun")
 
         plt.title("normalized current vs analytical")
         plt.xlabel("$\\omega/c$ (rad/m)")
@@ -688,6 +688,22 @@ def analyticalvsnumerical(frequency,numerical,analytical,N_S,phi):
         plt.legend()
 
         plt.show()
+
+def numerical(frequency,numerical,N_S):
+    plt.figure()
+    plt.plot(frequency/c, numerical[0,:],      '.', color='tab:blue',   label=f"numerical shadow")
+    plt.plot(frequency/c, numerical[N_S//2,:], '.', color='tab:orange', label=f"numerical sun")
+
+        
+    plt.title("normalized current:numerical ")
+    plt.xlabel("$\\omega/c$ (rad/m)")
+    plt.xlim(0, 1)
+    plt.ylabel("j$_0$")
+    plt.legend()
+
+
+    plt.show()
+
 # ==============
 # 6.1 VALIDATION
 # ==============
@@ -804,7 +820,7 @@ def peakcomparison(model,omega,numerical):
     spectrum = np.nanmean(j_0, axis=0)
 
     # --- find numerical peaks
-    threshold = 0.25 * np.nanmax(spectrum)
+    threshold = 0.1* np.nanmax(spectrum)
     peaks, _ = find_peaks(spectrum, height=threshold)
     omega_numerical = omega[peaks]
 
@@ -849,17 +865,17 @@ def peakcomparison(model,omega,numerical):
 # ======================
 # 6.2 Cylindrical Cavity
 # ======================
-"""
+
 Q_6_1_validation(
     R     = 10,     # [m] radius of PEC
     t_0   = 9e-8,   # [s] center of incident pulse
-    T     = 20,     # [m] width of incident pulse
+    T     = 5,     # [m] width of incident pulse
     dt    = 1e-9,   # [s] timestep
     t_end = 64e-8,  # [s] end of simulation
-    N_S   = 32,     # [1] number of segments for PEC
+    N_S   = 100,     # [1] number of segments for PEC
     N_G   = 8       # [1] order of Gaussian quadrature
 )
-"""
+
 
 # ======================
 # 6.2 Cylindrical Cavity
@@ -908,6 +924,54 @@ def J_surface(omega, phi, R, mu):
     J *= 2 / (1j * mu * omega[None, :]) / np.pi / R
 
     return J
+def E_i2_offcenter(model,x, y, t, xs=0.5, ys=0.0):
+    """
+    Compute Ei(x, y, t) for an off-center point source using
+    Gauss-Legendre quadrature with cosh substitution.
+
+    x, y, t : 2D arrays of shape (Nx, Nt)
+    xs, ys  : source location
+    Returns : Ei, same shape
+    """
+
+    Nx, Nt = x.shape
+    Ei = np.zeros_like(x)
+
+    # Gauss–Legendre nodes and weights on [-1,1]
+    xi, wi = np.polynomial.legendre.leggauss(model.N_G)
+    wi = wi * (-model.mu / (4 * np.pi))  # same scaling as centered case
+    R=int(input("give R"))
+    for i in range(Nx):
+        for j in range(Nt):
+
+            # Distance from source to observation point
+            R = np.sqrt((x[i, j] - xs)**2 + (y[i, j] - ys)**2)
+            tt = t[i, j]
+
+            # Causality
+            if tt <= R / model.c:
+                Ei[i, j] = 0.0
+                continue
+
+            # Upper limit from causality
+            arg = model.c / R * (tt - model.t_01)
+            arg = np.maximum(arg, 1.0)
+            umax = np.arccosh(arg)
+
+            # Map Gauss nodes to [0, umax]
+            u = (umax / 2) * (1 + xi)
+
+            # Retarded time
+            arg_t = tt - (R / model.c) * np.cosh(u)
+
+            # Integrand
+            integrand = model.fprime(arg_t)
+
+            # Quadrature
+            Ei[i, j] = np.sum(wi * integrand) * umax
+
+    return Ei
+
 
 def normalized_fft_and_plot(signal, incident, dt, title="Normalized MOT Spectrum"):
     """
@@ -963,7 +1027,7 @@ def Q_6_2_cylindrical_cavity(R, dt, t_end, N_S, N_G):
 
     t = np.arange(0, t_end, step=dt)
     N_T = len(t)
-
+    print(N_T)
     mot2 = MOT(curve, dt, N_T, N_G)
     mot2.create_spacetimemesh_6_2(R, N_S, N_T)
     # Evaluate Ei ONLY at boundary radius
@@ -971,16 +1035,26 @@ def Q_6_2_cylindrical_cavity(R, dt, t_end, N_S, N_G):
     t_boundary   = mot2.t_01 + np.arange(mot2.N_T) * mot2.dt
     t_boundary   = t_boundary.reshape(1, -1)
 
-    Ei_boundary = mot2.E_i2(rho_boundary, t_boundary)  # (1, N_T)
+    Ei_boundary = mot2.E_i2(rho_boundary, t_boundary)  # (1, N_T)`
+    
+
+    x_b = R * np.cos(phi_mid)
+    y_b = R * np.sin(phi_mid)
+    X = x_b[:, None] * np.ones((1, mot2.N_T))
+    Y = y_b[:, None] * np.ones((1, mot2.N_T))
+    T = mot2.t_01 + np.arange(mot2.N_T) * mot2.dt
+    T = T[None, :] * np.ones((mot2.N_S, 1))
+
+    Ei_boundary = E_i2_offcenter(mot2,X,Y,T)
 
     # Replicate for each boundary segment
-    V = np.tile(Ei_boundary.T, (1, mot2.N_S))  # (N_T, N_S)
-    radius= mot2.radius
-    #mot2.animate_E_i(radius,Ei_boundary)
+    #V = np.tile(Ei_boundary.T, (1, mot2.N_S))  # (N_T, N_S)
+    V = Ei_boundary.T
+    print(np.shape(V))
     mot2.solve(V)
     omega,j,jt = mot2.positivespectrum()
 
-    #peakcomparison(mot2,omega,j)
+    peakcomparison(mot2,omega,j)
     jz= J_surface(omega,phi_mid,R,mot2.mu).T
     print(np.shape(jz),np.shape(j),np.shape(omega),np.shape(phi))
     analyticalvsnumerical(omega,j,jz,N_S,phi_mid)
@@ -993,13 +1067,13 @@ def Q_6_2_cylindrical_cavity(R, dt, t_end, N_S, N_G):
     #mot2.animate_Ei1_2D(curve, Ei_boundary, interval=40)
 
     mot2.analyticalzeros(10,20)
-   
+
 
 Q_6_2_cylindrical_cavity(
     R     = 10,     # [m] radius of PEC
     dt    = 1e-9,   # [s] timestep
     t_end = 40e-8,  # [s] end of simulation
-    N_S   = 80,     # [1] number of segments for PEC
+    N_S   = 150,     # [1] number of segments for PEC
     N_G   = 8       # [1] order of Gaussian quadrature
 )
 
@@ -1296,17 +1370,15 @@ def Q_6_3rounded_validation(L, t_0, T, dt, t_end,N_per_side,N_G):
     # -------------
     # visualization
     # -------------
+    
+    numerical(omega,j_0,N_S)
 
-    analyticalvsnumerical(omega,j_0,jz,N_S,phi)
-
-"""
 Q_6_3rounded_validation(
     L     = 10,     # [m] length of square PEC
-    t_0   = 1e-6,   # [s] center of incident pulse
-    T     = 20,     # [m] width of incident pulse
+    t_0   = 8e-8,   # [s] center of incident pulse
+    T     = 10,     # [m] width of incident pulse
     dt    = 1e-9,   # [s] timestep
     t_end = 64e-8,  # [s] end of simulation
-    N_per_side=20,   # [1]amount of segments per side of the PEC
+    N_per_side=40,   # [1]amount of segments per side of the PEC
     N_G   = 8       # [1] order of Gaussian quadrature
 )
-"""
