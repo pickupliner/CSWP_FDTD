@@ -631,68 +631,6 @@ def hard_triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
             observations[ind].append(px[i+1,i_obs,j_obs]+py[i+1,i_obs,j_obs])
     return px+py,ox,oy,np.array(observations)
 
-# simulation with triangle with hard BC
-def hard_triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
-    #fix dimensions/construct the final kappa's (sligth alteration to dimension so they would fit in the equations)
-    k1_o=F1[:,:-1]
-    k1_p=F1
-    k2_o=F2[1:,:]
-    k2_p=F2
-
-    #observation
-    observations=[]
-    for i in range(len(co)):
-        observations.append([])
-
-    # returns True if x and y lie in the triangle
-    def in_triangle(x, y):
-        left_x = wl                 # leftmost x of triangle [m]
-        right_x = wr                # rightmost              [m]
-        slope = 2*(wh - floor_height)/(wr - wl)
-        # to be in triangle is the same as being beneath two lines
-        return (y - floor_height < slope*(x - left_x)) & (y - floor_height < -slope * (x - right_x))
-    
-    TRIANGLE_ox = in_triangle(x_o.reshape((1, -1)), y_p.reshape((-1, 1)))
-    TRIANGLE_oy = in_triangle(x_p.reshape((1, -1)), y_o.reshape((-1, 1)))
-    floor_index=np.argmin(np.abs(y_o - floor_height))
-    
-    #solving scheme
-    for i in range(K-1):
-        #construct total p
-        p=px[i]+py[i]
-        dp_dx, dp_dy = dp_d(p)
-        #two equations for o
-        ox[i+1,:,1:-1]=((1-k1_o*dt/2)/(1+k1_o*dt/2))*ox[i,:,1:-1]-dt/(1+k1_o*dt/2)*dp_dx
-        oy[i+1,1:-1,:]=((1-k2_o*dt/2)/(1+k2_o*dt/2))*oy[i,1:-1,:]-dt/(1+k2_o*dt/2)*dp_dy
-
-        #aplying boundry conditions
-        ox[i+1,TRIANGLE_ox]=0
-        oy[i+1,TRIANGLE_oy]=0
-        oy[i+1,floor_index,:]=0
-
-        dox_dx, doy_dy = do_d(ox[i+1], oy[i+1])
-
-        #two equations for p
-        px[i+1]=((1-k1_p*dt/2)/(1+k1_p*dt/2))*px[i]-(c**2/(1+k1_p*dt/2))*dt*dox_dx
-        py[i+1]=((1-k2_p*dt/2)/(1+k2_p*dt/2))*py[i]-(c**2/(1+k2_p*dt/2))*dt*doy_dy
-
-        # adding source
-        px[i+1,i_s,j_s]+=Ps(i*dt)/2
-        py[i+1,i_s,j_s]+=Ps(i*dt)/2
-
-        #observing:
-        for ind,r in enumerate(co):
-            i_obs = np.argmin(np.abs(y_p - r[1]))
-            j_obs = np.argmin(np.abs(x_p - r[0]))
-            observations[ind].append(px[i+1,i_obs,j_obs]+py[i+1,i_obs,j_obs])
-    return px+py,ox,oy,np.array(observations)
-
-
-# p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates1)
-p_empty,ox_empty,oy_empty,obs_empty=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
-p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
-# p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates2)
-# p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
 # p,ox,oy,obs=hard_triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
 p_empty,ox_empty,oy_empty,obs_empty=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates1)
 #p_empty,ox_empty,oy_empty,obs_empty=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
