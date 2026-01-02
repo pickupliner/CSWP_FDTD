@@ -655,37 +655,42 @@ def j_z(model,phi, omega,R):
         # create n from -N to N
         n = np.arange(-N, N+1).reshape(1, -1, 1)  # shape (1, 2N+1, 1)
        
-        print(n)
         return 1/1j/omega_safe.reshape((-1,1))/model.mu * 2 * np.sum(
             1j**(n+1) * k * np.exp(1j*n*phi) / np.pi / k / a / fns.hankel2(n, k*a), axis=1
         )
-def analyticalvsnumerical(frequency,numerical,analytical,N_S,phi):
+def analyticalvsnumerical(frequency,numerical,analytical,N_S,phi, A=[]):
         plt.figure()
+
+        if len(A) != 0:
+            plt.plot(frequency/c, np.abs(A), color='black')
+            plt.ylabel("A (s/m)")
+            plt.twinx()
+
         plt.plot(frequency/c, numerical[0,:],      '.', color='tab:blue',   label=f"numerical shadow")
         plt.plot(frequency/c, numerical[N_S//2,:], '.', color='tab:orange', label=f"numerical sun")
 
         plt.plot(frequency/c, analytical[:,0],       '-', color='tab:blue',   label=f"analytical shadow")
         plt.plot(frequency/c, analytical[:,N_S//2],  '-', color='tab:orange', label=f"analytical sun")
 
-        plt.title("normalized current vs analytical")
+        # plt.title("normalized current vs analytical")
         plt.xlabel("$\\omega/c$ (rad/m)")
         plt.xlim(0, 1)
         plt.ylabel("j$_0$")
         plt.legend()
 
-        plt.figure()
-        plt.plot(phi, numerical[:,1], '.', color='red',   label=f"$\\omega/c$={frequency[1]/c} rad/m")
-        plt.plot(phi, numerical[:,2], '.', color='green', label=f"$\\omega/c$={frequency[2]/c} rad/m")
-        plt.plot(phi, numerical[:,3], '.', color='blue',  label=f"$\\omega/c$={frequency[3]/c} rad/m")
+        # plt.figure()
+        # plt.plot(phi, numerical[:,1], '.', color='red',   label=f"$\\omega/c$={frequency[1]/c} rad/m")
+        # plt.plot(phi, numerical[:,2], '.', color='green', label=f"$\\omega/c$={frequency[2]/c} rad/m")
+        # plt.plot(phi, numerical[:,3], '.', color='blue',  label=f"$\\omega/c$={frequency[3]/c} rad/m")
 
-        plt.plot(phi, analytical[1], '-',    color='red',   label=f"$\\omega/c$={frequency[1]/c} rad/m")
-        plt.plot(phi, analytical[2], '-',    color='green', label=f"$\\omega/c$={frequency[2]/c} rad/m")
-        plt.plot(phi, analytical[3], '-',    color='blue',  label=f"$\\omega/c$={frequency[3]/c} rad/m")
+        # plt.plot(phi, analytical[1], '-',    color='red',   label=f"$\\omega/c$={frequency[1]/c} rad/m")
+        # plt.plot(phi, analytical[2], '-',    color='green', label=f"$\\omega/c$={frequency[2]/c} rad/m")
+        # plt.plot(phi, analytical[3], '-',    color='blue',  label=f"$\\omega/c$={frequency[3]/c} rad/m")
 
-        plt.title("normalized current vs analytical")
-        plt.xlabel("$\\phi$ (rad)")
-        plt.ylabel("j$_0$")
-        plt.legend()
+        # plt.title("normalized current vs analytical")
+        # plt.xlabel("$\\phi$ (rad)")
+        # plt.ylabel("j$_0$")
+        # plt.legend()
 
         plt.show()
 # ==============
@@ -715,13 +720,14 @@ def Q_6_1_validation(R, t_0, T, dt, t_end, N_S, N_G):
     plt.plot(t, V[:,0],      label="shadow")
     plt.plot(t, V[:,N_S//2], label="sun")
     plt.xlabel("t (s)")
+    plt.legend()
     plt.show(),
 
     mot.solve(V)
     omega, j,jt = mot.positivespectrum()
     
     time_index = np.argmin(np.abs(mot.dt * np.arange(mot.N_T) - t_0))
-    mot.plot_current_on_circle(curve, time_index, mode="angle")
+    mot.plot_current_on_circle(curve, time_index, mode="polar")
     
     mot.animate_current_on_circle1(R)
     mot.animate_current_1d()
@@ -730,10 +736,10 @@ def Q_6_1_validation(R, t_0, T, dt, t_end, N_S, N_G):
     
     
     plt.figure()
-    plt.plot(t, mot.U[0,:],      label="shadow")
-    plt.plot(t, mot.U[N_S//2,:], label="sun")
+    plt.plot(t, mot.Jt[0,:],      label="shadow")
+    plt.plot(t, mot.Jt[N_S//2,:], label="sun")
     plt.xlabel("t (s)")
-    plt.title("$dj/dt$")
+    plt.title("j")
     plt.legend()
 
     # ----------
@@ -781,7 +787,7 @@ def Q_6_1_validation(R, t_0, T, dt, t_end, N_S, N_G):
     # visualization
     # -------------
 
-    analyticalvsnumerical(omega,j_0,jz,N_S,phi)
+    analyticalvsnumerical(omega,j_0,np.abs(jz),N_S,phi, A)
 
 
 def peakcomparison(model,omega,numerical):
@@ -1205,12 +1211,12 @@ def Q_6_3rounded_validation(L, t_0, T, dt, t_end,N_per_side,N_G):
     # -------------
 
     analyticalvsnumerical(omega,j_0,jz,N_S,phi)
-Q_6_3rounded_validation(
-    L     = 10,     # [m] length of square PEC
-    t_0   = 1e-6,   # [s] center of incident pulse
-    T     = 20,     # [m] width of incident pulse
-    dt    = 1e-9,   # [s] timestep
-    t_end = 64e-8,  # [s] end of simulation
-    N_per_side=20,   # [1]amount of segments per side of the PEC
-    N_G   = 8       # [1] order of Gaussian quadrature
-)
+# Q_6_3rounded_validation(
+#     L     = 10,     # [m] length of square PEC
+#     t_0   = 1e-6,   # [s] center of incident pulse
+#     T     = 20,     # [m] width of incident pulse
+#     dt    = 1e-9,   # [s] timestep
+#     t_end = 64e-8,  # [s] end of simulation
+#     N_per_side=20,   # [1]amount of segments per side of the PEC
+#     N_G   = 8       # [1] order of Gaussian quadrature
+# )

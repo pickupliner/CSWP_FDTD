@@ -46,7 +46,7 @@ initiating an instance takes a few arguments:
     This field consists out of the edges of these segments (the first and last elements must equal),
     \item \texttt{dt} is the time step in seconds,
     \item \texttt{N\_T} is the number of timesteps taken, and
-    \item \texttt{N\_G} the number of points for the Gaussian quadrature.
+    \item \texttt{N\_G} is the number of points for the Gaussian quadrature.
 \end{itemize}
 
 With these arguments the quadrature points (\texttt{coordquad} and \texttt{weights}),
@@ -69,15 +69,51 @@ TODO maybe some stuff about the second excercise and the \(E^i\) calculation.
 
 \section{Validation}
 
-\begin{table}
+\begin{table}[tb]
     \centering
-    \begin{tabular}{c c}
-        \(t_0\) & .. \\
-        \(T\) & .. \\ 
+    \begin{tabular}{c c c c}
+        param       & value  & unit & description \\ \hline
+        \(R  \)     & 10     & m    & radius of PEC \\
+        \(t_0\)     & 9e-8   & s    & center of incident pulse \\
+        \(T \)      & 20     & m    & width of incident pulse \\
+        \(dt\)      & 1e-9   & s    & timestep \\
+        \(t_{end}\) & 64e-8  & s    & end of simulation \\
+        \(N_S\)     & 32     & 1    & number of segments for PEC \\
+        \(N_G\)     & 8      & 1    & order of Gaussian quadrature \\
     \end{tabular}
     \caption{Parameters for validation}
     \label{tab:validation-params}
 \end{table}
+
+For the validation the MOT-algorithm is ran with as incident field a pulse.
+The incident wave is plotted in figure \ref{fig:validation-incident-field} at the `sun'- and shadow-side.
+The parameters \(T\) and \(t_0\) are chosen in such a manner that the incident field is zero at \(t=0\) over the whole PEC
+and such that the width in the frequency domain is wide enough to cover the range \(\omega/c \in [0, 1]\).
+Their values are given in table \ref{tab:validation-params}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/validation/incident_field.png}
+    \caption{Incident field at the sun- and shadow-side}
+    \label{fig:validation-incident-field}
+\end{figure}
+
+The solution of the MOT-algorithm can easily be integrated to obtain the current induced on the PEC.
+It is shown in figure \ref{fig:validation-current-polar} in the form of a polar plot
+and in figure \ref{fig:validation-current} as a function of time.
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/validation/polar_current.png}
+    \caption{Polar plot of the current at \(t=t_0\)}
+    \label{fig:validation-current-polar}
+\end{figure}
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/validation/current.png}
+    \caption{Plot of the current at the sun- and shadow-side}
+    \label{fig:validation-current}
+\end{figure}
 
 The spectrum of the incoming wave quickly decays to zero. 
 This means that when dividing by this spectrum the result will explode.
@@ -89,12 +125,75 @@ Numpy's \texttt{rfft} function was used.
 It is important to note that this is a discrete transform without any normalization factor.
 To compare it with the continuous transform, a correction factor of \(dt/\sqrt{2 \pi}\) is needed.
 
-TODO plot of (incident?) electric field and induced current (note/show that the electric field is indeed zero at time 0 at the PEC)
-
 \subsection{Analytical Solution}
 
-TODO reproduction of fig 7 (basically done, just missing correct analytical current)
-+ discuss influence of simulation params on freq range
+\begin{equation}\label{eq:analytical-ez}
+    e_z(\vec{\rho}) = \sum_{n=-\infty}^{\infty} j^n \left( J_n(k\rho) - \frac{J_n(ka)}{H_n^{(2)}(ka)} H_n^{(2)}(k\rho) \right) e^{j n \phi}
+\end{equation}
+
+The analytical solution (\ref{eq:analytical-ez}) for \(e_z\) is copied from appendix B from the assignment.
+The derivate towards \(\rho\) is taken and evaluated at \(\rho = a\):
+\[ \sum_{n=-\infty}^{\infty} j^n \left( k J_n'(k a) - k \frac{J_n(ka)}{H_n^{(2)}(ka)} H_n'^{(2)}(k a) \right) e^{j n \phi}. \]
+With a bit of refactoring, 
+\[ \sum_{n=-\infty}^{\infty} \frac{j^n k}{H_n^{(2)}(ka)} \left( J_n'(k a) H_n^{(2)}(ka) - J_n(ka) H_n'^{(2)}(k a) \right) e^{j n \phi}, \]
+the Wronskian relationship is revealed,
+so that finally equation \ref{eq:analytical-jz} follows.
+
+\begin{equation}\label{eq:analytical-jz}
+    j_z = \frac{1}{j \omega \mu} \sum_{n=-\infty}^{\infty} \frac{j^n k}{H_n^{(2)}(ka)} \frac{2 j}{\pi k a} e^{j n \phi}
+\end{equation}
+
+The summation in this equation was cut off at \(k a + 2 \approx N \in Z\),
+which was established by the rule of thumb that \(H_n^{(2)}(z)\) decays exponentially
+as soon as \(n > z\) in combination with some experimentation.
+
+\subsection{Discussion}
+
+In figure \ref{fig:validation-analytical-vs-numerical} the numerically and analytically
+computed current in the frequency domain are plotted, 
+alongside with the spectrum of the incoming wave (in black).
+The analytical and numerical current follow the same shape, 
+but don't match at all.
+Even stranger is that the shadow-side from the analytical solution seems to lie higher
+than its sun-side counterpart. ... % TODO
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/validation/analytical_vs_numerical.png}
+    \caption{Current at the sun-side and shadow-side calculated numerically and analytically}
+    \label{fig:validation-analytical-vs-numerical}
+\end{figure}
+
+The width of the incoming pulse can be made smaller,
+so that in the frequency domain it becomes wider.
+This cannot be continued indefinitely, 
+as the timestep \(dt\) becomes too small to represent the pulse correctly in the timedomain.
+Making \(dt\) smaller makes that the pulse more correctly approximates a Gaussian pulse,
+but also makes the maximum frequency (after the Fourier-transform) bigger.
+At these maximum frequencies the spectrum of the incoming pulse is again nearly zero,
+so that the additional range in frequencies gained is useless.
+Thus a tradeoff between the width of the pulse and the timestep must be made.
+Another parameter that can be adjusted is \(t_{end}\). 
+As this increases the resolution in the frequency domain also increases,
+so that finer details are visible.
+Increasing this (or decreasing \(dt\)) comes at a computational cost,
+as these increase the total steps in time \(N_T\), 
+so that the computation takes longer.
+Increasing the radius of the PEC increases the difference between the current at the shadow-side
+and at the `sun'-side.
+The same effect can also be accomplished by decreasing the width of the incoming pulse.
+
+Lastly \(N_S\) and \(N_G\) can be changed.
+The number of segments must be great enough so that the geometry of the PEC is correctly approximated.
+Increasing this any further does not increase the accuracy very much.
+Increasing \(N_S\) also comes at the cost of requiring more memory.
+The order of the Gaussian quadrature does not have much influence.
+As, once the geometry is well approximated, \(\rho_m\) are close toghether,
+so that \(|\rho_m - \rho'|\) in \(F\) is small and can easily be approximated by a low order polynomial.
+
+\subsection{Reproduction}
+
+All plots (along with some extra animations) in the validation section can be reproduced by executing the function \texttt{Q\_6\_1\_validation} near the end of the file,
+with as arguments the parameters given by table \ref{tab:validation-params}.
 
 
 \section{Resonance Freqeuencies of Cylindrical Cavity}

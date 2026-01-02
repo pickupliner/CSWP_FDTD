@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.12.1)  30 DEC 2025 16:06
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.12.1)  2 JAN 2026 17:13
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -93,28 +93,61 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 [1
 
 {c:/tools/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+<figures/validation/incident_field.png, id=14, 462.528pt x 346.896pt>
+File: figures/validation/incident_field.png Graphic file (type png)
+<use figures/validation/incident_field.png>
+Package pdftex.def Info: figures/validation/incident_field.png  used on input line 96.
+(pdftex.def)             Requested size: 207.0021pt x 155.25484pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
 
 [2]
+<figures/validation/polar_current.png, id=23, 462.528pt x 346.896pt>
+File: figures/validation/polar_current.png Graphic file (type png)
+<use figures/validation/polar_current.png>
+Package pdftex.def Info: figures/validation/polar_current.png  used on input line 107.
+(pdftex.def)             Requested size: 207.0021pt x 155.25484pt.
+<figures/validation/current.png, id=24, 462.528pt x 346.896pt>
+File: figures/validation/current.png Graphic file (type png)
+<use figures/validation/current.png>
+Package pdftex.def Info: figures/validation/current.png  used on input line 113.
+(pdftex.def)             Requested size: 207.0021pt x 155.25484pt.
 
-[3] (./main.aux)
+
+[3 <./figures/validation/incident_field.png>]
+
+[4 <./figures/validation/polar_current.png> <./figures/validation/current.png>]
+<figures/validation/analytical_vs_numerical.png, id=35, 584.6643pt x 346.896pt>
+File: figures/validation/analytical_vs_numerical.png Graphic file (type png)
+<use figures/validation/analytical_vs_numerical.png>
+Package pdftex.def Info: figures/validation/analytical_vs_numerical.png  used on input line 161.
+(pdftex.def)             Requested size: 207.0021pt x 122.8181pt.
+
+
+[5 <./figures/validation/analytical_vs_numerical.png>]
+
+[6] (./main.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 1
 L3 programming layer <2024-11-02>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 1009 strings out of 475289
- 17441 string characters out of 5766684
- 405943 words of memory out of 5000000
- 23928 multiletter control sequences out of 15000+600000
+ 1047 strings out of 475289
+ 18953 string characters out of 5766684
+ 409079 words of memory out of 5000000
+ 23966 multiletter control sequences out of 15000+600000
  562519 words of font info for 51 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 57i,9n,65p,365b,200s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <c:/tools/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on main.pdf (3 pages, 138444 bytes).
+ 57i,10n,65p,365b,234s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <c:/tools/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/tools/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on main.pdf (6 pages, 281852 bytes).
 PDF statistics:
- 74 PDF objects out of 1000 (max. 8388607)
- 45 compressed objects within 1 object stream
+ 97 PDF objects out of 1000 (max. 8388607)
+ 55 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 21 words of extra memory for PDF output out of 10000 (max. 10000000)
 
