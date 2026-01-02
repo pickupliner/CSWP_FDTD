@@ -26,7 +26,7 @@ T = 6*b/c                     # timespan              [s]
 # Courant Number
 CN  = 0.8
 
-du = 0.2                                             # step in u-direction [m]
+du = 0.17                                            # step in u-direction [m]
 dv = du/np.sin(theta)                                # step in v-direction [m]
 dt = np.sqrt(CN)/np.sqrt(1/(du + dv*np.cos(theta))**2 + 1/(dv*np.sin(theta))**2)/c # timestep            [s]
 print(f"du x dv x dt = {du} x {dv} x {dt}")

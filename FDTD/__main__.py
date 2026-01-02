@@ -36,9 +36,9 @@ coordinates2=[[4*distance,distance/2+floor_height],[5*distance,distance/2+floor_
 
 
 #size of array:
-K=int(800) #dimensioneless
-N=int(250) #dimensioneless
-M=int(150) #dimensioneless
+K=int(800) # dimensionless
+N=int(250) # dimensionless
+M=int(143) # dimensionless
 
 print(f"M={M}")
 print(f"N={N}")
@@ -100,12 +100,12 @@ y_p = (y_o[1:] + y_o[:-1])/2
 f, buffer = 0.5, d
 # x_o = coordTransform(x_o, x0=wl, x1=wr, f=f)
 # x_p = coordTransform(x_p, x0=wl, x1=wr, f=f)
-# x_o = parabolicCoordTransform(x_o, x0=wl, x1=wr, f=f, buffer=buffer)
-# x_p = parabolicCoordTransform(x_p, x0=wl, x1=wr, f=f, buffer=buffer)
+x_o = parabolicCoordTransform(x_o, x0=wl, x1=wr+4, f=f, buffer=buffer)
+x_p = parabolicCoordTransform(x_p, x0=wl, x1=wr+4, f=f, buffer=buffer)
 # y_o = coordTransform(y_o, x0=floor_height, x1=wh, f=f)
 # y_p = coordTransform(y_p, x0=floor_height, x1=wh, f=f)
-# y_o = parabolicCoordTransform(y_o, x0=floor_height, x1=wh, f=f, buffer=buffer)
-# y_p = parabolicCoordTransform(y_p, x0=floor_height, x1=wh, f=f, buffer=buffer)
+y_o = parabolicCoordTransform(y_o, x0=floor_height, x1=wh+2, f=f, buffer=buffer)
+y_p = parabolicCoordTransform(y_p, x0=floor_height, x1=wh+2, f=f, buffer=buffer)
 if refinement:
     plt.plot(x_o, np.arange(N+1),    ".", label="x$_o$")
     plt.plot(y_o, np.arange(M+1),    ".", label="y$_o$")
@@ -135,8 +135,8 @@ if refinement:
     plt.xlabel("n")
     plt.ylabel("dx (m)")
     plt.ylim(bottom=0)
-    # plt.title("spatial steps after transformation")
-    # plt.legend()
+    plt.title("spatial steps after transformation")
+    plt.legend()
     plt.show()
 
 #time step based on CN and stabilaty:
@@ -525,11 +525,11 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
     
     
     #determie obstacle indexes
-    wall_left = int(wl/a*(N+1))
-    wall_right = int(wr/a*(N+1))
-    ceiling = int(wh/b*(M+1))
+    wall_left = np.argmin(np.abs(x_o - wl))
+    wall_right = np.argmin(np.abs(x_o - wr))
+    ceiling = np.argmin(np.abs(y_o - wh))
     print("-"*20)
-    print(ceiling)
+    print(f"y_o[{ceiling}] = {y_o[ceiling]}")
     print((wall_right-wall_left)*2)
 
     #solving scheme
@@ -543,7 +543,7 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
 
         #aplying boundry conditions
         midle=int((wall_right-wall_left)/2)
-        floor_index=int((floor_height/b)*(M+1))
+        floor_index=np.argmin(np.abs(y_o - floor_height))
         
         for index in range(midle+1):
             oy[i+1,4*index+floor_index,index+wall_left]=((1-Z*(dt/dy_o[0,0]))*ox[i,4*index+floor_index,index+wall_left]-2*(dt/dx_o[0,0])*p[4*index+floor_index,index+wall_left])/(1+Z*(dt/dy_o[0,0]))
