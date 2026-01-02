@@ -5,7 +5,7 @@ from scipy.special import fresnel
 from scipy.special import erf
 #plotting booleans:
 PML=False
-refinement=False
+refinement=True
 #parameters:
 
 c=1 #wave speed[m/s]
@@ -97,7 +97,7 @@ y_p = (y_o[1:] + y_o[:-1])/2
 
 
 # change coordinates to get more points around wedge
-f, buffer = 0.5, distance
+f, buffer = 0.5, d
 # x_o = coordTransform(x_o, x0=wl, x1=wr, f=f)
 # x_p = coordTransform(x_p, x0=wl, x1=wr, f=f)
 # x_o = parabolicCoordTransform(x_o, x0=wl, x1=wr, f=f, buffer=buffer)
@@ -128,10 +128,10 @@ dx_p = (x_p[1:] - x_p[:-1]).reshape((1,-1)) # [m]
 dy_p = (y_p[1:] - y_p[:-1]).reshape((-1,1)) # [m]
 print(f"dx_o={np.min(dx_o)} dy_o={np.min(dy_o)} dx_p={np.min(dx_p)} dy_p={np.min(dy_p)}")
 if refinement:
-    # plt.plot(np.arange(N) + 0.5, dx_o[0,:], ".", label="dx$_o$")
-    # plt.plot(np.arange(M) + 0.5, dy_o[:,0], ".", label="dy$_o$")
+    plt.plot(np.arange(N) + 0.5, dx_o[0,:], ".", label="dx$_o$")
+    plt.plot(np.arange(M) + 0.5, dy_o[:,0], ".", label="dy$_o$")
     plt.plot(np.arange(N-1) + 1, dx_p[0,:], ".", label="dx$_p$")
-    # plt.plot(np.arange(M-1) + 1, dy_p[:,0], ".", label="dy$_p$")
+    plt.plot(np.arange(M-1) + 1, dy_p[:,0], ".", label="dy$_p$")
     plt.xlabel("n")
     plt.ylabel("dx (m)")
     plt.ylim(bottom=0)
@@ -394,8 +394,8 @@ def empty(px,py,ox,oy,F1,F3,K,xs,ys,co):
         py[i+1,i_s,j_s]+=Ps(i*dt)/2
         #observing:
         for ind,r in enumerate(co):
-            i_obs = np.argmin(np.abs(x_p - r[1]))
-            j_obs = np.argmin(np.abs(y_p - r[0]))
+            i_obs = np.argmin(np.abs(y_p - r[1]))
+            j_obs = np.argmin(np.abs(x_p - r[0]))
             observations[ind].append(px[i+1,i_obs,j_obs]+py[i+1,i_obs,j_obs])
     return px+py,ox,oy,np.array(observations)
 
@@ -448,8 +448,8 @@ def wall(px,py,ox,oy,F1,F2,K,xs,ys,co):
 
         #observing:
         for ind,r in enumerate(co):
-            i_obs = np.argmin(np.abs(x_p - r[1]))
-            j_obs = np.argmin(np.abs(y_p - r[0]))
+            i_obs = np.argmin(np.abs(y_p - r[1]))
+            j_obs = np.argmin(np.abs(x_p - r[0]))
             observations[ind].append(px[i+1,i_obs,j_obs]+py[i+1,i_obs,j_obs])
     return px+py,ox,oy,observations
 
@@ -504,8 +504,8 @@ def rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,co):
 
         #observing:
         for ind,r in enumerate(co):
-            i_obs = np.argmin(np.abs(x_p - r[1]))
-            j_obs = np.argmin(np.abs(y_p - r[0]))
+            i_obs = np.argmin(np.abs(y_p - r[1]))
+            j_obs = np.argmin(np.abs(x_p - r[0]))
             observations[ind].append(px[i+1,i_obs,j_obs]+py[i+1,i_obs,j_obs])
     return px+py,ox,oy,observations
 
@@ -572,17 +572,17 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
 
         #observing:
         for ind,r in enumerate(co):
-            i_obs = np.argmin(np.abs(x_p - r[1]))
-            j_obs = np.argmin(np.abs(y_p - r[0]))
+            i_obs = np.argmin(np.abs(y_p - r[1]))
+            j_obs = np.argmin(np.abs(x_p - r[0]))
             observations[ind].append(px[i+1,i_obs,j_obs]+py[i+1,i_obs,j_obs])
     return px+py,ox,oy,np.array(observations)
 
 
 # p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates1)
 p_empty,ox_empty,oy_empty,obs_empty=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
-p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
+# p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
 #p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates2)
-# p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
+p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
 
 #print(f"max |p| = {np.max(np.abs(p))}")
 
