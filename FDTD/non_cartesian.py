@@ -232,14 +232,21 @@ plt.show()
 for (i, j) in zip(i_o, j_o):
     P      = np.fft.rfft(p     [i, j, :])
     plt.plot(kd, np.abs(P))
+plt.xlim(0.1, 10)
 plt.figure()
 for (i, j) in zip(i_o, j_o):
     P_free = np.fft.rfft(p_free[i, j, :])
     plt.plot(kd, np.abs(P_free))
+plt.xlim(0.1, 10)
 plt.show()
 
+kd = 2*np.pi * np.fft.rfftfreq(10*nt, dt) / c * d
+
 for (i, j) in zip(i_o, j_o):
-    P      = np.fft.rfft(p     [i, j, :])
-    P_free = np.fft.rfft(p_free[i, j, :])
+    P      = np.fft.rfft(p     [i, j, :], 10*nt)
+    P_free = np.fft.rfft(p_free[i, j, :], 10*nt)
     plt.plot(kd, np.abs(P/P_free))
+plt.xlim(0.1, 10)
+plt.xlabel("kd")
+plt.ylabel("p/p_free")
 plt.show()

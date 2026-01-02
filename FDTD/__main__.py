@@ -1,7 +1,8 @@
-mport numpy as np
+import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 from scipy.special import fresnel
+from scipy.special import erf
 #plotting booleans:
 PML=False
 refinement=False
@@ -663,20 +664,30 @@ def F_UTD(x):
     # Guard against tiny negative values from numerical noise
     x = np.maximum(x, 0.0)
 
-    z = np.sqrt(2 * x / np.pi)
+    z = np.sqrt(2 / np.pi)*x
 
-    S, C = fresnel(z)
+    S_at_inf, C_at_inf = 0.5, 0.5
+    S, C = fresnel(np.sqrt(z))
 
-    return -2j * np.sqrt(x)*np.exp(-1j*x) * (C + 1j * S)
+    # c = np.sqrt(-1j)
+    # at_inf = erf(c*np.inf)
+    # print(at_inf)
+    # at_sqrt_x = erf(c*np.sqrt(x))
 
+    return -2j * np.sqrt(x)*np.exp(-1j*x) * (2*(C_at_inf - C) + 2j*(S_at_inf - S))# np.sqrt(np.pi/4/c)*(at_inf - at_sqrt_x)
+    # return -2j * np.sqrt(x)*np.exp(-1j*x) np.sqrt(np.pi/4/c)*(at_inf - at_sqrt_x)
 
+def phid(a, b, thetad, thetar, thetas, n):
+    cot = lambda x:1/np.tan(x)
+    L = a*b/(a + b)*np.sin(thetad)**2
+    N_plus  = lambda alpha: np.round(-(np.pi - alpha)/(2*np.pi*n), decimals=0)
+    N_minus = lambda alpha: np.round( (np.pi + alpha)/(2*np.pi*n), decimals=0)
+    A_plus = lambda x: 2*np.cos((2*np.pi*n*N_plus(x)  - x)/2)**2
+    A_min  = lambda x: 2*np.cos((2*np.pi*n*N_minus(x) - x)/2)**2
+    alpha_plus  = thetar + thetas
+    alpha_minus = thetar - thetas
+    F = F_UTD
+    return np.exp(1j*(2*np.pi*omega/c*(a+b)+np.pi/4))*(1/np.sin(thetad))*(1/np.sqrt(2*np.pi*2*np.pi*omega/c*a*b/(a+b)))*1/(2*n)*(cot((np.pi-alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_minus))+cot((np.pi-alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_plus))+cot((np.pi+alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_plus))+cot((np.pi+alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_minus)))
 
-cot=lambda x:1/np.tan(x)
-L=lambda a,b,thetad:a*b/(a+b)*np.sin(thetad)**2
-N_plus=1
-N_minus=0
-A_plus=lambda x,n:2*np.cos((2*np.pi*n*N_plus-x)/2)**2
-A_min=lambda x,n:2*np.cos((2*np.pi*n*N_minus-x)/2)**2
-phid=lambda a,b,thetad,alpha_plus,alpha_minus,k,A,n:np.exp(1j*(2*np.pi*omega/c*(a+b)+np.pi/4))(1/np.sin(thetad))*(1/np.sqrt(2*np.pi*2*np.pi*omega/c*a*b/(a+b)))*1/(2*n)*(cot((np.pi-alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_minus))+cot((np.pi-alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_plus))+cot((np.pi+alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_plus))+cot((np.pi+alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_minus)))
-alpha_plus=lambda thetar,thetas:thetar+thetas
-alpha_minus=lambda thetar,thetas:thetar-thetas
+plt.plot(np.abs(phid(1, 2, np.pi, np.pi/3, 2*np.pi/3, 3/2)))
+plt.show()

@@ -67,3 +67,7 @@
 * correct distances
 * observer points
 * spectrum
+
+## Joran 02/01
+
+* trying the analytical solution
