@@ -1,7 +1,7 @@
-import numpy as np
+mport numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
-
+from scipy.special import fresnel
 #plotting booleans:
 PML=False
 refinement=False
@@ -11,21 +11,21 @@ c=1 #wave speed[m/s]
 Z=2 #impedance[ohm]
 
 #geometry:
-
+floor_height=4.1
 distance=5.6 #fundamental distance d
 a=7*distance  #width [m]
 b=4*distance #height [m]
 d=4  #thickness of PML [gridcells]
 wl=2*distance # distance of fist wall
 wr=3*distance #distance of seccond wall
-wh= 2*distance   #height of walls/ceiling
+wh= 2*distance+floor_height   #height of walls/ceiling
 #source position:
 xs=distance #[m]
-ys=distance/10 #[m]
+ys=distance/10+floor_height #[m]
 
 #observer points:
-coordinates1=[[3*distance,distance/2],[4*distance,distance/2],[5*distance,distance/2]] #([m],[m]) for thin wall
-coordinates2=[[4*distance,distance/2],[5*distance,distance/2],[6*distance,distance/2]] #([m],[m]) for other obstacles
+coordinates1=[[3*distance,distance/2+floor_height],[4*distance,distance/2+floor_height],[5*distance,distance/2+floor_height]] #([m],[m]) for thin wall
+coordinates2=[[4*distance,distance/2+floor_height],[5*distance,distance/2+floor_height],[6*distance,distance/2+floor_height]] #([m],[m]) for other obstacles
 
 
 
@@ -35,7 +35,7 @@ coordinates2=[[4*distance,distance/2],[5*distance,distance/2],[6*distance,distan
 
 
 #size of array:
-K=int(665) #dimensioneless
+K=int(800) #dimensioneless
 N=int(250) #dimensioneless
 M=int(150) #dimensioneless
 
@@ -125,6 +125,7 @@ dy_o = (y_o[1:] - y_o[:-1]).reshape((-1,1)) # [m]
 # spatials steps between coords of p
 dx_p = (x_p[1:] - x_p[:-1]).reshape((1,-1)) # [m]
 dy_p = (y_p[1:] - y_p[:-1]).reshape((-1,1)) # [m]
+print(f"dx_o={np.min(dx_o)} dy_o={np.min(dy_o)} dx_p={np.min(dx_p)} dy_p={np.min(dy_p)}")
 if refinement:
     plt.plot(np.arange(N) + 0.5, dx_o[0,:], ".", label="dx$_o$")
     plt.plot(np.arange(M) + 0.5, dy_o[:,0], ".", label="dy$_o$")
@@ -137,9 +138,9 @@ if refinement:
     plt.legend()
     plt.show()
 
-#time step based on CN and stabilaty
+#time step based on CN and stabilaty:
 
-# dt=np.sqrt(2)*0.05   #[s]
+
 dt = 1/np.sqrt(1/np.min(dx_o)**2 + 1/np.min(dy_o)**2)/c
 print(f"dt = {dt}")
 T=K*dt #time of simulation [s]
@@ -151,21 +152,23 @@ print(f"CN = {CN} < 1?")
 
 
 #source in function of time:
-t = dt*np.arange(0, K-1)
+t = dt*np.arange(0, K-1) #the time
 f=4.95*c/(distance*2*np.pi)
-sigma=f
-fs=K/T
-t0=18
+print(c/f) #frequency in the midle of the frquency band £ [0.1,10]
+sigma=f*1.25 #fresuency spread 
+fs=K/T #sample frequency
+t0=18 #offset in time domain
 Ps=lambda t:10*np.sin(2*np.pi*f*(t-t0))*np.exp(-((t-t0)**2)*(sigma**2)) #short band around f so that kd £[0.1,10]
-#Ps = lambda t: 10*np.exp(-(t - .5)**2*16) # gaussian pulse
-plt.plot(np.linspace(0,20,282),Ps(np.linspace(0,20,282)))
+#Ps = lambda t: 10*np.exp(-(t - 20)**2*(1/50)) # gaussian pulse
+plt.plot(np.linspace(0,71,282),Ps(np.linspace(0,71,282)))
 plt.show()
 
+#frequency domain:
 val=np.fft.fft(Ps(t),n=10*len(Ps(t)))
 omega=np.fft.fftfreq(len(val),d=1/fs)
 print(len(val),len(omega))
-plt.plot(omega,np.abs(val))
-plt.xlim(0,0.25)
+plt.plot(2*np.pi*omega/c*distance,np.abs(val))
+
 plt.show()
 
 
@@ -308,6 +311,9 @@ def empty(px,py,ox,oy,F1,F3,K,xs,ys,co):
         ox[i+1,:,1:-1]=((1-k1_o*dt/2)/(1+k1_o*dt/2))*ox[i,:,1:-1]-dt/(1+k1_o*dt/2)*dp_dx
         oy[i+1,1:-1,:]=((1-k2_o*dt/2)/(1+k2_o*dt/2))*oy[i,1:-1,:]-dt/(1+k2_o*dt/2)*dp_dy
 
+
+        
+
         dox_dx, doy_dy = do_d(ox[i+1], oy[i+1])
 
         #two equations for p
@@ -362,7 +368,9 @@ def wall(px,py,ox,oy,F1,F2,K,xs,ys,co):
         oy[i+1,1:-1,:]=((1-k2_o*dt/2)/(1+k2_o*dt/2))*oy[i,1:-1,:]-dt/(1+k2_o*dt/2)*dp_dy
 
         #aplying boundry conditions
-        ox[i+1,:ceiling,wall_left]=0
+        floor_index=int((floor_height/b)*(M+1))
+        oy[i+1,floor_index,:]=0
+        ox[i+1,floor_index:ceiling,wall_left]=0
 
         dox_dx, doy_dy = do_d(ox[i+1], oy[i+1])
 
@@ -416,8 +424,10 @@ def rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,co):
         oy[i+1,1:-1,:]=((1-k2_o*dt/2)/(1+k2_o*dt/2))*oy[i,1:-1,:]-dt/(1+k2_o*dt/2)*dp_dy
 
         #aplying boundry conditions
-        ox[i+1,:ceiling,wall_left]=((1-dt*Z/dx)*ox[i,:ceiling,wall_left]+2*dt/dx*p[:ceiling,wall_left-1])/(1+Z*dt/dx)
-        ox[i+1,:ceiling,wall_right]=((1-dt*Z/dx)*ox[i,:ceiling,wall_right]-2*dt/dx*p[:ceiling,wall_right])/(1+Z*dt/dx)
+        floor_index=int((floor_height/b)*(M+1))
+        oy[i+1,floor_index,:]=0
+        ox[i+1,floor_index:ceiling,wall_left]=((1-dt*Z/dx)*ox[i,floor_index:ceiling,wall_left]+2*dt/dx*p[floor_index:ceiling,wall_left-1])/(1+Z*dt/dx)
+        ox[i+1,floor_index:ceiling,wall_right]=((1-dt*Z/dx)*ox[i,floor_index:ceiling,wall_right]-2*dt/dx*p[floor_index:ceiling,wall_right])/(1+Z*dt/dx)
         oy[i+1,ceiling,wall_left:wall_right]=((1-dt*Z/dy)*oy[i,ceiling,wall_left:wall_right]-2*dt/dy*p[ceiling,wall_left:wall_right])/(1+Z*dt/dy)
 
         dox_dx, doy_dy = do_d(ox[i+1], oy[i+1])
@@ -479,21 +489,22 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
 
         #aplying boundry conditions
         midle=int((wall_right-wall_left)/2)
+        floor_index=int((floor_height/b)*(M+1))
         
         for index in range(midle+1):
-            oy[i+1,4*index,index+wall_left]=((1-Z*(dt/dy_o[0,0]))*ox[i,4*index,index+wall_left]-2*(dt/dx_o[0,0])*p[4*index,index+wall_left])/(1+Z*(dt/dy_o[0,0]))
-            ox[i+1,4*index,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
-            ox[i+1,4*index+1,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index+1,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index+1,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
-            ox[i+1,4*index+2,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index+2,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index+2,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
-            ox[i+1,4*index+3,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index+3,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index+3,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
+            oy[i+1,4*index+floor_index,index+wall_left]=((1-Z*(dt/dy_o[0,0]))*ox[i,4*index+floor_index,index+wall_left]-2*(dt/dx_o[0,0])*p[4*index+floor_index,index+wall_left])/(1+Z*(dt/dy_o[0,0]))
+            ox[i+1,4*index+floor_index,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index+floor_index,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index+floor_index,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,4*index+1+floor_index,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index+1+floor_index,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index+1+floor_index,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,4*index+2+floor_index,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index+2+floor_index,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index+2+floor_index,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,4*index+3+floor_index,index+wall_left+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,4*index+3+floor_index,index+wall_left+1]+2*(dt/dx_o[0,0])*p[4*index+3+floor_index,index+wall_left+1-1])/(1+Z*(dt/dx_o[0,0]))
             up_midle=4*midle+3
             start_midle=midle+wall_left+1
-            oy[i+1,up_midle-4*index,index+start_midle]=((1-Z*(dt/dy_o[0,0]))*oy[i,up_midle-4*index,index+start_midle]-2*(dt/dx_o[0,0])*p[up_midle-4*index,index+start_midle])/(1+Z*(dt/dy_o[0,0]))
-            ox[i+1,up_midle-4*index-1,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-1,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-1,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
-            ox[i+1,up_midle-4*index-1-1,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-1-1,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-1-1,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
-            ox[i+1,up_midle-4*index-2-1,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-2-1,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-2-1,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
-            ox[i+1,up_midle-4*index-3-1,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-3-1,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-3-1,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
-        
+            oy[i+1,up_midle-4*index+floor_index,index+start_midle]=((1-Z*(dt/dy_o[0,0]))*oy[i,up_midle-4*index+floor_index,index+start_midle]-2*(dt/dx_o[0,0])*p[up_midle-4*index+floor_index,index+start_midle])/(1+Z*(dt/dy_o[0,0]))
+            ox[i+1,up_midle-4*index-1+floor_index,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-1+floor_index,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-1+floor_index,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,up_midle-4*index-1-1+floor_index,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-1-1+floor_index,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-1-1+floor_index,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,up_midle-4*index-2-1+floor_index,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-2-1+floor_index,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-2-1+floor_index,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
+            ox[i+1,up_midle-4*index-3-1+floor_index,index+start_midle+1]=((1-Z*(dt/dx_o[0,0]))*ox[i,up_midle-4*index-3-1+floor_index,index+start_midle+1]-2*(dt/dx_o[0,0])*p[up_midle-4*index-3-1+floor_index,index+start_midle+1])/(1+Z*(dt/dx_o[0,0]))
+        oy[i+1,floor_index,:]=0
 
         dox_dx, doy_dy = do_d(ox[i+1], oy[i+1])
 
@@ -515,11 +526,11 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
 
 # p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates1)
 p_empty,ox_empty,oy_empty,obs_empty=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
-#p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
+p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
 #p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates2)
-p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
+#p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
 
-print(f"max |p| = {np.max(np.abs(p))}")
+#print(f"max |p| = {np.max(np.abs(p))}")
 
 #animate function
 
@@ -611,27 +622,61 @@ def animate_heatmap(frames,xs,ys, coords,
 animate_heatmap(p,xs,ys,coordinates2)
 
 
-plt.title("triangle in comparison with empthy")
-plt.plot(t,obs[0],label="with triangle")
+plt.title("triangle in comparison with empty")
+#plt.plot(t,obs[0],label="with triangle")
 plt.plot(t,obs_empty[0],label="empty")
 plt.legend()
 plt.show()
 
 
+P_w=np.fft.fft(obs[0],n=10*len(obs_empty[0]))
 P=np.fft.fft(obs_empty[0],n=10*len(obs_empty[0]))
-P_t=np.fft.fft(obs[0],n=10*len(obs[0]))
 plt.title("triangle in comparison with empthy in ferquency")
-plt.xlabel("omega")
-plt.plot(omega,np.abs(P),label="empty")
-plt.plot(omega,np.abs(P_t),label="triangle")
+plt.xlabel("kd")
+plt.plot(2*np.pi*omega/c*distance,np.abs(P),label="empty")
+plt.plot(2*np.pi*omega/c*distance,np.abs(P_w),label="triangle")
 plt.legend()
-plt.xlim(0,0.27)
+plt.xlim(-0.1,10)
 plt.show()
 
-plt.title("triangle relative to empty")
-plt.xlabel("omega")
-plt.plot(omega,np.abs(P_t)/np.abs(P),label="empty")
-plt.scatter(omega,np.abs(P_t)/np.abs(P),label="triangle")
-plt.legend()
-plt.xlim(0,0.27)
+plt.plot(2*np.pi*omega/c*distance,np.abs(P_w)/np.abs(P))
+plt.ylim(0,1)
+plt.xlim(0.1,10)
 plt.show()
+
+def F_UTD(x):
+    """
+    UTD Fresnel transition function F(x)
+
+    Parameters
+    ----------
+    x : array_like
+        Real, non-negative argument (k L A)
+
+    Returns
+    -------
+    F : complex ndarray
+        Fresnel transition function
+    """
+    x = np.asarray(x, dtype=float)
+
+    # Guard against tiny negative values from numerical noise
+    x = np.maximum(x, 0.0)
+
+    z = np.sqrt(2 * x / np.pi)
+
+    S, C = fresnel(z)
+
+    return -2j * np.sqrt(x)*np.exp(-1j*x) * (C + 1j * S)
+
+
+
+cot=lambda x:1/np.tan(x)
+L=lambda a,b,thetad:a*b/(a+b)*np.sin(thetad)**2
+N_plus=1
+N_minus=0
+A_plus=lambda x,n:2*np.cos((2*np.pi*n*N_plus-x)/2)**2
+A_min=lambda x,n:2*np.cos((2*np.pi*n*N_minus-x)/2)**2
+phid=lambda a,b,thetad,alpha_plus,alpha_minus,k,A,n:np.exp(1j*(2*np.pi*omega/c*(a+b)+np.pi/4))(1/np.sin(thetad))*(1/np.sqrt(2*np.pi*2*np.pi*omega/c*a*b/(a+b)))*1/(2*n)*(cot((np.pi-alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_minus))+cot((np.pi-alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_min(alpha_plus))+cot((np.pi+alpha_plus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_plus))+cot((np.pi+alpha_minus)/(2*n))*F(omega*2*np.pi/c*L*A_plus(alpha_minus)))
+alpha_plus=lambda thetar,thetas:thetar+thetas
+alpha_minus=lambda thetar,thetas:thetar-thetas
