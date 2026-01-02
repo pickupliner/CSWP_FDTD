@@ -5,7 +5,7 @@ from scipy.special import fresnel
 from scipy.special import erf
 #plotting booleans:
 PML=False
-refinement=True
+refinement=False
 #parameters:
 
 c=1 #wave speed[m/s]
@@ -100,12 +100,12 @@ y_p = (y_o[1:] + y_o[:-1])/2
 f, buffer = 0.5, d
 # x_o = coordTransform(x_o, x0=wl, x1=wr, f=f)
 # x_p = coordTransform(x_p, x0=wl, x1=wr, f=f)
-x_o = parabolicCoordTransform(x_o, x0=wl, x1=wr+4, f=f, buffer=buffer)
-x_p = parabolicCoordTransform(x_p, x0=wl, x1=wr+4, f=f, buffer=buffer)
+# x_o = parabolicCoordTransform(x_o, x0=wl, x1=wr, f=f, buffer=buffer)
+# x_p = parabolicCoordTransform(x_p, x0=wl, x1=wr, f=f, buffer=buffer)
 # y_o = coordTransform(y_o, x0=floor_height, x1=wh, f=f)
 # y_p = coordTransform(y_p, x0=floor_height, x1=wh, f=f)
-y_o = parabolicCoordTransform(y_o, x0=floor_height, x1=wh+2, f=f, buffer=buffer)
-y_p = parabolicCoordTransform(y_p, x0=floor_height, x1=wh+2, f=f, buffer=buffer)
+# y_o = parabolicCoordTransform(y_o, x0=floor_height, x1=wh, f=f, buffer=buffer)
+# y_p = parabolicCoordTransform(y_p, x0=floor_height, x1=wh, f=f, buffer=buffer)
 if refinement:
     plt.plot(x_o, np.arange(N+1),    ".", label="x$_o$")
     plt.plot(y_o, np.arange(M+1),    ".", label="y$_o$")
@@ -117,7 +117,7 @@ if refinement:
     plt.legend()
     plt.show()
 
-#the spatial steps:
+# the spatial steps:
 
 # spatial step between x-coord of o_x
 dx_o = (x_o[1:] - x_o[:-1]).reshape((1,-1)) # [m]
@@ -577,12 +577,69 @@ def triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
             observations[ind].append(px[i+1,i_obs,j_obs]+py[i+1,i_obs,j_obs])
     return px+py,ox,oy,np.array(observations)
 
+# simulation with triangle with hard BC
+def hard_triangle(px,py,ox,oy,F1,F2,K,xs,ys,co):
+    #fix dimensions/construct the final kappa's (sligth alteration to dimension so they would fit in the equations)
+    k1_o=F1[:,:-1]
+    k1_p=F1
+    k2_o=F2[1:,:]
+    k2_p=F2
+
+    #observation
+    observations=[]
+    for i in range(len(co)):
+        observations.append([])
+
+    # returns True if x and y lie in the triangle
+    def in_triangle(x, y):
+        left_x = wl                 # leftmost x of triangle [m]
+        right_x = wr                # rightmost              [m]
+        slope = 2*(wh - floor_height)/(wr - wl)
+        # to be in triangle is the same as being beneath two lines
+        return (y - floor_height < slope*(x - left_x)) & (y - floor_height < -slope * (x - right_x))
+    
+    TRIANGLE_ox = in_triangle(x_o.reshape((1, -1)), y_p.reshape((-1, 1)))
+    TRIANGLE_oy = in_triangle(x_p.reshape((1, -1)), y_o.reshape((-1, 1)))
+    floor_index=np.argmin(np.abs(y_o - floor_height))
+    
+    #solving scheme
+    for i in range(K-1):
+        #construct total p
+        p=px[i]+py[i]
+        dp_dx, dp_dy = dp_d(p)
+        #two equations for o
+        ox[i+1,:,1:-1]=((1-k1_o*dt/2)/(1+k1_o*dt/2))*ox[i,:,1:-1]-dt/(1+k1_o*dt/2)*dp_dx
+        oy[i+1,1:-1,:]=((1-k2_o*dt/2)/(1+k2_o*dt/2))*oy[i,1:-1,:]-dt/(1+k2_o*dt/2)*dp_dy
+
+        #aplying boundry conditions
+        ox[i+1,TRIANGLE_ox]=0
+        oy[i+1,TRIANGLE_oy]=0
+        oy[i+1,floor_index,:]=0
+
+        dox_dx, doy_dy = do_d(ox[i+1], oy[i+1])
+
+        #two equations for p
+        px[i+1]=((1-k1_p*dt/2)/(1+k1_p*dt/2))*px[i]-(c**2/(1+k1_p*dt/2))*dt*dox_dx
+        py[i+1]=((1-k2_p*dt/2)/(1+k2_p*dt/2))*py[i]-(c**2/(1+k2_p*dt/2))*dt*doy_dy
+
+        # adding source
+        px[i+1,i_s,j_s]+=Ps(i*dt)/2
+        py[i+1,i_s,j_s]+=Ps(i*dt)/2
+
+        #observing:
+        for ind,r in enumerate(co):
+            i_obs = np.argmin(np.abs(y_p - r[1]))
+            j_obs = np.argmin(np.abs(x_p - r[0]))
+            observations[ind].append(px[i+1,i_obs,j_obs]+py[i+1,i_obs,j_obs])
+    return px+py,ox,oy,np.array(observations)
+
 
 # p,ox,oy,obs=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates1)
 p_empty,ox_empty,oy_empty,obs_empty=empty(px,py,ox,oy,F1,F3,K,xs,ys,coordinates2)
-# p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
-#p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates2)
-p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
+p,ox,oy,obs=wall(px,py,ox,oy,F1,F2,K,xs,ys,coordinates1)
+# p,ox,oy,obs=rectangle(px,py,ox,oy,F1,F2,K,Z,xs,ys,coordinates2)
+# p,ox,oy,obs=triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
+# p,ox,oy,obs=hard_triangle(px,py,ox,oy,F1,F2,K,xs,ys,coordinates2)
 
 #print(f"max |p| = {np.max(np.abs(p))}")
 
@@ -701,5 +758,16 @@ plt.plot(2*np.pi*omega/c*distance,np.abs(P_w)/np.abs(P),label="simulations")
 plt.plot(2*np.pi*omega/c*distance,np.abs(phi),label="analytical")
 #plt.ylim(0,1)
 plt.xlim(0.1,10)
+plt.legend()
+plt.show()
+
+for (p, p_empty) in zip(obs, obs_empty):
+    kd = 2*np.pi*np.fft.rfftfreq(10*len(p), dt)/c*distance
+    P      = np.fft.rfft(p      , 10*len(p))
+    P_free = np.fft.rfft(p_empty, 10*len(p_empty))
+    plt.plot(kd, np.abs(P/P_free))
+plt.xlim(0.1, 10)
+plt.xlabel("kd")
+plt.ylabel("p/p_free")
 plt.legend()
 plt.show()
