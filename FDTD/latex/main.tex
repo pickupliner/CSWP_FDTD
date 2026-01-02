@@ -2,7 +2,9 @@
 \usepackage{graphicx} % Required for inserting images
 
 \title{FDTD: diffraction over objects}
-\author{Alichan Borokov, Sam Hemati, Joran Van Haelst}
+\author{Alichan Borokov \\ \texttt{Alichan.Borokov@UGent.be}
+    \and Sam Hemati \\ \texttt{Sam.Hemati@UGent.be}
+    \and Joran Van Haelst \\ \texttt{Joran.VanHaelst@UGent.be} }
 \date{December 2025}
 
 \begin{document}
@@ -118,7 +120,7 @@ There is still an important choice remaining,
 namely, which directions of \(\vec{o}\) to store.
 A first idea might be to choose \(o_u = \vec{e_u} \cdot \vec{o}\) and \(o_v = \vec{e_v} \cdot \vec{o}\),
 as analogous to the cartesian grid.
-Remember however that the goal is to implement a tilted PEC-boundary,
+Remember however that the goal is to implement a tilted perfectly hard boundary,
 which has as boundary condition that \(o_n = 0\), 
 with \(n\) the normal of the boundary.
 For this boundary condition to be implemented simply, 
@@ -217,8 +219,8 @@ In practice the opposite was done, \(o_x\) was calculated and \(o_v\) was set to
 Approximating \(o_w\) at the ground by the one just above it,
 and using \(o_x = o_w \sin \theta + o_v \cos \theta\),
 yields \(o_x\).
-This boundary condition does not prevent waves from entering the PEC,
-which was mitigated by setting \(p\) equal to zero inside the PEC.
+This boundary condition does not prevent waves from entering the boundary,
+which was mitigated by setting \(p\) equal to zero under the ground.
 
 Finally another approach was tried.
 The goal is for \(o_y\) to be zero at the ground.
@@ -238,7 +240,7 @@ Boundaries with finite impedance were not studied for the tilted grid.
 \section{Conclusion}
 
 ...
-The tilted grid makes the implementation of the tilted PEC easier and more accurate. 
+The tilted grid makes the implementation of the tilted boundary easier and more accurate. 
 But comes with a few drawbacks.
 Mainly it becomes less stable, 
 leading to smaller timesteps and more phase-error. 
